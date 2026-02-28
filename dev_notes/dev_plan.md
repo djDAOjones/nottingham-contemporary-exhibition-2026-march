@@ -329,23 +329,50 @@
 
 ---
 
-## Future Enhancement: Automated Vercel Configuration
+## Additional Development Tasks
 
-**Problem:** When moving from home to gallery, the local Hub IP changes, requiring manual Vercel environment variable updates.
+### 1. WCAG AAA Compliance for Audience UI ⏳ PENDING
 
-**Solution (Post-Exhibition):** Automate Vercel settings updates
-- Create a script that detects current local IP address
-- Auto-update `NEXT_PUBLIC_HUB_URL` in Vercel via API
-- Trigger automatic redeployment with new IP
-- Allows seamless venue transitions without manual intervention
+**Requirements:**
+- Strip audience submission page to essential text only
+- Achieve WCAG AAA accessibility compliance
+- Follow IBM Carbon design system principles
+- Implement Nielsen's 10 usability heuristics
+- Maintain computational efficiency and modular architecture
 
-**Implementation approach:**
-- Use Vercel API token for programmatic updates
-- Detect IP via `hostname -I` or similar
-- Store venue configurations (home IP, gallery IP, etc.)
-- One-command venue switch: `./switch-venue.sh gallery`
+**Implementation:**
+- Simplify text prompts to core message only
+- Add proper ARIA labels and semantic HTML
+- Ensure color contrast ratios meet AAA standards
+- Implement keyboard navigation
+- Add screen reader support
+- Test with accessibility tools
+
+### 2. Automated Venue Management System ⏳ PENDING
+
+**Problem:** Manual IP configuration when moving between locations breaks audience access.
+
+**Solution:** Full automation of venue transitions with session management
+- **Boot Script:** Auto-detects IP, updates Vercel, maintains current session
+- **Session System:** Unique session IDs with date stamps (format: `YYYYMMDD-HHMMSS-random`)
+- **Venue Transitions:** Zero-downtime switches between home/gallery/rehearsal
+- **State Preservation:** Maintains audience input queue across reboots
+
+**Scripts to create:**
+- `boot-exhibition.sh` - Starts system with current session preservation
+- `new-session.sh` - Creates fresh session with new ID
+- `switch-venue.sh [venue]` - Updates Vercel IP for venue change
+- `session-status.sh` - Shows current session info and stats
+
+**Technical approach:**
+- Use Vercel API for automated environment variable updates
+- Store session data in `sessions/` directory with timestamped folders
+- IP detection via network interface queries
+- Venue presets stored in `config/venues.json`
+- Session state backup/restore for queue preservation
 
 **Benefits:**
-- Zero downtime when moving between locations
-- No manual Vercel dashboard updates needed
-- Repeatable for multiple rehearsals/shows
+- One-command setup for any location
+- No manual Vercel dashboard interaction needed
+- Seamless transitions between development and show environments
+- Session continuity across system restarts
