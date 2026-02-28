@@ -186,6 +186,23 @@ app.get('/api/rejected', (req, res) => {
   res.json(state.rejected);
 });
 
+app.get('/api/submissions/approved', (req, res) => {
+  res.json(state.approved);
+});
+
+app.get('/api/archive', (req, res) => {
+  res.json({
+    events: state.archive,
+    stats: {
+      totalSubmissions: state.submissions.length,
+      approved: state.approved.length,
+      rejected: state.rejected.length,
+      routed: state.routed.length,
+      activeModules: Array.from(state.modules.values()).filter(m => m.status === 'online').length
+    }
+  });
+});
+
 app.get('/api/modules/status', (req, res) => {
   const moduleStatus = Array.from(state.modules.values()).map(m => ({
     id: m.id,
@@ -213,6 +230,42 @@ app.post('/api/modules/reorder', (req, res) => {
   } else {
     res.status(400).json({ error: 'Invalid order array' });
   }
+});
+
+app.post('/api/local-submit', (req, res) => {
+  const { message } = req.body;
+  
+  if (!message || typeof message !== 'string') {
+    return res.status(400).json({ error: 'Message required' });
+  }
+  
+  if (message.length > state.config.maxMessageLength) {
+    return res.status(400).json({ error: `Max ${state.config.maxMessageLength} characters` });
+  }
+  
+  const submission = {
+    id: uuidv4(),
+    message: message.trim(),
+    sessionId: 'local-moderator',
+    timestamp: Date.now(),
+    status: 'pending',
+    source: 'local-fallback'
+  };
+  
+  state.submissions.unshift(submission);
+  
+  logEvent('submission', {
+    submissionId: submission.id,
+    sessionId: 'local-moderator',
+    messageLength: submission.message.length,
+    source: 'local-fallback'
+  });
+  
+  io.to('moderators').emit('new-submission', submission);
+  
+  console.log(`[LOCAL-SUBMIT] ${submission.id.slice(0,8)}: "${submission.message.slice(0,50)}..."`);
+  
+  res.json({ success: true, id: submission.id });
 });
 
 app.post('/api/config/safe-mode', (req, res) => {
@@ -396,9 +449,12 @@ function routeToNextModule(message) {
   let availableModules = Array.from(state.modules.values())
     .filter(m => m.status === 'online');
   
-  // Apply safe mode filtering
+  // Apply safe mode filtering — only route to modules with recent heartbeat
   if (state.config.safeMode) {
-    availableModules = availableModules.filter(m => m.status === 'online');
+    const now = Date.now();
+    availableModules = availableModules.filter(m => 
+      m.status === 'online' && (now - m.lastSeen) < HEARTBEAT_INTERVAL * 2
+    );
   }
   
   // Use moduleOrder if available, otherwise default order

@@ -95,9 +95,9 @@
 
 | Task | Status | Claude Model | Complexity | Description |
 |------|--------|--------------|------------|-------------|
-| **Terminal Critic v2** | � NEXT | Claude 3.5 Sonnet | Medium | Local LLM module + control panel UI, modular design for reuse |
-| **Music Prompt** | ⏳ PENDING | Claude 3 Haiku | Low | Key/mode/tempo generation with variety enforcement |
-| **External Template** | ⏳ PENDING | Claude 3.5 Sonnet | Medium | Generic interface for Ian + Gravity Sketch |
+| **Terminal Critic v2** | ✅ DONE | Claude 3.5 Sonnet | Medium | Local LLM module + control panel UI, modular design for reuse |
+| **Music Prompt** | ✅ DONE | Claude 3 Haiku | Low | Key/mode/tempo generation with variety enforcement |
+| **External Template** | ✅ DONE | Claude 3.5 Sonnet | Medium | Generic interface for Ian + Gravity Sketch |
 | **VJ Interface** | ⏳ PENDING | Claude 3.5 Sonnet | High | TouchDesigner OSC messaging + NDI video feed |
 | **3D Scene Generation** | ⏳ PENDING | Claude 3.5 Sonnet | High | Blender MCP → Three.js viewer with body control |
 | **Body Tracking** | ⏳ PENDING | Claude 3.5 Sonnet | High | MediaPipe dancer tracking → 3D light control |
@@ -112,11 +112,11 @@
 
 | Task | Status | Claude Model | Complexity | Description |
 |------|--------|--------------|------------|-------------|
-| **Hub v2 Rework** | 🔄 NEXT | Claude 3.5 Sonnet | High | Auto module registration, connection status, drag-drop reordering, 60s timeout |
-| **Moderator UI v2** | ⏳ PENDING | Claude 3.5 Sonnet | Medium | Module status dashboard, drag-drop grid, backup local submission |
-| **Archive + Recording** | ⏳ PENDING | Claude 3.5 Sonnet | Medium | JSON logging (submissions/approvals/routing) + 4K video recording |
-| **Module Control Panels** | ⏳ PENDING | Claude 3 Haiku | Low | Web-based unified monitoring page for all modules |
-| **Fallback Systems** | ⏳ PENDING | Claude 3.5 Sonnet | Medium | Offline placeholder cells, safe mode, module retry queue |
+| **Hub v2 Rework** | ✅ DONE | Claude 3.5 Sonnet | High | Auto module registration, connection status, drag-drop reordering, 60s timeout |
+| **Moderator UI v2** | ✅ DONE | Claude 3.5 Sonnet | Medium | Module status dashboard, drag-drop grid, backup local submission |
+| **Archive + Recording** | ✅ DONE | Claude 3.5 Sonnet | Medium | JSON logging (submissions/approvals/routing) + 4K video recording |
+| **Module Control Panels** | ✅ DONE | Claude 3 Haiku | Low | Web-based unified monitoring page for all modules |
+| **Fallback Systems** | ✅ DONE | Claude 3.5 Sonnet | Medium | Offline placeholder cells, safe mode, module retry queue |
 
 *Infrastructure that keeps the show running smoothly.*
 
@@ -126,10 +126,10 @@
 
 | Task | Status | Claude Model | Complexity | Description |
 |------|--------|--------------|------------|-------------|
-| **Vercel Deployment** | ⏳ PENDING | Claude 3.5 Sonnet | Low | Cloud deployment for audience submission/moderation UIs |
-| **Startup Script** | ⏳ PENDING | Claude 3 Haiku | Low | Single command to spin up all modules (server → modules → archive) |
-| **Restart Script** | ⏳ PENDING | Claude 3 Haiku | Low | Graceful restart preserving queue state and audience prompts |
-| **Reset Script** | ⏳ PENDING | Claude 3 Haiku | Low | Full system reset (clears queue, restarts everything) |
+| **Vercel Deployment** | ✅ DONE | Claude 3.5 Sonnet | Low | Cloud deployment for audience submission/moderation UIs |
+| **Startup Script** | ✅ DONE | Claude 3 Haiku | Low | Single command to spin up all modules (server → modules → archive) |
+| **Restart Script** | ✅ DONE | Claude 3 Haiku | Low | Graceful restart preserving queue state and audience prompts |
+| **Reset Script** | ✅ DONE | Claude 3 Haiku | Low | Full system reset (clears queue, restarts everything) |
 | **Load Testing** | ⏳ PENDING | Claude 3 Haiku | Low | Simulate audience burst, module failure scenarios |
 | **Artist Integration** | ⏳ PENDING | Claude 3.5 Sonnet | Medium | Work with team to integrate their workflows |
 | **Rehearsal Support** | ⏳ PENDING | Claude 3.5 Sonnet | Low | Monitoring, quick fixes, restart procedures |
@@ -267,23 +267,22 @@
 
 ## Current Status & Next Actions
 
-**✅ Completed:**
-- Core submission → moderation → routing → display pipeline
-- WebSocket module protocol
-- Network configuration for LAN deployment
-- Architecture design (Vercel + Local split)
+**✅ Completed - Core System Ready:**
+- Hub v2 with complete module coordination and WebSocket protocol
+- Moderator UI v2 with drag-drop grid, status dashboard, backup submission
+- Terminal Critic v2 with local LLM and modular control panel
+- Music Prompt LLM module for musical key/mode generation
+- External artist module templates (Ian generative art + Gravity Sketch VR)
+- Archive system with JSON logging + 4K video recording capability
+- Vercel public submission UI with WebSocket connection
+- Startup/restart/reset scripts for single-command system management
+- Fallback systems with circuit breakers, retry queues, safe mode
 
-**🔄 Currently Building:**
-- Hub v2 rework (auto module registration, connection status, reordering)
-- Moderator UI v2 (status dashboard, drag-drop, backup submission)
-
-**⏳ Priority Queue:**
-1. Terminal Critic v2 (local module + control panel)
-2. Music Prompt module (key/mode/tempo generation)
-3. Archive system (JSON logging + 4K recording)
-4. Startup/restart scripts
-5. External artist template (Ian + Gravity Sketch interface)
-6. 3D scene generation (Blender MCP + Three.js viewer)
+**⏳ Testing & Integration Phase:**
+1. Load testing (simulate audience burst, module failures)
+2. Artist integration (VJ TouchDesigner, Ian's workflow, Gravity Sketch)
+3. Hardware setup and network configuration
+4. Rehearsal procedures and emergency protocols
 
 ## Hub v2 Specifications
 
@@ -327,3 +326,26 @@
 - Graceful restart preserves audience prompts and module states
 - Archive captures all interactions + 4K master recording
 - Show runs for 3 hours without manual intervention
+
+---
+
+## Future Enhancement: Automated Vercel Configuration
+
+**Problem:** When moving from home to gallery, the local Hub IP changes, requiring manual Vercel environment variable updates.
+
+**Solution (Post-Exhibition):** Automate Vercel settings updates
+- Create a script that detects current local IP address
+- Auto-update `NEXT_PUBLIC_HUB_URL` in Vercel via API
+- Trigger automatic redeployment with new IP
+- Allows seamless venue transitions without manual intervention
+
+**Implementation approach:**
+- Use Vercel API token for programmatic updates
+- Detect IP via `hostname -I` or similar
+- Store venue configurations (home IP, gallery IP, etc.)
+- One-command venue switch: `./switch-venue.sh gallery`
+
+**Benefits:**
+- Zero downtime when moving between locations
+- No manual Vercel dashboard updates needed
+- Repeatable for multiple rehearsals/shows

@@ -241,16 +241,23 @@
     
     socket.on('connect', () => {
       console.log('Display connected');
-      socket.emit('join', { role: 'display' });
+      socket.emit('identify', { role: 'display' });
       loadModules();
     });
     
-    socket.on('modules-updated', (newModules) => {
-      modules = newModules;
+    socket.on('module-status', (data) => {
+      // Update individual module status
+      const idx = modules.findIndex(m => m.id === data.moduleId);
+      if (idx !== -1) {
+        modules[idx].status = data.status;
+        modules[idx].name = data.name || modules[idx].name;
+      } else {
+        modules.push({ id: data.moduleId, name: data.name, status: data.status });
+      }
       updateModuleDisplay();
     });
     
-    socket.on('message-approved', (message) => {
+    socket.on('new-message', (message) => {
       messageQueue.push(message);
       processQueue();
     });
@@ -261,7 +268,7 @@
     });
     
     socket.on('module-output', (data) => {
-      updateModuleContent(data.moduleId, data);
+      updateModuleContent(data.moduleId, data.output);
     });
     
     async function loadModules() {
