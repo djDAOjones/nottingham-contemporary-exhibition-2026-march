@@ -1,0 +1,13 @@
+{
+  "name": "terminal-critic",
+  "version": "1.0.0",
+  "description": "Terminal Critic - LLM-based critique with 70s terminal styling",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.7.4",
+    "axios": "^1.6.5"
+  }
+}

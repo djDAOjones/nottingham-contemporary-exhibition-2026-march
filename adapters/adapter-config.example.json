@@ -1,0 +1,83 @@
+{
+  "adapters": [
+    {
+      "id": "vj-touchdesigner",
+      "type": "osc",
+      "name": "TouchDesigner VJ",
+      "port": 3003,
+      "oscOutHost": "192.168.1.100",
+      "oscOutPort": 9000,
+      "oscInPort": 9001,
+      "oscAddressPrefix": "/td/visual",
+      "hubUrl": "ws://192.168.1.252:3000",
+      "enabled": true
+    },
+    {
+      "id": "gravity-sketch-vr", 
+      "type": "http",
+      "name": "Gravity Sketch VR",
+      "port": 3004,
+      "httpEndpoint": "http://192.168.1.101:8080/api/create-sketch",
+      "httpMethod": "POST",
+      "httpTimeout": 45000,
+      "httpHeaders": {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-GravitySketch-Source": "hub-v2"
+      },
+      "hubUrl": "ws://192.168.1.252:3000",
+      "enabled": true
+    },
+    {
+      "id": "ian-custom-module",
+      "type": "websocket",
+      "name": "Ian's Custom Module", 
+      "port": 3005,
+      "wsUrl": "ws://192.168.1.102:8080",
+      "wsProtocol": null,
+      "wsHeaders": {
+        "Origin": "hub-v2-adapter"
+      },
+      "hubUrl": "ws://192.168.1.252:3000",
+      "enabled": false
+    },
+    {
+      "id": "sound-reactive-visuals",
+      "type": "osc",
+      "name": "Sound Reactive Visuals",
+      "port": 3006,
+      "oscOutHost": "192.168.1.103",
+      "oscOutPort": 8001,
+      "oscInPort": 8002, 
+      "oscAddressPrefix": "/audio/reactive",
+      "hubUrl": "ws://192.168.1.252:3000",
+      "enabled": true
+    },
+    {
+      "id": "backup-text-display",
+      "type": "http",
+      "name": "Backup Text Display",
+      "port": 3007,
+      "httpEndpoint": "http://192.168.1.104:3000/display",
+      "httpMethod": "POST",
+      "httpTimeout": 10000,
+      "hubUrl": "ws://192.168.1.252:3000",
+      "enabled": true
+    }
+  ],
+  "settings": {
+    "autoStart": true,
+    "retryFailedAdapters": true,
+    "retryInterval": 30000,
+    "maxRetryAttempts": 5,
+    "healthCheckInterval": 60000
+  },
+  "networks": {
+    "hubServer": "192.168.1.252",
+    "subnetMask": "255.255.255.0", 
+    "adapterRange": {
+      "start": "192.168.1.100",
+      "end": "192.168.1.150"
+    }
+  }
+}

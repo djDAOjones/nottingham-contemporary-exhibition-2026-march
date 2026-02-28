@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hub v2 Control Center</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      min-height: 100vh;
+      padding: 16px;
+      overflow-x: auto;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #333;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #fff, #888);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .hub-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      font-size: 0.85rem;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+      animation: pulse 2s infinite;
+    }
+    
+    .status-dot.connected {
+      background: #10b981;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    
+    .main-panel {
+      min-width: 0;
+    }
+    
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .panel {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    
+    .panel-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .icon {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .module-slot {
+      background: #1a1a1a;
+      border: 2px dashed #444;
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .module-slot.filled {
+      border: 2px solid #333;
+      background: #1a1a1a;
+      cursor: grab;
+    }
+    
+    .module-slot.filled:active {
+      cursor: grabbing;
+    }
+    
+    .module-slot.drag-over {
+      border-color: #3b82f6;
+      background: #1e293b;
+    }
+    
+    .module-slot.center {
+      border-color: #fbbf24;
+      background: #1f1611;
+    }
+    
+    .module-info {
+      text-align: center;
+      width: 100%;
+    }
+    
+    .module-name {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .module-status {
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    
+    .module-status.online {
+      background: #10b98120;
+      color: #10b981;
+      border: 1px solid #10b981;
+    }
+    
+    .module-status.offline {
+      background: #ef444420;
+      color: #ef4444;
+      border: 1px solid #ef4444;
+    }
+    
+    .module-status.processing {
+      background: #f59e0b20;
+      color: #f59e0b;
+      border: 1px solid #f59e0b;
+    }
+    
+    .module-status.timeout {
+      background: #8b5cf620;
+      color: #8b5cf6;
+      border: 1px solid #8b5cf6;
+    }
+    
+    .module-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: #888;
+      margin-top: 8px;
+    }
+    
+    .empty-slot {
+      color: #666;
+      font-size: 0.8rem;
+      text-align: center;
+    }
+    
+    .queue {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    
+    .submission {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 16px;
+      animation: slideIn 0.3s ease;
+      position: relative;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .submission.processing {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    
+    .submission-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 0.8rem;
+      color: #666;
+    }
+    
+    .submission-time {
+      color: #666;
+      font-size: 0.8rem;
+    }
+    
+    .submission-message {
+      margin-bottom: 16px;
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+    
+    .submission-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .edit-form {
+      margin-top: 12px;
+      display: none;
+      border-top: 1px solid #333;
+      padding-top: 12px;
+    }
+    
+    .edit-form.active {
+      display: block;
+    }
+    
+    .edit-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+    
+    .rejection-form {
+      margin-top: 12px;
+      display: none;
+      border-top: 1px solid #333;
+      padding-top: 12px;
+    }
+    
+    .rejection-form.active {
+      display: block;
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #10b981;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+      max-width: 400px;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.error {
+      background: #ef4444;
+    }
+    
+    .notification.warning {
+      background: #f59e0b;
+      color: #000;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .stat {
+      background: #1a1a1a;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #10b981;
+      margin-bottom: 4px;
+    }
+    
+    .stat-label {
+      color: #888;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      color: #666;
+      padding: 40px 20px;
+      font-size: 0.9rem;
+    }
+    
+    .module-actions {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: flex;
+      gap: 4px;
+    }
+    
+    .module-btn {
+      background: #333;
+      border: 1px solid #555;
+      color: #fff;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .module-btn:hover {
+      background: #444;
+    }
+    
+    @media (max-width: 1200px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+      
+      .side-panel {
+        order: -1;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+      
+      .module-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-left">
+      <h1>Hub v2 Control Center</h1>
+      <div class="hub-status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Connecting...</span>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn" onclick="refreshModules()">🔄 Refresh</button>
+      <button class="btn" onclick="toggleArchive()">📋 Archive</button>
+    </div>
+  </div>
+
+  <div class="dashboard">
+    <div class="main-panel">
+      <!-- Module Grid -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>🎯</span>
+          Module Layout (Drag to Reorder)
+        </div>
+        
+        <div class="safe-mode" id="safeModeContainer">
+          <div class="toggle" id="safeModeToggle" onclick="toggleSafeMode()"></div>
+          <span>Safe Mode (Skip Offline Modules)</span>
+        </div>
+        
+        <div class="module-grid" id="moduleGrid">
+          <!-- Grid will be populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Queue Management -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>📝</span>
+          Moderation Queue
+        </div>
+        
+        <div class="stats" id="stats">
+          <div class="stat">
+            <div class="stat-value" id="totalSubmissions">0</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="pendingCount">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="approvedCount">0</div>
+            <div class="stat-label">Approved</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="rejectedCount">0</div>
+            <div class="stat-label">Rejected</div>
+          </div>
+        </div>
+
+        <div class="queue-info">
+          <span id="queueInfo">Loading queue...</span>
+          <a href="#" class="archive-link" onclick="showRejected()">View Rejected (<span id="rejectedCountBadge">0</span>)</a>
+        </div>
+
+        <div class="queue" id="queue">
+          <div class="empty-state" id="emptyState">
+            Waiting for submissions...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <!-- Backup Local Submission -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>⚡</span>
+          Backup Local Submission
+        </div>
+        
+        <div class="local-submit">
+          <textarea 
+            class="input textarea" 
+            id="localMessage" 
+            placeholder="Enter message for local submission (Vercel fallback)..."
+            maxlength="280"
+          ></textarea>
+          <button class="btn primary" onclick="submitLocal()">Submit Locally</button>
+        </div>
+      </div>
+
+      <!-- Module Status -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>🔌</span>
+          Module Status
+        </div>
+        
+        <div id="moduleStatus">
+          <div class="empty-state">Scanning for modules...</div>
+        </div>
+      </div>
+
+      <!-- System Info -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>📊</span>
+          System Info
+        </div>
+        
+        <div id="systemInfo">
+          <div style="font-size: 0.8rem; color: #888; line-height: 1.4;">
+            <div>Hub: <span id="hubVersion">v2</span></div>
+            <div>Uptime: <span id="uptime">--</span></div>
+            <div>Active Modules: <span id="activeModules">0</span></div>
+            <div>Queue Depth: <span id="totalQueueDepth">0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notification" id="notification"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

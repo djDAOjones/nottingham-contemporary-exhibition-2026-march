@@ -1,0 +1,29 @@
+{
+  "name": "music-prompt-llm",
+  "version": "1.0.0",
+  "description": "Music Prompt LLM - Musical key/mode generation from text analysis for Hub v2",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "demo": "node index.js --demo",
+    "test": "node index.js --demo --no-connect"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.7.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "music",
+    "analysis",
+    "key-detection",
+    "mode-detection",
+    "musical-theory",
+    "text-analysis",
+    "creative-ai",
+    "hub-v2"
+  ],
+  "author": "Hub v2 System",
+  "license": "MIT"
+}

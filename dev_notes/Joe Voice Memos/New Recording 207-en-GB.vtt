@@ -1,0 +1,785 @@
+WEBVTT
+
+5c49b3e4-bf98-4ea2-a175-d09164a65f80-0
+00:00:01.520 --> 00:00:11.676
+I want to create a number of web apps to
+help facilitate an exhibition in an art
+
+5c49b3e4-bf98-4ea2-a175-d09164a65f80-1
+00:00:11.676 --> 00:00:12.680
+gallery.
+
+14a4a4d4-4d8f-4b33-8a10-d4c7b9947649-0
+00:00:17.160 --> 00:00:36.822
+The first is some kind of system where
+the audience can scan AQR code and then
+
+14a4a4d4-4d8f-4b33-8a10-d4c7b9947649-1
+00:00:36.822 --> 00:00:44.040
+send a message to the system.
+
+303c86f4-b6ee-41dc-9aef-0d53bad71c3a-0
+00:00:45.640 --> 00:00:48.698
+Incidentally,
+the message will be one of a number of
+
+303c86f4-b6ee-41dc-9aef-0d53bad71c3a-1
+00:00:48.698 --> 00:00:49.160
+prompts.
+
+1ee14aaf-d9ce-484d-a946-3bb6b11c256e-0
+00:00:49.600 --> 00:00:55.574
+Things like,
+can you send a dream and you'd expect to
+
+1ee14aaf-d9ce-484d-a946-3bb6b11c256e-1
+00:00:55.574 --> 00:01:04.204
+receive it is some kind of description of
+a dream that could be a future with
+
+1ee14aaf-d9ce-484d-a946-3bb6b11c256e-2
+00:01:04.204 --> 00:01:08.519
+infinite energy or something like that.
+
+a81edba7-0382-49d9-955c-e80d4c63ac19-0
+00:01:11.080 --> 00:01:22.400
+Then that message is to be displayed on
+the central projection screen.
+
+35c3e960-0bec-48f6-8660-459e62292d93-0
+00:01:24.480 --> 00:01:27.700
+There will be a number of things
+displayed on the screen,
+
+35c3e960-0bec-48f6-8660-459e62292d93-1
+00:01:27.700 --> 00:01:30.200
+so there will need to be some vision
+mixing.
+
+838d016b-6144-4654-a820-92af632a8fbf-0
+00:01:37.720 --> 00:01:46.847
+The message from the audience or the
+messages from the audience members will
+
+838d016b-6144-4654-a820-92af632a8fbf-1
+00:01:46.847 --> 00:01:55.619
+then go into various artistic processes
+which are partly human and partly
+
+838d016b-6144-4654-a820-92af632a8fbf-2
+00:01:55.619 --> 00:01:57.160
+computerised.
+
+959dc782-06ab-46e5-82d3-2412c2499334-0
+00:02:00.640 --> 00:02:07.994
+For example,
+one of the artistic modules will use
+
+959dc782-06ab-46e5-82d3-2412c2499334-1
+00:02:07.994 --> 00:02:20.203
+stream diffusion to take the text of the
+dream and make images at a rate that is a
+
+959dc782-06ab-46e5-82d3-2412c2499334-2
+00:02:20.203 --> 00:02:23.440
+bit like an animation.
+
+805a703a-078f-4626-9f55-8b34ef8b4630-0
+00:02:24.920 --> 00:02:35.403
+And there will be somebody who is
+operating that using some form of VJ
+
+805a703a-078f-4626-9f55-8b34ef8b4630-1
+00:02:35.403 --> 00:02:38.800
+software Touchdesigner.
+
+08d37ff6-d084-4621-b11b-ce642419a8d5-0
+00:02:49.350 --> 00:02:56.990
+The output from that will need to go onto
+the projection display as well.
+
+fb6a2ed8-1472-4275-a067-c94e88ae6aa3-0
+00:02:58.550 --> 00:03:08.362
+So it might be that the projection
+display is split into nine and one idea
+
+fb6a2ed8-1472-4275-a067-c94e88ae6aa3-1
+00:03:08.362 --> 00:03:17.127
+is that as each message comes in,
+it goes into a queue and is then
+
+fb6a2ed8-1472-4275-a067-c94e88ae6aa3-2
+00:03:17.127 --> 00:03:23.800
+delivered to 1 of the 8 possible artistic
+modules.
+
+a42ceff4-b53a-4c2b-bd79-c1772ed9610f-0
+00:03:24.560 --> 00:03:30.954
+And it might be quite nice if there was
+an sort of animation,
+
+a42ceff4-b53a-4c2b-bd79-c1772ed9610f-1
+00:03:30.954 --> 00:03:39.412
+so the message popped up in the centre of
+the screen and then maybe moved over to
+
+a42ceff4-b53a-4c2b-bd79-c1772ed9610f-2
+00:03:39.412 --> 00:03:47.869
+the one of the 8 adjacent sort of cells
+of the display in order to get, you know,
+
+a42ceff4-b53a-4c2b-bd79-c1772ed9610f-3
+00:03:47.869 --> 00:03:49.520
+made part of it.
+
+5500fabb-e53a-4f34-b75d-e1e7d6f07cc4-0
+00:03:52.920 --> 00:04:04.428
+One of the other artistic modules would
+be a a text based LLM response that was
+
+5500fabb-e53a-4f34-b75d-e1e7d6f07cc4-1
+00:04:04.428 --> 00:04:16.080
+skinned with an old sort of 70s terminal
+display using green terminal colours or
+
+5500fabb-e53a-4f34-b75d-e1e7d6f07cc4-2
+00:04:16.080 --> 00:04:22.410
+you know,
+black and green or whatever is an
+
+5500fabb-e53a-4f34-b75d-e1e7d6f07cc4-3
+00:04:22.410 --> 00:04:33.055
+authentic sort of 70s display with
+perhaps a a mono monotype character or
+
+5500fabb-e53a-4f34-b75d-e1e7d6f07cc4-4
+00:04:33.055 --> 00:04:40.680
+something like that,
+some kind of font from the era.
+
+83a4ad49-7b6d-486f-8afb-2ac0b93089b3-0
+00:04:42.760 --> 00:04:52.200
+And it will give a response to the dream
+a kind of AI suppose like a critique.
+
+d85ae914-3015-4c68-b171-a23a59b9e7c0-0
+00:04:52.920 --> 00:05:01.689
+So that that might be like a some form of
+of model and perhaps one that can run
+
+d85ae914-3015-4c68-b171-a23a59b9e7c0-1
+00:05:01.689 --> 00:05:10.240
+locally or it could potentially leverage
+ChatGPT account, maybe a custom GPT,
+
+d85ae914-3015-4c68-b171-a23a59b9e7c0-2
+00:05:10.240 --> 00:05:19.229
+but I don't know how it would send that
+message in and then send it back and then
+
+d85ae914-3015-4c68-b171-a23a59b9e7c0-3
+00:05:19.229 --> 00:05:22.080
+format it for the display.
+
+2bb323a5-65d3-46b4-8ea6-5dd0b7a7f741-0
+00:05:22.160 --> 00:05:26.880
+It might be possible and easier to do it
+internally, I don't know.
+
+91ee7fef-9b36-4c54-8578-7ea2e9f9c503-0
+00:05:27.240 --> 00:05:28.240
+Anyways, fine.
+
+f2da2441-19a1-423e-b92a-8a3da211c0f1-0
+00:05:29.360 --> 00:05:31.400
+But the quality of the response does
+matter.
+
+c3dee1da-6857-4a52-b2eb-3738c34f1221-0
+00:05:32.320 --> 00:05:40.951
+And probably it would be good for the to
+be a kind of framing, you know,
+
+c3dee1da-6857-4a52-b2eb-3738c34f1221-1
+00:05:40.951 --> 00:05:45.800
+sort of defined personality for that GPT.
+
+d952c29c-6e76-4e29-ae74-35b7428ed0de-0
+00:05:48.520 --> 00:05:51.783
+Yeah,
+it would offer quite a short response to
+
+d952c29c-6e76-4e29-ae74-35b7428ed0de-1
+00:05:51.783 --> 00:05:56.227
+the dream, but it would,
+the fundamental thing is it would give
+
+d952c29c-6e76-4e29-ae74-35b7428ed0de-2
+00:05:56.227 --> 00:05:59.560
+some kind of critique or response to the
+dream.
+
+01b493b3-5436-430f-af77-64980c31f79e-0
+00:06:00.360 --> 00:06:07.803
+Not necessarily a full critique,
+but some kind of response that that
+
+01b493b3-5436-430f-af77-64980c31f79e-1
+00:06:07.803 --> 00:06:14.600
+implies some kind of opinion or judgement
+on behalf of the AI.
+
+fab24bdb-76cb-4c70-9d5a-c1cf2d10882c-0
+00:06:15.840 --> 00:06:22.915
+And there'd be that underlying
+personality and then say out of 10
+
+fab24bdb-76cb-4c70-9d5a-c1cf2d10882c-1
+00:06:22.915 --> 00:06:27.953
+responses,
+5 would be just neutral within that
+
+fab24bdb-76cb-4c70-9d5a-c1cf2d10882c-2
+00:06:27.953 --> 00:06:29.240
+personality.
+
+d48ef89c-dd91-487c-a16e-3a093dff80ae-0
+00:06:29.680 --> 00:06:32.280
+And then there would be sort of five
+extra flavours.
+
+495bad5e-8911-499b-b7ec-2554823b2775-0
+00:06:33.880 --> 00:06:39.880
+One would be a doom monger personality.
+
+b209c387-c766-4d5f-8463-df5778cfc93a-0
+00:06:40.920 --> 00:06:43.800
+One would be a psychoanalyst personality.
+
+31761423-0d83-4661-9f73-97a8119ce082-0
+00:06:45.080 --> 00:06:48.920
+One would be a sycophantic personality.
+
+d4ba15c3-9609-45fb-a5c7-4c5621724905-0
+00:07:00.840 --> 00:07:08.160
+It's very easily done when selected
+licencing first came in.
+
+16b33e11-8217-41f3-a9b1-1394027a46b3-0
+00:07:38.700 --> 00:07:45.739
+1 is humorous,
+but in a very dry and deadpan way,
+
+16b33e11-8217-41f3-a9b1-1394027a46b3-1
+00:07:45.739 --> 00:07:53.060
+and sort of takes the, uh,
+the Mickey a little bit.
+
+cef18572-1093-43a0-bfb7-05ab730dbd88-0
+00:07:53.060 --> 00:07:59.740
+Makes fun a little bit,
+and one is hypercritical.
+
+3de6c91d-db32-40bb-9157-a9717e61bb38-0
+00:08:07.960 --> 00:08:18.718
+Another artistic module would be an image
+generating LLM that made an image of the
+
+3de6c91d-db32-40bb-9157-a9717e61bb38-1
+00:08:18.718 --> 00:08:28.440
+dream but always framed it within a
+really boring office like stock image.
+
+a787b81a-8e2b-45a2-9e83-ae40662a58e5-0
+00:08:30.280 --> 00:08:41.857
+And the idea for that is that it just
+shows the potential for really boring
+
+a787b81a-8e2b-45a2-9e83-ae40662a58e5-1
+00:08:41.857 --> 00:08:51.760
+results if people use AI in a very boring
+and surface level way.
+
+30cf03ca-38f3-4bf2-a4eb-0a2406232321-0
+00:08:53.120 --> 00:09:03.107
+And it also kind of says how how
+expression and meaning can kind of
+
+30cf03ca-38f3-4bf2-a4eb-0a2406232321-1
+00:09:03.107 --> 00:09:11.480
+converge on what is a really boring and
+useless average.
+
+d0f6e936-a3af-4d21-b0b4-7bc646212dae-0
+00:09:14.200 --> 00:09:18.894
+This will be in contrast to some of the
+other artistic modules that will be much
+
+d0f6e936-a3af-4d21-b0b4-7bc646212dae-1
+00:09:18.894 --> 00:09:19.880
+more interesting.
+
+d56f7460-2b28-4f5e-bb38-441af816222c-0
+00:09:24.160 --> 00:09:33.960
+Another artistic module is that there
+will be a human performer doing movements.
+
+fd3831c6-8526-4a89-b3cf-16dabe1c87ce-0
+00:09:34.320 --> 00:09:39.025
+So kind of like a, you know,
+not a dancer exactly,
+
+fd3831c6-8526-4a89-b3cf-16dabe1c87ce-1
+00:09:39.025 --> 00:09:45.760
+but like a physical performer, I suppose,
+dance, but you know, abstract.
+
+c4c3d991-a974-406a-8ca1-8d20d0500e72-0
+00:09:47.080 --> 00:09:51.800
+And they would be reacting to what was on
+the display,
+
+c4c3d991-a974-406a-8ca1-8d20d0500e72-1
+00:09:51.800 --> 00:09:55.320
+but then there would be a camera on them.
+
+b3e14452-2f5d-495e-a074-05d28e9bef0f-0
+00:09:56.720 --> 00:10:04.959
+And there should be some kind of
+processing that tries to identify her
+
+b3e14452-2f5d-495e-a074-05d28e9bef0f-1
+00:10:04.959 --> 00:10:14.360
+elbows and wrists and approximate their
+position and directionality in 3D space.
+
+d3ace4e4-60ce-47e9-aa24-f9849014a296-0
+00:10:15.960 --> 00:10:25.224
+And that would be used to construct a
+line in 3D space that had a direction and
+
+d3ace4e4-60ce-47e9-aa24-f9849014a296-1
+00:10:25.224 --> 00:10:28.120
+that would be used later.
+
+e2482de6-1933-4940-87bd-45e58f412a3e-0
+00:10:29.360 --> 00:10:41.016
+The thing that it would be used later on
+relates to a separate artistic module
+
+e2482de6-1933-4940-87bd-45e58f412a3e-1
+00:10:41.016 --> 00:10:51.640
+that creates a 3D object related to the
+prompt that people have put in.
+
+86b8e01d-18ee-4758-99d4-79dbe619d203-0
+00:10:53.280 --> 00:11:01.700
+And it could do this in any way,
+but perhaps one way is to use the module
+
+86b8e01d-18ee-4758-99d4-79dbe619d203-1
+00:11:01.700 --> 00:11:05.000
+context protocol and Blender.
+
+1ea674e7-09a7-4cea-92dc-ca00e9b589f1-0
+00:11:06.480 --> 00:11:10.453
+So perhaps an LLM could interpret the
+dream,
+
+1ea674e7-09a7-4cea-92dc-ca00e9b589f1-1
+00:11:10.453 --> 00:11:14.427
+you know that the the input from the
+person,
+
+1ea674e7-09a7-4cea-92dc-ca00e9b589f1-2
+00:11:14.427 --> 00:11:18.842
+whether it's a dream or whatever their
+prompt is,
+
+1ea674e7-09a7-4cea-92dc-ca00e9b589f1-3
+00:11:18.842 --> 00:11:25.199
+and turn that into some instructions for
+Blender and create a 3D scene.
+
+47f0b512-4865-44da-964b-128db3eacff9-0
+00:11:26.800 --> 00:11:35.231
+The difficulty here is it does need to be
+relatively simple so that it doesn't take
+
+47f0b512-4865-44da-964b-128db3eacff9-1
+00:11:35.231 --> 00:11:37.440
+ages or kind of break.
+
+1e58b088-0024-4a21-a63a-ab989013ca7a-0
+00:11:38.360 --> 00:11:42.760
+So we need to figure out what generates
+good results here.
+
+d361fb0d-aa50-4397-a688-770e3b057d0b-0
+00:11:45.000 --> 00:11:56.401
+That 3D scene that Blender creates should
+then be exported and displayed in some
+
+d361fb0d-aa50-4397-a688-770e3b057d0b-1
+00:11:56.401 --> 00:11:59.920
+kind of web-based player.
+
+318b3563-c578-4aba-9d7d-6407d04e3e36-0
+00:12:01.320 --> 00:12:08.757
+And it would be good if that had a camera
+that was kind of on a fixed and looping
+
+318b3563-c578-4aba-9d7d-6407d04e3e36-1
+00:12:08.757 --> 00:12:13.926
+maybe orbit or, you know,
+not necessarily an even orbit,
+
+318b3563-c578-4aba-9d7d-6407d04e3e36-2
+00:12:13.926 --> 00:12:21.273
+but if had some kind of path where it was
+rotating around the object and and the
+
+318b3563-c578-4aba-9d7d-6407d04e3e36-3
+00:12:21.273 --> 00:12:24.719
+object would always have to be scaled.
+
+62aecc02-c3e1-42c4-bed1-2d6f969ba4af-0
+00:12:25.080 --> 00:12:28.000
+So it kind of fit this, this scene.
+
+660a2a5d-3f83-4236-83c2-931ca35eb21b-0
+00:12:29.640 --> 00:12:35.218
+So perhaps there's a process to identify
+the the bounds of the object and scale it
+
+660a2a5d-3f83-4236-83c2-931ca35eb21b-1
+00:12:35.218 --> 00:12:36.160
+appropriately.
+
+36880a3d-afa6-4d40-a125-6ced64948c26-0
+00:12:37.800 --> 00:12:46.680
+And this is where the the dancers elbow
+and wrist positions comes into it.
+
+a21b796d-6f14-4620-9483-57e3839b9693-0
+00:12:47.440 --> 00:12:56.570
+So I don't know if this can work,
+but I have an idea where the 3D
+
+a21b796d-6f14-4620-9483-57e3839b9693-1
+00:12:56.570 --> 00:13:07.775
+positionality of the dancer's arms and
+the resultant line in 3D space is used to
+
+a21b796d-6f14-4620-9483-57e3839b9693-2
+00:13:07.775 --> 00:13:14.000
+control a beam of lighting in the 3D
+player.
+
+0642a474-f17b-4405-8a11-89a940c08806-0
+00:13:15.760 --> 00:13:24.454
+And so depending on the artist's movement,
+the beams of light kind of move around
+
+0642a474-f17b-4405-8a11-89a940c08806-1
+00:13:24.454 --> 00:13:29.120
+and change direction and shine
+differently.
+
+20464bd6-b0e8-4cff-bfb4-625b37ddb0f1-0
+00:13:30.840 --> 00:13:35.689
+The scene on the 3D player would actually
+be quite dark,
+
+20464bd6-b0e8-4cff-bfb4-625b37ddb0f1-1
+00:13:35.689 --> 00:13:41.984
+in part to kind of disguise the
+potentially crude and unpredictable 3D AI
+
+20464bd6-b0e8-4cff-bfb4-625b37ddb0f1-2
+00:13:41.984 --> 00:13:48.450
+generation and also just, you know,
+to add some visual interest and to make
+
+20464bd6-b0e8-4cff-bfb4-625b37ddb0f1-3
+00:13:48.450 --> 00:13:53.639
+it exciting and dynamic and sort of part
+of the performance.
+
+1e5ffcc1-47e6-4b7e-b1f2-bb9ef5fd86bb-0
+00:13:54.720 --> 00:13:58.580
+So the idea is that the beam of light
+would kind of, you know,
+
+1e5ffcc1-47e6-4b7e-b1f2-bb9ef5fd86bb-1
+00:13:58.580 --> 00:14:02.440
+light up parts and it would look quite
+mysterious and shadowy.
+
+2ef53865-b7d3-44cf-ab2c-6f39e4eeec79-0
+00:14:04.160 --> 00:14:13.823
+It would also might be quite good if the
+intensity of the light could be related
+
+2ef53865-b7d3-44cf-ab2c-6f39e4eeec79-1
+00:14:13.823 --> 00:14:17.880
+to the intensity of the movements.
+
+f65c015b-af4c-441a-9afb-a22f4b23e78f-0
+00:14:18.720 --> 00:14:26.452
+So if there is more movement over say a
+rolling 32nd time period,
+
+f65c015b-af4c-441a-9afb-a22f4b23e78f-1
+00:14:26.452 --> 00:14:35.942
+actually no less than that, you know,
+let's say, you know, 2 second time period,
+
+f65c015b-af4c-441a-9afb-a22f4b23e78f-2
+00:14:35.942 --> 00:14:40.160
+then the light would be very bright.
+
+8fe81a12-dd53-4a13-bc02-9e2353d406a2-0
+00:14:42.400 --> 00:14:48.560
+And then when there's much less movement,
+the light would be less.
+
+8bc21246-3e36-4a6e-9a81-29fec5bf4f60-0
+00:14:48.840 --> 00:14:50.040
+It would never go to 0.
+
+82e51ba3-2c94-4e88-9d8d-cefac345ad1e-0
+00:14:50.040 --> 00:14:51.080
+There'll always be some.
+
+0a8d308e-eb19-467a-ac7c-58d167326821-0
+00:14:51.880 --> 00:14:54.556
+But then if the dancer kind of thrashed
+around, you know,
+
+0a8d308e-eb19-467a-ac7c-58d167326821-1
+00:14:54.556 --> 00:14:56.080
+the lights would get very bright.
+
+428c553d-6d19-4ec8-a6ed-41d67e439326-0
+00:15:04.330 --> 00:15:12.690
+So I don't know how this would be done or
+if it's possible, but that would be cool.
+
+953218e3-289d-48ef-b52b-13f9ed37bd01-0
+00:15:13.610 --> 00:15:15.650
+We could potentially use web technology.
+
+1cb7b17a-9cb7-4939-ad03-3b6f63745821-0
+00:15:15.730 --> 00:15:20.200
+We can potentially use Max MSP by cycling
+74.
+
+ba2614c7-29ed-461a-adfa-847d010d8288-0
+00:15:23.920 --> 00:15:25.400
+There are some other modules.
+
+e897c2dc-b6ab-47ff-871b-e3ff7d454e13-0
+00:15:46.810 --> 00:15:48.090
+There is.
+
+1a3b0427-3718-407a-b097-ff5ed174e494-0
+00:15:50.370 --> 00:15:50.970
+There are.
+
+7874d742-f701-4036-bd92-246fd1e089c5-0
+00:15:51.490 --> 00:15:53.970
+There's a module by a guy called.
+
+2d40ce2a-682c-4cb2-801c-048933df7bc6-0
+00:16:04.600 --> 00:16:13.967
+Ian and I'm not sure what he's doing,
+but he's probably doing something with
+
+2d40ce2a-682c-4cb2-801c-048933df7bc6-1
+00:16:13.967 --> 00:16:16.400
+generative image AI.
+
+78830240-7a9a-488d-a5bc-d0f464f42898-0
+00:16:17.720 --> 00:16:23.617
+And then there's another module by
+another guy and he's doing something with
+
+78830240-7a9a-488d-a5bc-d0f464f42898-1
+00:16:23.617 --> 00:16:24.920
+a gravity sketch.
+
+a35e72f6-1627-44c3-ade3-07a44122c2fe-0
+00:16:25.320 --> 00:16:28.120
+Again, not exactly sure what this will be.
+
+9ddbb6e6-50f3-4aa8-9254-873000e0f100-0
+00:16:31.160 --> 00:16:37.621
+And there was another module by a guy
+who's doing music and you know he will do
+
+9ddbb6e6-50f3-4aa8-9254-873000e0f100-1
+00:16:37.621 --> 00:16:39.560
+some kind of live music.
+
+676629a0-285b-44b1-bb1b-9ed3dfd9073d-0
+00:16:42.520 --> 00:16:44.880
+Now I, I can't remember, I've lost count.
+
+34b94036-a766-4fe9-8870-d9401749e5bb-0
+00:16:44.880 --> 00:16:51.319
+I can't remember if we're on 8 modules
+now or if we're on 7 or 6,
+
+34b94036-a766-4fe9-8870-d9401749e5bb-1
+00:16:51.319 --> 00:16:58.832
+but I've got a couple more ideas and I
+guess other people will have ideas as
+
+34b94036-a766-4fe9-8870-d9401749e5bb-2
+00:16:58.832 --> 00:16:59.320
+well.
+
+1c9eab9a-8b19-46e6-89fc-fb0de57f9ac6-0
+00:17:00.640 --> 00:17:03.200
+And we probably need to pick 8.
+
+f90bf554-e766-4ade-bef2-da4b4ee7c74a-0
+00:17:04.280 --> 00:17:10.830
+And then one is like the central, yeah,
+sort of like thing where the,
+
+f90bf554-e766-4ade-bef2-da4b4ee7c74a-1
+00:17:10.830 --> 00:17:18.409
+where you can see the message from the
+audience come in and then it moved to one
+
+f90bf554-e766-4ade-bef2-da4b4ee7c74a-2
+00:17:18.409 --> 00:17:25.240
+of the surrounding, you know, modules or,
+you know, areas on the screen.
+
+0598884a-290a-4503-86bb-664a0f3c0336-0
+00:17:26.520 --> 00:17:37.920
+So a couple of other ideas are that the,
+we have another LLM that decides what the
+
+0598884a-290a-4503-86bb-664a0f3c0336-1
+00:17:37.920 --> 00:17:48.770
+mood of the dream is and gives a key
+signature to the musician as a prompt for
+
+0598884a-290a-4503-86bb-664a0f3c0336-2
+00:17:48.770 --> 00:17:49.320
+him.
+
+5ea11fad-2496-488d-b1d8-de5a26199627-0
+00:17:51.720 --> 00:17:59.942
+That key signature should really vary
+quite wildly in terms of, you know,
+
+5ea11fad-2496-488d-b1d8-de5a26199627-1
+00:17:59.942 --> 00:18:02.720
+standard scales or modes.
+
+c7f8e1e9-696a-490c-87b4-dcfe93766c5f-0
+00:18:04.040 --> 00:18:05.557
+You know,
+we want to make sure there's a lot of
+
+c7f8e1e9-696a-490c-87b4-dcfe93766c5f-1
+00:18:05.557 --> 00:18:06.000
+variety there.
+
+decbd2c2-cb2f-4b15-9ccd-f2e022caf76d-0
+00:18:08.520 --> 00:18:12.000
+And then that module could potentially
+link to the lights.
+
+b8fde688-3248-4be9-9c61-f1d8e6b50831-0
+00:18:13.840 --> 00:18:18.287
+There could be some kind of control of
+the and when I say the lights,
+
+b8fde688-3248-4be9-9c61-f1d8e6b50831-1
+00:18:18.287 --> 00:18:22.480
+I mean the lights in the 3D scene that
+the dancer is controlling.
+
+50ade201-2c2f-4fa0-b738-73313c9f7914-0
+00:18:23.320 --> 00:18:31.545
+There could be something whereby the keys
+of the music or possibly something to do
+
+50ade201-2c2f-4fa0-b738-73313c9f7914-1
+00:18:31.545 --> 00:18:38.880
+with the Sonic spectrum of the music will
+affect the colour of the light.
+
+0ac8ba6c-80a7-4dc8-831b-0a72afd3fabb-0
+00:18:42.240 --> 00:18:43.800
+I'm not sure what that should be.
+
+261ab8e5-0e48-4958-bf1a-41404b23e2a5-0
+00:18:45.000 --> 00:19:00.000
+It could be that, yeah.
+
+ee1fc3ec-1179-4656-946c-11aa0ff3c7da-0
+00:19:00.000 --> 00:19:01.320
+I'm not sure what that should be.
+
+bbf6d199-aec5-4f76-98d7-deddc444c0f6-0
+00:19:01.360 --> 00:19:09.042
+It might be that a single note is white,
+or, you know,
+
+bbf6d199-aec5-4f76-98d7-deddc444c0f6-1
+00:19:09.042 --> 00:19:20.356
+harmonic simplicity is white and harmonic
+complication is colour and that colour
+
+bbf6d199-aec5-4f76-98d7-deddc444c0f6-2
+00:19:20.356 --> 00:19:31.252
+cycles perhaps so that there's some kind
+of underlying cyclic controller that
+
+bbf6d199-aec5-4f76-98d7-deddc444c0f6-3
+00:19:31.252 --> 00:19:41.029
+cycles through colour and increases or
+well, modulates the, you know,
+
+bbf6d199-aec5-4f76-98d7-deddc444c0f6-4
+00:19:41.029 --> 00:19:45.360
+deviation from white to colour.
+
+5343301b-7c8e-499a-bfd9-fc37ab2d5744-0
+00:19:48.680 --> 00:19:52.606
+But yeah,
+something so that the the music somehow
+
+5343301b-7c8e-499a-bfd9-fc37ab2d5744-1
+00:19:52.606 --> 00:19:55.120
+is expressed through the colour.
+
+3ce06f84-8e17-43bc-8df1-82e29609e82c-0
+00:19:59.840 --> 00:20:15.742
+So I wonder to what extent all of this is
+possible and if it could be broken down
+
+3ce06f84-8e17-43bc-8df1-82e29609e82c-1
+00:20:15.742 --> 00:20:21.560
+into a a brief and a document.
+
+7a5ae9bb-76c5-4c82-bc9d-425751f89d23-0
+00:20:22.360 --> 00:20:30.652
+Of these concepts,
+something that's useful for me and the
+
+7a5ae9bb-76c5-4c82-bc9d-425751f89d23-1
+00:20:30.652 --> 00:20:41.662
+other artists to look at, pick apart,
+interrogate and specify as a system to
+
+7a5ae9bb-76c5-4c82-bc9d-425751f89d23-2
+00:20:41.662 --> 00:20:42.520
+build.

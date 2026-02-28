@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terminal Critic v2 Control Panel</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #333;
+    }
+    
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #fff, #888);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+    }
+    
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ef4444;
+      animation: pulse 2s infinite;
+    }
+    
+    .status-dot.online {
+      background: #10b981;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+    
+    .panel {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 24px;
+    }
+    
+    .panel-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .stat-item {
+      background: #1a1a1a;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #10b981;
+      margin-bottom: 4px;
+    }
+    
+    .stat-label {
+      font-size: 0.8rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .config-section {
+      margin-bottom: 25px;
+    }
+    
+    .config-section h3 {
+      font-size: 1rem;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+    
+    .config-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #222;
+    }
+    
+    .config-row:last-child {
+      border-bottom: none;
+    }
+    
+    .toggle {
+      position: relative;
+      width: 50px;
+      height: 26px;
+      background: #333;
+      border-radius: 13px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .toggle.active {
+      background: #10b981;
+    }
+    
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+    }
+    
+    .toggle.active::after {
+      transform: translateX(24px);
+    }
+    
+    .btn {
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+      border-radius: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn:hover {
+      background: #444;
+      border-color: #666;
+    }
+    
+    .btn.primary {
+      background: #3b82f6;
+      border-color: #3b82f6;
+    }
+    
+    .btn.primary:hover {
+      background: #2563eb;
+    }
+    
+    .btn.success {
+      background: #10b981;
+      border-color: #10b981;
+    }
+    
+    .btn.danger {
+      background: #ef4444;
+      border-color: #ef4444;
+    }
+    
+    .test-section {
+      grid-column: 1 / -1;
+    }
+    
+    .test-input {
+      width: 100%;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 12px;
+      color: #fff;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      min-height: 120px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    
+    .test-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+    
+    .test-result {
+      background: #1a1a1a;
+      border-left: 4px solid #333;
+      padding: 16px;
+      margin-top: 16px;
+      border-radius: 0 8px 8px 0;
+    }
+    
+    .test-result.approve {
+      border-left-color: #10b981;
+    }
+    
+    .test-result.warning {
+      border-left-color: #f59e0b;
+    }
+    
+    .test-result.reject {
+      border-left-color: #ef4444;
+    }
+    
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .result-recommendation {
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+    
+    .result-recommendation.approve {
+      background: #10b98120;
+      color: #10b981;
+    }
+    
+    .result-recommendation.warning {
+      background: #f59e0b20;
+      color: #f59e0b;
+    }
+    
+    .result-recommendation.reject {
+      background: #ef444420;
+      color: #ef4444;
+    }
+    
+    .result-score {
+      font-size: 0.9rem;
+      color: #888;
+    }
+    
+    .result-content {
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    
+    .result-details {
+      font-size: 0.8rem;
+      color: #666;
+    }
+    
+    .modules-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    
+    .module-item {
+      background: #1a1a1a;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #333;
+    }
+    
+    .module-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .module-type {
+      font-size: 0.8rem;
+      color: #888;
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #10b981;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.error {
+      background: #ef4444;
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Terminal Critic v2 Control Panel</h1>
+      <div class="status-indicator">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Connecting...</span>
+      </div>
+    </div>
+
+    <div class="dashboard">
+      <!-- Module Stats -->
+      <div class="panel">
+        <div class="panel-title">Module Statistics</div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value" id="messagesProcessed">0</div>
+            <div class="stat-label">Messages</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="avgProcessingTime">0ms</div>
+            <div class="stat-label">Avg Time</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="approvalRate">0%</div>
+            <div class="stat-label">Approved</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="uptime">0s</div>
+            <div class="stat-label">Uptime</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Engine Configuration -->
+      <div class="panel">
+        <div class="panel-title">Engine Configuration</div>
+        
+        <div class="config-section">
+          <div class="config-row">
+            <span>Strict Mode</span>
+            <div class="toggle" id="strictModeToggle" onclick="toggleConfig('strictMode')"></div>
+          </div>
+          <div class="config-row">
+            <span>Profanity Filter</span>
+            <div class="toggle active" id="profanityToggle" onclick="toggleConfig('enableProfanityFilter')"></div>
+          </div>
+          <div class="config-row">
+            <span>Sentiment Analysis</span>
+            <div class="toggle active" id="sentimentToggle" onclick="toggleConfig('enableSentimentAnalysis')"></div>
+          </div>
+          <div class="config-row">
+            <span>Length Analysis</span>
+            <div class="toggle active" id="lengthToggle" onclick="toggleConfig('enableLengthAnalysis')"></div>
+          </div>
+          <div class="config-row">
+            <span>Content Analysis</span>
+            <div class="toggle active" id="contentToggle" onclick="toggleConfig('enableContentAnalysis')"></div>
+          </div>
+        </div>
+        
+        <button class="btn primary" onclick="saveConfig()">Save Configuration</button>
+      </div>
+
+      <!-- Analysis Modules -->
+      <div class="panel">
+        <div class="panel-title">Analysis Modules</div>
+        <div class="modules-list" id="modulesList">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Test Analysis -->
+      <div class="panel test-section">
+        <div class="panel-title">Test Analysis</div>
+        <textarea 
+          class="test-input" 
+          id="testInput" 
+          placeholder="Enter text to analyze..."
+        ></textarea>
+        <button class="btn primary" onclick="runTest()">Analyze Text</button>
+        <div id="testResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notification" id="notification"></div>
+
+  <script>
+    let currentConfig = {};
+    let isOnline = false;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadStatus();
+      loadModules();
+      loadConfig();
+      
+      // Auto-refresh every 30 seconds
+      setInterval(loadStatus, 30000);
+    });
+
+    // Load module status
+    async function loadStatus() {
+      try {
+        const response = await fetch('/api/status');
+        const data = await response.json();
+        
+        updateStatusUI(data);
+        updateStats(data.stats, data.engineStats);
+        
+      } catch (error) {
+        console.error('Failed to load status:', error);
+        updateStatusUI({ connected: false });
+      }
+    }
+
+    // Update status UI
+    function updateStatusUI(data) {
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+      
+      isOnline = data.connected;
+      
+      if (data.connected) {
+        statusDot.classList.add('online');
+        statusText.textContent = 'Online';
+      } else {
+        statusDot.classList.remove('online');
+        statusText.textContent = 'Offline';
+      }
+    }
+
+    // Update statistics
+    function updateStats(moduleStats, engineStats) {
+      if (moduleStats) {
+        document.getElementById('messagesProcessed').textContent = moduleStats.messagesProcessed || 0;
+        document.getElementById('avgProcessingTime').textContent = 
+          Math.round(moduleStats.averageProcessingTime || 0) + 'ms';
+        document.getElementById('uptime').textContent = 
+          formatUptime(moduleStats.uptime || 0);
+      }
+      
+      if (engineStats) {
+        document.getElementById('approvalRate').textContent = 
+          Math.round(engineStats.approvalRate || 0) + '%';
+      }
+    }
+
+    // Format uptime
+    function formatUptime(ms) {
+      const seconds = Math.floor(ms / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      
+      if (hours > 0) return `${hours}h`;
+      if (minutes > 0) return `${minutes}m`;
+      return `${seconds}s`;
+    }
+
+    // Load analysis modules
+    async function loadModules() {
+      try {
+        const response = await fetch('/api/modules');
+        const data = await response.json();
+        
+        const modulesList = document.getElementById('modulesList');
+        modulesList.innerHTML = '';
+        
+        data.modules.forEach(moduleName => {
+          const details = data.moduleDetails[moduleName] || {};
+          
+          const moduleEl = document.createElement('div');
+          moduleEl.className = 'module-item';
+          moduleEl.innerHTML = `
+            <div class="module-name">${moduleName}</div>
+            <div class="module-type">${details.type || 'Unknown'}</div>
+          `;
+          
+          modulesList.appendChild(moduleEl);
+        });
+        
+      } catch (error) {
+        console.error('Failed to load modules:', error);
+      }
+    }
+
+    // Load configuration
+    async function loadConfig() {
+      try {
+        const response = await fetch('/api/engine/config');
+        currentConfig = await response.json();
+        
+        updateConfigUI();
+        
+      } catch (error) {
+        console.error('Failed to load config:', error);
+      }
+    }
+
+    // Update config UI
+    function updateConfigUI() {
+      document.getElementById('strictModeToggle').classList.toggle('active', currentConfig.strictMode);
+      document.getElementById('profanityToggle').classList.toggle('active', currentConfig.enableProfanityFilter);
+      document.getElementById('sentimentToggle').classList.toggle('active', currentConfig.enableSentimentAnalysis);
+      document.getElementById('lengthToggle').classList.toggle('active', currentConfig.enableLengthAnalysis);
+      document.getElementById('contentToggle').classList.toggle('active', currentConfig.enableContentAnalysis);
+    }
+
+    // Toggle configuration option
+    function toggleConfig(option) {
+      currentConfig[option] = !currentConfig[option];
+      updateConfigUI();
+    }
+
+    // Save configuration
+    async function saveConfig() {
+      try {
+        const response = await fetch('/api/engine/config', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(currentConfig)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          showNotification('Configuration saved successfully');
+          currentConfig = result.config;
+          updateConfigUI();
+          loadModules(); // Reload modules as they may have changed
+        } else {
+          showNotification('Failed to save configuration', 'error');
+        }
+        
+      } catch (error) {
+        console.error('Failed to save config:', error);
+        showNotification('Failed to save configuration', 'error');
+      }
+    }
+
+    // Run test analysis
+    async function runTest() {
+      const testInput = document.getElementById('testInput');
+      const testResult = document.getElementById('testResult');
+      const content = testInput.value.trim();
+      
+      if (!content) {
+        showNotification('Please enter text to analyze', 'error');
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/test-analysis', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ content })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          displayTestResult(data.analysis, data.result);
+        } else {
+          showNotification(`Analysis failed: ${data.error}`, 'error');
+        }
+        
+      } catch (error) {
+        console.error('Test analysis failed:', error);
+        showNotification('Test analysis failed', 'error');
+      }
+    }
+
+    // Display test result
+    function displayTestResult(analysis, result) {
+      const testResult = document.getElementById('testResult');
+      const recommendation = analysis.recommendation;
+      
+      testResult.innerHTML = `
+        <div class="test-result ${recommendation}">
+          <div class="result-header">
+            <span class="result-recommendation ${recommendation}">
+              ${recommendation.toUpperCase()}
+            </span>
+            <span class="result-score">Score: ${Math.round(analysis.score * 100)}%</span>
+          </div>
+          <div class="result-content">${result.content}</div>
+          <div class="result-details">
+            Issues: ${analysis.issues.length} | 
+            Warnings: ${analysis.warnings.length} | 
+            Modules: ${Object.keys(analysis.modules).length}
+          </div>
+        </div>
+      `;
+    }
+
+    // Show notification
+    function showNotification(message, type = 'success') {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = `notification ${type}`;
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

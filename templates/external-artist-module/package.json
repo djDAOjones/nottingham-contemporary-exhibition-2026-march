@@ -1,0 +1,38 @@
+{
+  "name": "external-artist-module-template",
+  "version": "1.0.0",
+  "description": "Template system for integrating external artists and creative tools with Hub v2",
+  "main": "base-artist-module.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "example-ian": "node examples/ian-artist-module.js",
+    "example-gravity-sketch": "node examples/gravity-sketch-artist-module.js"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.7.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "artist",
+    "creative",
+    "template",
+    "hub-v2",
+    "exhibition",
+    "generative-art",
+    "vr",
+    "3d",
+    "interactive",
+    "modular"
+  ],
+  "author": "Hub v2 System",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "local"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

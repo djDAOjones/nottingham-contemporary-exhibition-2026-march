@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Display</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #000;
+      color: #fff;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      width: 100vw;
+      height: 100vh;
+      gap: 4px;
+      padding: 4px;
+    }
+    
+    .cell {
+      background: #111;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .cell-label {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #444;
+      font-weight: 600;
+    }
+    
+    .cell-status {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #333;
+    }
+    
+    .cell-status.online {
+      background: #10b981;
+    }
+    
+    .cell-status.processing {
+      background: #f59e0b;
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .center {
+      background: #0a0a0a;
+      border: 2px solid #222;
+    }
+    
+    .center .incoming-message {
+      font-size: 2rem;
+      font-weight: 300;
+      text-align: center;
+      line-height: 1.4;
+      max-width: 80%;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: all 0.5s ease;
+    }
+    
+    .center .incoming-message.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+    
+    .center .waiting {
+      color: #333;
+      font-size: 1rem;
+    }
+    
+    .cell-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .cell-content .placeholder {
+      color: #333;
+      font-size: 0.9rem;
+    }
+    
+    .cell-content .output-text {
+      font-size: 1.2rem;
+      line-height: 1.5;
+      max-height: 100%;
+      overflow: hidden;
+    }
+    
+    .cell-content .output-image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    
+    .routing-indicator {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 1000;
+      box-shadow: 0 0 20px rgba(255,255,255,0.5);
+    }
+    
+    .next-indicator {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      color: #f59e0b;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .cell.next .next-indicator {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid" id="grid">
+    <!-- Row 1 -->
+    <div class="cell" data-position="0" data-module-id="">
+      <span class="cell-label">Module 1</span>
+      <span class="cell-status"></span>
+      <div class="cell-content"><span class="placeholder">—</span></div>
+      <span class="next-indicator">Next</span>
+    </div>
+    <div class="cell" data-position="1" data-module-id="">
+      <span class="cell-label">Module 2</span>
+      <span class="cell-status"></span>
+      <div class="cell-content"><span class="placeholder">—</span></div>
+      <span class="next-indicator">Next</span>
+    </div>
+    <div class="cell" data-position="2" data-module-id="">
+      <span class="cell-label">Module 3</span>
+      <span class="cell-status"></span>
+      <div class="cell-content"><span class="placeholder">—</span></div>
+      <span class="next-indicator">Next</span>
+    </div>
+    
+    <!-- Row 2 -->
+    <div class="cell" data-position="3" data-module-id="">
+      <span class="cell-label">Module 4</span>
+      <span class="cell-status"></span>
+      <div class="cell-content"><span class="placeholder">—</span></div>
+      <span class="next-indicator">Next</span>
+    </div>
+    <div class="cell center" data-position="4">
+      <span class="cell-label">Incoming</span>
+      <p class="incoming-message" id="incomingMessage"></p>
+      <p class="waiting" id="waitingText">Waiting for messages...</p>
+    </div>
+    <div class="cell" data-position="5" data-module-id="">
+      <span class="cell-label">Module 5</span>
+      <span class="cell-status"></span>
+      <div class="cell-content"><span class="placeholder">—</span></div>
+      <span class="next-indicator">Next</span>
+    </div>
+    
+    <!-- Row 3 -->
+    <div class="cell" data-position="6" data-module-id="">
+      <span class="cell-label">Module 6</span>
+      <span class="cell-status"></span>
+      <div class="cell-content"><span class="placeholder">—</span></div>
+      <span class="next-indicator">Next</span>
+    </div>
+    <div class="cell" data-position="7" data-module-id="">
+      <span class="cell-label">Module 7</span>
+      <span class="cell-status"></span>
+      <div class="cell-content"><span class="placeholder">—</span></div>
+      <span class="next-indicator">Next</span>
+    </div>
+    <div class="cell" data-position="8" data-module-id="">
+      <span class="cell-label">Module 8</span>
+      <span class="cell-status"></span>
+      <div class="cell-content"><span class="placeholder">—</span></div>
+      <span class="next-indicator">Next</span>
+    </div>
+  </div>
+  
+  <div class="routing-indicator" id="routingIndicator"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const grid = document.getElementById('grid');
+    const incomingMessage = document.getElementById('incomingMessage');
+    const waitingText = document.getElementById('waitingText');
+    const routingIndicator = document.getElementById('routingIndicator');
+    
+    // Module positions (excluding center which is position 4)
+    const modulePositions = [0, 1, 2, 3, 5, 6, 7, 8];
+    let modules = [];
+    let currentModuleIndex = 0;
+    let messageQueue = [];
+    let isAnimating = false;
+    
+    socket.on('connect', () => {
+      console.log('Display connected');
+      socket.emit('join', { role: 'display' });
+      loadModules();
+    });
+    
+    socket.on('modules-updated', (newModules) => {
+      modules = newModules;
+      updateModuleDisplay();
+    });
+    
+    socket.on('message-approved', (message) => {
+      messageQueue.push(message);
+      processQueue();
+    });
+    
+    socket.on('message-routed', (data) => {
+      // Module received the message, animate routing
+      animateRouting(data.moduleId);
+    });
+    
+    socket.on('module-output', (data) => {
+      updateModuleContent(data.moduleId, data);
+    });
+    
+    async function loadModules() {
+      try {
+        const res = await fetch('/api/modules');
+        modules = await res.json();
+        updateModuleDisplay();
+      } catch (e) {
+        console.error('Failed to load modules', e);
+      }
+    }
+    
+    function updateModuleDisplay() {
+      // Assign modules to positions
+      modules.forEach((mod, i) => {
+        if (i < modulePositions.length) {
+          const pos = modulePositions[i];
+          const cell = grid.querySelector(`[data-position="${pos}"]`);
+          if (cell) {
+            cell.dataset.moduleId = mod.id;
+            cell.querySelector('.cell-label').textContent = mod.name;
+            const status = cell.querySelector('.cell-status');
+            status.classList.toggle('online', mod.status === 'online');
+          }
+        }
+      });
+      
+      // Update next indicator
+      updateNextIndicator();
+    }
+    
+    function updateNextIndicator() {
+      // Remove all next indicators
+      grid.querySelectorAll('.cell.next').forEach(c => c.classList.remove('next'));
+      
+      // Find next online module
+      const onlineModules = modules.filter(m => m.status === 'online');
+      if (onlineModules.length > 0) {
+        const nextModule = onlineModules[currentModuleIndex % onlineModules.length];
+        const cell = grid.querySelector(`[data-module-id="${nextModule.id}"]`);
+        if (cell) {
+          cell.classList.add('next');
+        }
+      }
+    }
+    
+    function processQueue() {
+      if (isAnimating || messageQueue.length === 0) return;
+      
+      const message = messageQueue.shift();
+      showIncomingMessage(message);
+    }
+    
+    function showIncomingMessage(message) {
+      isAnimating = true;
+      waitingText.style.display = 'none';
+      incomingMessage.textContent = message.message;
+      incomingMessage.classList.add('visible');
+      
+      // Auto-route after display time
+      setTimeout(() => {
+        routeToNextModule(message);
+      }, 3000);
+    }
+    
+    function routeToNextModule(message) {
+      const onlineModules = modules.filter(m => m.status === 'online');
+      
+      if (onlineModules.length === 0) {
+        console.log('No modules online');
+        finishAnimation();
+        return;
+      }
+      
+      const targetModule = onlineModules[currentModuleIndex % onlineModules.length];
+      currentModuleIndex++;
+      
+      // Send route request
+      fetch(`/api/route/${message.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ moduleId: targetModule.id })
+      });
+      
+      updateNextIndicator();
+    }
+    
+    function animateRouting(moduleId) {
+      const centerCell = grid.querySelector('[data-position="4"]');
+      const targetCell = grid.querySelector(`[data-module-id="${moduleId}"]`);
+      
+      if (!centerCell || !targetCell) {
+        finishAnimation();
+        return;
+      }
+      
+      const centerRect = centerCell.getBoundingClientRect();
+      const targetRect = targetCell.getBoundingClientRect();
+      
+      const startX = centerRect.left + centerRect.width / 2;
+      const startY = centerRect.top + centerRect.height / 2;
+      const endX = targetRect.left + targetRect.width / 2;
+      const endY = targetRect.top + targetRect.height / 2;
+      
+      // Position indicator
+      routingIndicator.style.left = startX + 'px';
+      routingIndicator.style.top = startY + 'px';
+      routingIndicator.style.opacity = '1';
+      
+      // Animate
+      setTimeout(() => {
+        routingIndicator.style.transition = 'all 0.8s ease-in-out';
+        routingIndicator.style.left = endX + 'px';
+        routingIndicator.style.top = endY + 'px';
+      }, 50);
+      
+      // Hide incoming message
+      incomingMessage.classList.remove('visible');
+      
+      // Mark target as processing
+      targetCell.querySelector('.cell-status').classList.add('processing');
+      
+      // Finish animation
+      setTimeout(() => {
+        routingIndicator.style.opacity = '0';
+        routingIndicator.style.transition = 'none';
+        finishAnimation();
+      }, 1000);
+    }
+    
+    function finishAnimation() {
+      isAnimating = false;
+      
+      if (messageQueue.length === 0) {
+        waitingText.style.display = 'block';
+      }
+      
+      // Process next in queue
+      setTimeout(processQueue, 500);
+    }
+    
+    function updateModuleContent(moduleId, data) {
+      const cell = grid.querySelector(`[data-module-id="${moduleId}"]`);
+      if (!cell) return;
+      
+      const content = cell.querySelector('.cell-content');
+      const status = cell.querySelector('.cell-status');
+      
+      status.classList.remove('processing');
+      status.classList.add('online');
+      if (data.type === 'text') {
+        content.innerHTML = '<p class="output-text">' + escapeHtml(data.content) + '</p>';
+      } else if (data.type === 'image') {
+        content.innerHTML = `<img class="output-image" src="${data.url}" alt="">`;
+      } else if (data.type === 'html') {
+        content.innerHTML = data.content;
+      }
+    }
+    
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

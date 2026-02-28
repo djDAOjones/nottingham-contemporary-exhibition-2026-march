@@ -1,0 +1,27 @@
+{
+  "name": "terminal-critic-v2",
+  "version": "2.0.0",
+  "description": "Terminal Critic v2 - Modular content analysis engine for Hub v2",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io-client": "^4.7.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "content-analysis",
+    "moderation",
+    "criticism",
+    "sentiment-analysis",
+    "hub-v2"
+  ],
+  "author": "Hub v2 System",
+  "license": "MIT"
+}
