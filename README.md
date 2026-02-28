@@ -1,110 +1,68 @@
 # Nottingham Contemporary AI Exhibition 2026
 
-Interactive art installation with real-time audience participation and AI-generated responses.
+Interactive art installation with real-time audience participation and AI<>human-generated responses.
 
-## Quick Start
+## Overview
 
-### Development (At Home)
-```bash
-# 1. Start the system
-npm start
-
-# 2. Open control panels
-# Moderator: http://localhost:3000/moderate  
-# Display: http://localhost:3000/display
-# Submit: http://localhost:3000/submit
-```
-
-### Production (At Gallery)
-```bash
-# 1. Boot with venue auto-config (coming soon)
-./scripts/boot-exhibition.sh
-
-# 2. For now, start manually:
-npm start
-
-# 3. Update Vercel IP (manual - automation coming soon)
-# Go to: https://vercel.com/tropicalwilsons-projects/nottingham-contemporary-exhibition-2026-march/settings/environment-variables
-# Set NEXT_PUBLIC_HUB_URL to ws://[YOUR-GALLERY-IP]:3000
-```
-
-## System Overview
-
-**Flow:** QR Code → Phone → Vercel UI → WebSocket → Local Hub → AI Modules → 3×3 Grid Display
+**Flow:** QR Code → Phone → Vercel UI → WebSocket → Local Hub → Art Modules → Gallery Display
 
 **Architecture:**
 - **Vercel (Cloud):** Audience submission interface
-- **Local Hub:** Central coordination, moderation, routing  
-- **8 AI Modules:** Text processing, generation, analysis
-- **Display:** 3×3 grid projection with module outputs
+- **Hub:** Coordination, moderation, and routing of messages and media
+- **Art Modules:** AI-human analysis, processing, and generation
+- **Display:** 3×3 grid projection of art module outputs and audience view of routing
 
-## Control Panels
+## UIPages
 
 | Panel | URL | Purpose |
 |-------|-----|---------|
-| **Moderator** | `http://localhost:3000/moderate` | Approve/reject submissions, control modules |
+| **Submit** | `https://nottingham-contemporary-exhibition.vercel.app/` | Public submissions |
+| **Test Submit** | `http://localhost:3000/submit` | Local submission testing |
+| **Moderation** | `http://localhost:3000/moderate` | Approve/reject submissions, control modules |
 | **Display** | `http://localhost:3000/display` | 3×3 grid for projection |
-| **Submit** | `http://localhost:3000/submit` | Local submission testing |
 | **Archive** | `http://localhost:3000/archive` | Event history and logs |
+| **Config** | `http://localhost:3000/art-module-config-<module number>` | Control panel for each Hub-Bridge helper app on each Art Module Laptop |
 
-**Public Audience:**
-- **Vercel Live:** https://nottingham-contemporary-exhibition.vercel.app
-- **QR Code:** Generate pointing to Vercel URL for audience access
+## QR Code
+
+[insert QR here]
 
 ## Hardware Setup
 
-### Network Requirements
-- **Router:** 4+ ethernet ports for laptops
+### Equipment
+- **Router:** Ethernet connection for each laptop
 - **Main Laptop:** Runs Hub server (port 3000)
-- **Module Laptops:** Connect to ports 3001-3008
-- **Projector:** Connected to display laptop
+- **Module Laptops:** Connect to ports 3001, 3002, etc
+- **Projectors / Screens:** Connected to display laptops
 
-### Recommended Layout
+###  Layout
 ```
 Router
-├── Main Laptop (Hub + Moderator)
-├── Display Laptop (3×3 Grid → Projector)
-├── Module Laptop 1 (Terminal Critic + Music)
-└── Module Laptop 2 (External modules)
+├── Moderator Laptop (Hub + Moderation)
+├── Primary Display Laptop (3×3 Grid)
+├── Secondary Display Laptop (Audience view of queue)
+├── Art Module Laptop 1
+├── Art Module Laptop 2
+├── Art Module Laptop 3 etc
 ```
 
-## Directory Structure
+## Software Setup
 
-```
-├── server/index.js                 # Hub v2 core
-├── public/
-│   ├── moderate/                   # Moderator control panel
-│   ├── display/                    # 3×3 grid display
-│   └── submit/                     # Local submission form
-├── modules/
-│   ├── terminal-critic/            # Local LLM module
-│   ├── music-prompt/               # Music analysis module
-│   └── boring-stock/               # Stock response module
-├── templates/external-artist-module/  # Module templates
-├── vercel-app/                     # Audience submission UI
-├── scripts/
-│   ├── start-exhibition.sh         # Launch all systems
-│   ├── restart-exhibition.sh       # Graceful restart
-│   ├── stop-exhibition.sh          # Shutdown
-│   └── deploy-vercel.sh            # Deploy audience UI
-├── fallback/                       # Resilience systems
-└── sessions/                       # Session state storage
-```
+- **Hub:**
+- **Hub-Bridge(s):**
+- **Art Module Custom Software:**
 
-## Module Development
+## Art Module Config
 
-### Creating a New Module
-1. Copy `templates/external-artist-module/base-artist-module.js`
-2. Implement your processing logic in `processMessage()`
-3. Connect via WebSocket to `ws://[HUB-IP]:3000`
-4. Send `identify` event with module details
+### Install helper app
+1. 
 
-### External Integration
+### Configure custom tools to send/recieve via helper
 - **TouchDesigner:** OSC bridge via IP
 - **Custom Apps:** WebSocket or HTTP API
 - **Hardware:** Serial/USB via Node.js modules
 
-## Session Management
+### Verify everything working with Hub and Displays
 
 ### Current Session Info
 ```bash
@@ -115,51 +73,24 @@ Router
 cat sessions/current/session.log
 ```
 
-### Starting Fresh
-```bash
-# New session with clean state
-./scripts/new-session.sh
+## Operating Hub
 
-# Continue existing session
-./scripts/boot-exhibition.sh
-```
+### Start Session
+./scripts/boot-exhibition.sh (keeps prior messages)
+
+### Reset Session
+./scripts/new-session.sh (clears prior messages)
+
+### Hub Config
+- Moderation
+- Screen layout
 
 ## Troubleshooting
 
 ### Common Issues
 
-**Vercel submissions not reaching Hub:**
-- Check `NEXT_PUBLIC_HUB_URL` in Vercel dashboard
-- Verify WebSocket connection from phone to local IP
-- Test with `http://localhost:3000/submit` first
-
-**Modules not connecting:**
-- Check module logs for WebSocket errors
-- Verify Hub IP address in module configuration
-- Test network connectivity between laptops
-
-**Display not updating:**
-- Refresh browser on display laptop
-- Check WebSocket connection to Hub
-- Verify projector/screen connection
-
-**Archive not recording:**
-- Check disk space in `archive/` directory
-- Verify write permissions
-- Review server logs for errors
-
-### Debug Commands
-```bash
-# Check system status
-npm run status
-
-# View live logs
-tail -f logs/hub.log
-
-# Test network connectivity
-ping [MODULE-LAPTOP-IP]
-curl http://localhost:3000/api/status
-```
+**Enter issue:**
+- Steps to solve
 
 ## Production Checklist
 
@@ -201,31 +132,3 @@ curl http://localhost:3000/api/status
 - `new-message` - Approved message for routing
 - `module-output` - Module response ready
 - `module-status` - Connection state change
-
-## Development Notes
-
-### Adding Features
-1. Update `dev_notes/dev_plan.md` with requirements
-2. Implement in modular, testable components
-3. Test locally with `npm start`
-4. Update documentation and scripts
-
-### Code Standards
-- Follow existing naming conventions
-- Add error handling and logging
-- Use WebSocket for real-time communication
-- Maintain modular architecture for reliability
-
-## Support
-
-For technical issues during development or show day:
-- Check `dev_notes/human_do.md` for current action items
-- Review server logs in `logs/` directory
-- Test individual components in isolation
-- Use backup local submission if Vercel fails
-
----
-
-**Exhibition Date:** February 25, 2026  
-**Status:** Development complete, testing phase  
-**Last Updated:** February 28, 2026
