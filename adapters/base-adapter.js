@@ -22,6 +22,7 @@ class BaseAdapter extends EventEmitter {
     this.hubSocket = null;
     this.connected = false;
     this.currentMessage = null;
+    this.heartbeatInterval = null;
     this.stats = {
       messagesReceived: 0,
       messagesProcessed: 0,
@@ -75,8 +76,9 @@ class BaseAdapter extends EventEmitter {
         this.shutdown();
       });
       
-      // Send heartbeat every 30 seconds
-      setInterval(() => {
+      // Send heartbeat every 30 seconds (clear any existing interval first)
+      if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = setInterval(() => {
         if (this.connected && this.hubSocket) {
           this.hubSocket.emit('heartbeat');
         }
@@ -219,6 +221,11 @@ class BaseAdapter extends EventEmitter {
   async shutdown() {
     try {
       console.log(`[${this.config.name}] Shutting down adapter...`);
+      
+      if (this.heartbeatInterval) {
+        clearInterval(this.heartbeatInterval);
+        this.heartbeatInterval = null;
+      }
       
       if (this.hubSocket) {
         this.hubSocket.disconnect();

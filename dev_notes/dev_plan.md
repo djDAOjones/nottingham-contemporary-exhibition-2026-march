@@ -329,6 +329,28 @@
 
 ---
 
+## Development Status Summary
+
+**Completed:**
+- ✅ Core Hub v2 architecture with WebSocket communication
+- ✅ Modular art module system with external integration support
+- ✅ WCAG AAA compliant audience submission UI
+- ✅ Automated venue management with session preservation
+- ✅ Boot scripts for seamless deployment transitions
+
+**In Progress:**
+- 🔄 Hub-bridge system for art module video streaming
+- 🔄 Enhanced submission progress tracking
+- 🔄 Documentation updates for new architecture
+
+**Pending:**
+- ⏳ Hub-bridge Node.js application implementation
+- ⏳ TouchDesigner/Gravity Sketch integration testing
+- ⏳ Video streaming and 3×3 composition system
+- ⏳ Screen snapshot capabilities for user feedback
+
+---
+
 ## Additional Development Tasks
 
 ### 1. WCAG AAA Compliance for Audience UI ⏳ PENDING
@@ -376,3 +398,81 @@
 - No manual Vercel dashboard interaction needed
 - Seamless transitions between development and show environments
 - Session continuity across system restarts
+
+### 3. Hub-Bridge System for Art Modules ⏳ PENDING
+
+**Problem:** Art modules (TouchDesigner, Gravity Sketch, custom software) need seamless integration with Hub for bidirectional communication.
+
+**Solution:** Lightweight Node.js helper application on each art module laptop
+- **Name:** `hub-bridge`
+- **Role:** Bridge between Hub server and local art software
+- **Configuration:** Web-based UI for easy setup
+
+**Architecture:**
+```
+Hub (WebSocket) ↔ Hub-Bridge ↔ Art Software ↔ Hub-Bridge ↔ Hub (Video Stream)
+                    (OSC/HTTP/UDP)              (WebRTC/RTMP/NDI)
+```
+
+**Hub-Bridge Responsibilities:**
+1. **Receive messages** from Hub via WebSocket
+2. **Send to art software** via OSC, HTTP, or UDP protocols
+3. **Capture video stream** from art software (WebRTC/RTMP/NDI)
+4. **Send video back** to Hub for 3×3 grid composition
+5. **Web configuration UI** at `http://localhost:8080/config`
+
+**Software Integration:**
+- **TouchDesigner:** OSC input, RTMP/NDI video output
+- **Gravity Sketch:** HTTP API input, video capture output
+- **Custom VJ Software:** Configurable protocol support
+
+**Benefits:**
+- Decouples Hub from specific art software
+- Standardized integration protocol
+- Easy configuration per module
+- Handles reconnection and error recovery
+- Supports any creative software with network I/O
+
+### 4. Enhanced Submission Progress Tracking ⏳ PENDING
+
+**Problem:** Users submit messages but get no feedback on processing status, making the experience feel unresponsive.
+
+**Solution:** Real-time progress tracking with visual feedback and optional screen snapshots
+
+**Progress States:**
+1. **Sending** - Message leaving user device
+2. **Processing** - Hub receiving and validating
+3. **Waiting for Response** - Queued for moderation
+4. **Waiting for Approval** - Under moderator review
+5. **Approved/Rejected** - Moderation decision made
+6. **Routing to Display** - Approved message being routed
+7. **Displaying** - Message visible on main projection
+8. **Archived** - Message saved to permanent archive
+
+**Implementation:**
+- Minimum 3-second display time per stage for readability
+- Optional screen snapshot when message appears on projection
+- Real-time WebSocket updates to user's browser
+- Visual progress indicator with clear state labels
+- Error handling for failed states
+
+**Technical Approach:**
+- Extend WebSocket events for progress updates
+- Add screen capture capability to display system
+- Store progress state in user session
+- Implement timeout handling for stalled states
+
+### 5. Documentation and UX Improvements ⏳ PENDING
+
+**Requirements:**
+- Convert README.md URLs to clickable markdown links
+- Ensure all documentation reflects new hub-bridge architecture
+- Update hardware setup diagrams and specifications
+- Create comprehensive hub-bridge installation guide
+
+**Status:** 
+- ✅ WCAG AAA UI compliance completed
+- ✅ Automated session management completed  
+- ⏳ Hub-bridge system pending
+- ⏳ Progress tracking pending
+- ⏳ Documentation updates pending

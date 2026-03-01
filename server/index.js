@@ -10,9 +10,18 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.VERCEL_URL || "*",
+    origin: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "*",
     methods: ["GET", "POST"]
   }
+});
+
+// CORS middleware for Express HTTP routes (Socket.IO has its own CORS above)
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
 });
 
 const PORT = process.env.PORT || 3000;
@@ -44,7 +53,20 @@ const state = {
       "Share a hope or fear..."
     ],
     currentPromptIndex: 0,
-    safeMode: false      // Skip offline modules
+    safeMode: false,      // Skip offline modules
+    display: {
+      resolution: '1080p',  // '720p' | '1080p' | '1440p' | '4k'
+      framerate: 25,         // 25 | 30 | 50 | 60
+      messageDisplayMs: 3000,
+      transitionMs: 500,
+      presets: {
+        '720p':  { width: 1280, height: 720 },
+        '1080p': { width: 1920, height: 1080 },
+        '1440p': { width: 2560, height: 1440 },
+        '4k':    { width: 3840, height: 2160 }
+      },
+      validFramerates: [25, 30, 50, 60]
+    }
   }
 };
 
@@ -53,6 +75,92 @@ const rateLimits = new Map();
 
 // Module discovery and management
 const discoveredModules = new Map();
+
+// ============ PROGRESS TRACKING ============
+
+const PROGRESS_STAGES = [
+  { id: 'received',   label: 'Message Received',     minMs: 3000 },
+  { id: 'queued',     label: 'Entering Queue',        minMs: 3000 },
+  { id: 'reviewed',   label: 'Under Review',          minMs: 3000 },
+  { id: 'approved',   label: 'Approved',              minMs: 3000 },
+  { id: 'routing',    label: 'Routing to Module',     minMs: 3000 },
+  { id: 'processing', label: 'Module Processing',     minMs: 3000 },
+  { id: 'rendering',  label: 'Preparing Output',      minMs: 3000 },
+  { id: 'complete',   label: 'Displayed',             minMs: 3000 }
+];
+
+// Active progress trackers: messageId -> { stage, stageStart, timers, sessionId }
+const progressTrackers = new Map();
+
+function startProgressTracking(messageId, sessionId) {
+  const tracker = {
+    messageId,
+    sessionId,
+    stage: 0,
+    stageStart: Date.now(),
+    timers: []
+  };
+  progressTrackers.set(messageId, tracker);
+  broadcastProgress(messageId, 0);
+}
+
+function advanceProgress(messageId, targetStage) {
+  const tracker = progressTrackers.get(messageId);
+  if (!tracker) return;
+  
+  const now = Date.now();
+  const currentStage = PROGRESS_STAGES[tracker.stage];
+  const elapsed = now - tracker.stageStart;
+  const remaining = Math.max(0, currentStage.minMs - elapsed);
+  
+  // Clear any pending timers
+  tracker.timers.forEach(t => clearTimeout(t));
+  tracker.timers = [];
+  
+  if (targetStage <= tracker.stage) return;
+  
+  // Schedule each intermediate stage with minimum delays
+  let delay = remaining;
+  for (let s = tracker.stage + 1; s <= targetStage; s++) {
+    const stageIdx = s;
+    const timer = setTimeout(() => {
+      tracker.stage = stageIdx;
+      tracker.stageStart = Date.now();
+      broadcastProgress(messageId, stageIdx);
+      
+      // Clean up on completion
+      if (stageIdx === PROGRESS_STAGES.length - 1) {
+        setTimeout(() => progressTrackers.delete(messageId), 5000);
+      }
+    }, delay);
+    tracker.timers.push(timer);
+    delay += PROGRESS_STAGES[s] ? PROGRESS_STAGES[s].minMs : 0;
+  }
+}
+
+function broadcastProgress(messageId, stageIndex) {
+  const stage = PROGRESS_STAGES[stageIndex];
+  const tracker = progressTrackers.get(messageId);
+  
+  const progressData = {
+    messageId,
+    stage: stageIndex,
+    stageId: stage.id,
+    stageLabel: stage.label,
+    totalStages: PROGRESS_STAGES.length,
+    percent: Math.round(((stageIndex + 1) / PROGRESS_STAGES.length) * 100)
+  };
+  
+  // Send to display
+  io.to('display').emit('message-progress', progressData);
+  
+  // Send to the specific audience member if they're connected
+  if (tracker && tracker.sessionId) {
+    io.to(`session:${tracker.sessionId}`).emit('message-progress', progressData);
+  }
+  
+  console.log(`[PROGRESS] ${messageId.slice(0, 8)}: ${stage.label} (${stageIndex + 1}/${PROGRESS_STAGES.length})`);
+}
 
 // Serve static files
 app.use('/submit', express.static(path.join(__dirname, '../public/submit')));
@@ -168,6 +276,10 @@ app.post('/api/submit', (req, res) => {
     prompt: state.config.prompts[state.config.currentPromptIndex]
   });
   
+  // Start progress tracking: stage 0 (received) → stage 1 (queued)
+  startProgressTracking(submission.id, sessionId);
+  advanceProgress(submission.id, 1); // queued
+  
   // Notify moderators
   io.to('moderators').emit('new-submission', submission);
   
@@ -276,6 +388,69 @@ app.post('/api/config/safe-mode', (req, res) => {
   res.json({ success: true, safeMode: state.config.safeMode });
 });
 
+// ============ DISPLAY CONFIG API ============
+
+app.get('/api/config/display', (req, res) => {
+  const d = state.config.display;
+  const preset = d.presets[d.resolution];
+  res.json({
+    resolution: d.resolution,
+    width: preset.width,
+    height: preset.height,
+    framerate: d.framerate,
+    messageDisplayMs: d.messageDisplayMs,
+    transitionMs: d.transitionMs,
+    availableResolutions: Object.keys(d.presets),
+    availableFramerates: d.validFramerates
+  });
+});
+
+app.post('/api/config/display', (req, res) => {
+  const { resolution, framerate, messageDisplayMs, transitionMs } = req.body;
+  const d = state.config.display;
+  
+  if (resolution) {
+    if (!d.presets[resolution]) {
+      return res.status(400).json({ error: `Invalid resolution. Use: ${Object.keys(d.presets).join(', ')}` });
+    }
+    d.resolution = resolution;
+  }
+  
+  if (framerate !== undefined) {
+    const fr = parseInt(framerate);
+    if (!d.validFramerates.includes(fr)) {
+      return res.status(400).json({ error: `Invalid framerate. Use: ${d.validFramerates.join(', ')}` });
+    }
+    d.framerate = fr;
+  }
+  
+  if (messageDisplayMs !== undefined) {
+    d.messageDisplayMs = Math.max(1000, Math.min(30000, parseInt(messageDisplayMs)));
+  }
+  
+  if (transitionMs !== undefined) {
+    d.transitionMs = Math.max(100, Math.min(2000, parseInt(transitionMs)));
+  }
+  
+  const preset = d.presets[d.resolution];
+  const config = {
+    resolution: d.resolution,
+    width: preset.width,
+    height: preset.height,
+    framerate: d.framerate,
+    messageDisplayMs: d.messageDisplayMs,
+    transitionMs: d.transitionMs
+  };
+  
+  // Broadcast to all displays
+  io.to('display').emit('display-config', config);
+  
+  logEvent('display_config_changed', config);
+  console.log(`[DISPLAY] Config updated: ${d.resolution} @ ${d.framerate}fps`);
+  
+  res.json({ success: true, ...config });
+});
+
 app.post('/api/moderate', (req, res) => {
   const { submissionId, action, reason, editedMessage } = req.body; // action: 'approve' | 'reject'
   
@@ -303,6 +478,10 @@ app.post('/api/moderate', (req, res) => {
     }
     
     state.approved.unshift(submission);
+    
+    // Progress: reviewed → approved → routing
+    advanceProgress(submission.id, 2); // reviewed
+    advanceProgress(submission.id, 4); // routing (stages 3+4 will chain with min delays)
     
     // Archive logging
     logEvent('approval', {
@@ -539,10 +718,375 @@ function handleModuleTimeout(module, message) {
   });
 }
 
+// ============ TEST SYSTEM ============
+
+const testState = {
+  virtualModules: new Map(),  // id -> { name, delay, outputType }
+  testRuns: [],               // history of test runs
+  autoRunInterval: null
+};
+
+// Serve test page
+app.use('/test', express.static(path.join(__dirname, '../public/test')));
+
+// Get test system status
+app.get('/api/test/status', (req, res) => {
+  res.json({
+    virtualModules: Array.from(testState.virtualModules.entries()).map(([id, vm]) => ({
+      id,
+      name: vm.name,
+      delay: vm.delay,
+      outputType: vm.outputType,
+      registered: state.modules.has(id)
+    })),
+    testRuns: testState.testRuns.slice(-20),
+    autoRunning: !!testState.autoRunInterval,
+    hubState: {
+      pendingSubmissions: state.submissions.filter(s => s.status === 'pending').length,
+      approvedMessages: state.approved.length,
+      routedMessages: state.routed.length,
+      connectedModules: Array.from(state.modules.values()).filter(m => m.status === 'online').length,
+      totalModules: state.modules.size
+    }
+  });
+});
+
+// Create virtual test modules
+app.post('/api/test/create-modules', (req, res) => {
+  const { count = 3, baseDelay = 2000, outputTypes } = req.body;
+  const defaultTypes = ['text', 'text', 'image', 'html', 'text', 'image', 'text', 'html'];
+  const created = [];
+  
+  for (let i = 0; i < Math.min(count, 8); i++) {
+    const moduleId = `test-vm-${i + 1}`;
+    const moduleName = `Test Module ${i + 1}`;
+    const delay = baseDelay + Math.floor(Math.random() * 2000);
+    const outputType = (outputTypes && outputTypes[i]) || defaultTypes[i] || 'text';
+    
+    // Store virtual module config
+    testState.virtualModules.set(moduleId, {
+      name: moduleName,
+      delay,
+      outputType
+    });
+    
+    // Register in Hub state as if it connected via WebSocket
+    const mockSocket = {
+      id: `test-socket-${moduleId}`,
+      emit: (event, data) => {
+        // Virtual module auto-processes messages
+        if (event === 'process-message') {
+          handleVirtualModuleMessage(moduleId, data);
+        }
+      },
+      join: () => {}
+    };
+    
+    state.modules.set(moduleId, {
+      id: moduleId,
+      name: moduleName,
+      socket: mockSocket,
+      status: 'online',
+      connectedAt: Date.now(),
+      lastSeen: Date.now(),
+      queue: [],
+      port: 3001 + i,
+      processingMessageId: null,
+      lastResponse: null,
+      isVirtual: true
+    });
+    
+    if (!state.moduleOrder.includes(moduleId)) {
+      state.moduleOrder.push(moduleId);
+    }
+    
+    created.push({ id: moduleId, name: moduleName, delay, outputType });
+    
+    // Notify displays and moderators
+    io.to('display').emit('module-status', { moduleId, name: moduleName, status: 'online' });
+    io.to('moderators').emit('module-connected', { moduleId, name: moduleName, port: 3001 + i });
+  }
+  
+  console.log(`[TEST] Created ${created.length} virtual modules`);
+  logEvent('test_modules_created', { count: created.length, modules: created.map(c => c.id) });
+  
+  res.json({ success: true, created });
+});
+
+// Virtual module message handler
+function handleVirtualModuleMessage(moduleId, message) {
+  const vm = testState.virtualModules.get(moduleId);
+  const module = state.modules.get(moduleId);
+  if (!vm || !module) return;
+  
+  module.status = 'processing';
+  console.log(`[TEST-VM] ${vm.name} processing message ${message.id?.slice(0, 8)}...`);
+  
+  // Simulate processing delay
+  setTimeout(() => {
+    const output = generateTestOutput(vm.outputType, message.content || message.message || '');
+    const processingTime = vm.delay + Math.floor(Math.random() * 500);
+    
+    // Update module state (same as real message-processed handler)
+    module.lastSeen = Date.now();
+    module.status = 'online';
+    module.processingMessageId = null;
+    module.lastResponse = {
+      messageId: message.id,
+      timestamp: Date.now(),
+      processingTime
+    };
+    
+    // Remove from queue
+    module.queue = module.queue.filter(m => m.id !== message.id);
+    
+    console.log(`[TEST-VM] ${vm.name} completed in ${processingTime}ms → ${output.type}`);
+    
+    logEvent('module_response', {
+      moduleId,
+      moduleName: vm.name,
+      messageId: message.id,
+      outputType: output.type,
+      processingTime,
+      queueDepth: module.queue.length,
+      isVirtualTest: true
+    });
+    
+    // Progress: processing → rendering → complete
+    // message.messageId is the original submission ID
+    advanceProgress(message.messageId || message.id, 5);
+    advanceProgress(message.messageId || message.id, 7);
+    
+    // Forward to display
+    io.to('display').emit('module-output', {
+      moduleId,
+      messageId: message.id,
+      output
+    });
+    
+    // Log test run
+    testState.testRuns.push({
+      timestamp: Date.now(),
+      moduleId,
+      moduleName: vm.name,
+      messageId: message.id,
+      outputType: output.type,
+      processingTime
+    });
+  }, vm.delay);
+}
+
+// Generate test output based on type
+function generateTestOutput(type, inputText) {
+  const shortInput = inputText.slice(0, 50);
+  
+  switch (type) {
+    case 'image':
+      // SVG placeholder representing a generated image
+      const hue = Math.floor(Math.random() * 360);
+      return {
+        type: 'html',
+        content: `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,hsl(${hue},70%,40%),hsl(${(hue+60)%360},70%,60%));border-radius:8px;color:#fff;font-size:0.8rem;text-align:center;padding:12px;">
+          <div><strong>Generated Art</strong><br><em>"${shortInput}"</em></div>
+        </div>`
+      };
+    case 'html':
+      return {
+        type: 'html',
+        content: `<div style="padding:16px;background:#1a1a2e;border-radius:8px;color:#e0e0e0;font-family:monospace;font-size:0.8rem;">
+          <div style="color:#f59e0b;margin-bottom:8px;">&#9608; AI Analysis</div>
+          <div>${shortInput}</div>
+          <div style="margin-top:8px;color:#666;font-size:0.7rem;">Score: ${(Math.random() * 10).toFixed(1)}/10</div>
+        </div>`
+      };
+    case 'text':
+    default:
+      const responses = [
+        `Interpreted: "${shortInput}" as a vision of digital consciousness`,
+        `Pattern detected in "${shortInput}" — resonance frequency: ${(Math.random() * 1000).toFixed(0)}Hz`,
+        `"${shortInput}" → transformed through neural pathways`,
+        `Dream analysis of "${shortInput}": ${['hope', 'wonder', 'curiosity', 'melancholy', 'joy'][Math.floor(Math.random() * 5)]}`
+      ];
+      return {
+        type: 'text',
+        content: responses[Math.floor(Math.random() * responses.length)]
+      };
+  }
+}
+
+// Submit a test message (bypasses rate limiting)
+app.post('/api/test/submit', (req, res) => {
+  const { message } = req.body;
+  const text = message || `Test message ${Date.now().toString(36)}`;
+  
+  const submission = {
+    id: uuidv4(),
+    message: text.trim().slice(0, state.config.maxMessageLength),
+    sessionId: 'test-system',
+    timestamp: Date.now(),
+    status: 'pending',
+    source: 'test'
+  };
+  
+  state.submissions.unshift(submission);
+  io.to('moderators').emit('new-submission', submission);
+  
+  logEvent('submission', {
+    submissionId: submission.id,
+    sessionId: 'test-system',
+    messageLength: submission.message.length,
+    source: 'test'
+  });
+  
+  console.log(`[TEST] Submitted: ${submission.id.slice(0, 8)} - "${submission.message.slice(0, 40)}..."`);
+  res.json({ success: true, submission });
+});
+
+// Auto-approve a test submission (submit + approve in one call)
+app.post('/api/test/submit-and-approve', (req, res) => {
+  const { message } = req.body;
+  const text = message || `Auto-test ${Date.now().toString(36)}`;
+  
+  const submission = {
+    id: uuidv4(),
+    message: text.trim().slice(0, state.config.maxMessageLength),
+    sessionId: 'test-system',
+    timestamp: Date.now(),
+    status: 'approved',
+    source: 'test'
+  };
+  
+  state.submissions.unshift(submission);
+  state.approved.unshift(submission);
+  
+  logEvent('submission', { submissionId: submission.id, source: 'test-auto' });
+  logEvent('approval', { submissionId: submission.id, source: 'test-auto' });
+  
+  // Progress tracking: fast-forward through received → queued → reviewed → approved → routing
+  startProgressTracking(submission.id, 'test-system');
+  advanceProgress(submission.id, 4); // routing
+  
+  // Route to module
+  routeToNextModule(submission);
+  
+  // Notify display
+  io.to('display').emit('new-message', submission);
+  io.to('moderators').emit('new-submission', submission);
+  
+  console.log(`[TEST] Auto-approved: ${submission.id.slice(0, 8)} - "${submission.message.slice(0, 40)}..."`);
+  res.json({ success: true, submission });
+});
+
+// Run full end-to-end auto test (periodic submissions)
+app.post('/api/test/auto-run', (req, res) => {
+  const { intervalMs = 8000, count = 10 } = req.body;
+  
+  // Ensure virtual modules exist
+  if (testState.virtualModules.size === 0) {
+    return res.status(400).json({ error: 'Create virtual modules first: POST /api/test/create-modules' });
+  }
+  
+  // Stop any existing auto-run
+  if (testState.autoRunInterval) {
+    clearInterval(testState.autoRunInterval);
+  }
+  
+  const testMessages = [
+    "I dream of electric gardens growing in the clouds",
+    "What if machines could feel the warmth of sunrise?",
+    "In the future, art creates itself and we just watch",
+    "My hope is that technology brings people closer together",
+    "I imagine a world where creativity has no boundaries",
+    "The sound of rain on a digital window",
+    "What does it mean to be human in an age of AI?",
+    "I see colours that haven't been invented yet",
+    "A future where every voice is heard and amplified",
+    "Dancing with algorithms under neon skies",
+    "When the network sleeps, do the machines dream?",
+    "I want to send a message to the year 3000",
+    "Beauty exists in the space between ones and zeros",
+    "The exhibition is alive and breathing with our words",
+    "Can art made by everyone belong to no one?"
+  ];
+  
+  let sent = 0;
+  
+  testState.autoRunInterval = setInterval(() => {
+    if (sent >= count) {
+      clearInterval(testState.autoRunInterval);
+      testState.autoRunInterval = null;
+      console.log(`[TEST] Auto-run complete: ${sent} messages sent`);
+      return;
+    }
+    
+    const msg = testMessages[sent % testMessages.length];
+    const submission = {
+      id: uuidv4(),
+      message: msg,
+      sessionId: 'test-auto-run',
+      timestamp: Date.now(),
+      status: 'approved',
+      source: 'test-auto-run'
+    };
+    
+    state.submissions.unshift(submission);
+    state.approved.unshift(submission);
+    
+    logEvent('submission', { submissionId: submission.id, source: 'test-auto-run' });
+    logEvent('approval', { submissionId: submission.id, source: 'test-auto-run' });
+    
+    routeToNextModule(submission);
+    io.to('display').emit('new-message', submission);
+    io.to('moderators').emit('new-submission', submission);
+    
+    sent++;
+    console.log(`[TEST] Auto-run ${sent}/${count}: "${msg.slice(0, 40)}..."`);
+  }, intervalMs);
+  
+  console.log(`[TEST] Auto-run started: ${count} messages every ${intervalMs}ms`);
+  res.json({ success: true, count, intervalMs });
+});
+
+// Stop auto-run
+app.post('/api/test/stop', (req, res) => {
+  if (testState.autoRunInterval) {
+    clearInterval(testState.autoRunInterval);
+    testState.autoRunInterval = null;
+    console.log('[TEST] Auto-run stopped');
+    res.json({ success: true, message: 'Auto-run stopped' });
+  } else {
+    res.json({ success: true, message: 'No auto-run active' });
+  }
+});
+
+// Remove all virtual modules
+app.post('/api/test/cleanup', (req, res) => {
+  // Stop auto-run
+  if (testState.autoRunInterval) {
+    clearInterval(testState.autoRunInterval);
+    testState.autoRunInterval = null;
+  }
+  
+  // Remove virtual modules from state
+  for (const moduleId of testState.virtualModules.keys()) {
+    state.modules.delete(moduleId);
+    state.moduleOrder = state.moduleOrder.filter(id => id !== moduleId);
+    
+    io.to('display').emit('module-status', { moduleId, name: moduleId, status: 'offline' });
+    io.to('moderators').emit('module-disconnected', { moduleId, name: moduleId });
+  }
+  
+  testState.virtualModules.clear();
+  testState.testRuns = [];
+  
+  console.log('[TEST] Cleanup complete — all virtual modules removed');
+  res.json({ success: true });
+});
+
 // ============ SOCKET.IO ============
 
 io.on('connection', (socket) => {
-  console.log(`[WS] Client connected: ${socket.id}`);
+  // Connection logged only when client identifies with a role
   
   // Handle different client types
   socket.on('identify', (data) => {
@@ -664,6 +1208,13 @@ io.on('connection', (socket) => {
             queueDepth: module.queue.length
           });
           
+          // Progress: processing → rendering → complete
+          // Find original submission ID from routed message
+          const routedMsg = state.routed.find(r => r.id === messageId);
+          const originalId = routedMsg ? routedMsg.messageId : messageId;
+          advanceProgress(originalId, 5); // processing done
+          advanceProgress(originalId, 7); // rendering → complete (will chain with min delays)
+          
           // Forward to display
           io.to('display').emit('module-output', {
             moduleId,
@@ -695,8 +1246,13 @@ io.on('connection', (socket) => {
         
         break;
         
+      case 'public_client':
+      case 'audience':
+        socket.join('audience');
+        break;
+        
       default:
-        console.log(`[WS] Unknown role: ${role}`);
+        // Silently ignore unknown roles to avoid log spam
     }
   });
   
@@ -743,6 +1299,7 @@ function startHeartbeatSystem() {
     for (const [moduleId, module] of state.modules.entries()) {
       const timeSinceLastSeen = now - module.lastSeen;
       
+      if (module.isVirtual) continue; // Virtual modules don't heartbeat
       if (timeSinceLastSeen > MODULE_TIMEOUT && module.status !== 'offline') {
         console.log(`[HEARTBEAT] Module ${module.name} appears offline (last seen ${Math.round(timeSinceLastSeen/1000)}s ago)`);
         module.status = 'offline';
@@ -804,14 +1361,11 @@ async function startServer() {
     console.log(`[HUB v2] Moderation: http://localhost:${PORT}/moderate`);
     console.log(`[HUB v2] Display: http://localhost:${PORT}/display`);
     console.log(`[HUB v2] History: http://localhost:${PORT}/history`);
+    console.log(`[HUB v2] Test Console: http://localhost:${PORT}/test`);
     console.log(`[HUB v2] Archive: ${archiveDir}`);
     
     // Show network information for LAN access
-    const networkInterfaces = require('os').networkInterfaces();
-    const lanIP = Object.values(networkInterfaces)
-      .flat()
-      .find(i => i.family === 'IPv4' && !i.internal && i.address.startsWith('192.168.'))
-      ?.address;
+    const lanIP = localIP !== 'localhost' ? localIP : null;
     
     if (lanIP) {
       console.log(`\n[NETWORK] LAN Access:`);

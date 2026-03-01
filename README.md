@@ -12,16 +12,16 @@ Interactive art installation with real-time audience participation and AI<>human
 - **Art Modules:** AI-human analysis, processing, and generation
 - **Display:** 3×3 grid projection of art module outputs and audience view of routing
 
-## UIPages
+## UI Pages
 
 | Panel | URL | Purpose |
 |-------|-----|---------|
-| **Submit** | `https://nottingham-contemporary-exhibition.vercel.app/` | Public submissions |
-| **Test Submit** | `http://localhost:3000/submit` | Local submission testing |
-| **Moderation** | `http://localhost:3000/moderate` | Approve/reject submissions, control modules |
-| **Display** | `http://localhost:3000/display` | 3×3 grid for projection |
-| **Archive** | `http://localhost:3000/archive` | Event history and logs |
-| **Config** | `http://localhost:3000/art-module-config-<module number>` | Control panel for each Hub-Bridge helper app on each Art Module Laptop |
+| **Submit** | [Audience Submission](https://nottingham-contemporary-exhibition.vercel.app/) | Public submissions |
+| **Test Submit** | [Local Submission Testing](http://localhost:3000/submit) | Local submission testing |
+| **Moderation** | [Moderation Panel](http://localhost:3000/moderate) | Approve/reject submissions, control modules |
+| **Display** | [Display Panel](http://localhost:3000/display) | 3×3 grid for projection |
+| **Archive** | [Event Archive](http://localhost:3000/archive) | Event history and logs |
+| **Config** | [Art Module Config](http://localhost:3000/art-module-config-{module}) | Control panel for each Hub-Bridge helper app on each Art Module Laptop |
 
 ## QR Code
 
@@ -64,33 +64,109 @@ Router
 
 ### Verify everything working with Hub and Displays
 
-### Current Session Info
-```bash
-# Check active session
-./scripts/session-status.sh
+## Scripts
 
-# View session logs
-cat sessions/current/session.log
+All operational scripts are in the `scripts/` directory. Run them from the project root.
+
+### `boot.sh`
+**Purpose:** Full system boot with auto-configuration  
+**When to use:** Every time you start the exhibition  
+**What it does:**
+- Kills stale processes on ports 3000/4000
+- Detects local IP address
+- Continues existing session or creates new one
+- Starts Hub server (port 3000) and Hub-Bridge (port 4000)
+- If ngrok installed, creates HTTPS tunnel and updates Vercel automatically
+- Prints all URLs for QR codes, moderation, display
+
+**Usage:**
+```bash
+./scripts/boot.sh
+```
+
+### `reset-soft.sh`
+**Purpose:** Restart services while keeping current session messages  
+**When to use:** When something goes wrong but you want to keep audience submissions  
+**What it does:**
+- Stops all running services
+- Preserves current session and message history
+- Restarts via boot.sh
+
+**Usage:**
+```bash
+./scripts/reset-soft.sh
+```
+
+### `reset-hard.sh`
+**Purpose:** Full reset with new session  
+**When to use:** Before a new exhibition day or to clear all submissions  
+**What it does:**
+- Stops all services
+- Archives current session logs
+- Creates fresh session with new ID
+- Restarts via boot.sh
+
+**Usage:**
+```bash
+./scripts/reset-hard.sh [session-name]
+# Example: ./scripts/reset-hard.sh "rehearsal"
+```
+
+### `status.sh`
+**Purpose:** Quick system health check  
+**When to use:** Verify services are running and responsive  
+**What it does:**
+- Checks Hub server and Hub-Bridge status
+- Reports memory usage and API health
+- Shows ngrok tunnel status (if running)
+- Lists all access URLs
+
+**Usage:**
+```bash
+./scripts/status.sh
+```
+
+### `deploy-vercel.sh`
+**Purpose:** Manual Vercel deployment  
+**When to use:** When you need to redeploy the audience submission UI  
+**What it does:**
+- Deploys vercel-app/ to Vercel production
+
+**Usage:**
+```bash
+./scripts/deploy-vercel.sh
 ```
 
 ## Operating Hub
 
-### Start Session
-./scripts/boot-exhibition.sh (keeps prior messages)
+### Start / Resume Session
+```bash
+./scripts/boot.sh
+```
+Keeps prior messages and continues existing session.
 
-### Reset Session
-./scripts/new-session.sh (clears prior messages)
+### Soft Reset (keep messages)
+```bash
+./scripts/reset-soft.sh
+```
+Restarts services without losing submissions.
 
-### Hub Config
-- Moderation
-- Screen layout
+### Hard Reset (new session)
+```bash
+./scripts/reset-hard.sh
+```
+Archives old session and starts fresh.
 
-## Troubleshooting
+### Check Status
+```bash
+./scripts/status.sh
+```
 
-### Common Issues
-
-**Enter issue:**
-- Steps to solve
+### View Logs
+```bash
+tail -f sessions/hub.log
+tail -f sessions/bridge.log
+```
 
 ## Production Checklist
 
@@ -112,10 +188,17 @@ cat sessions/current/session.log
 - [ ] Use safe mode if modules become unstable
 
 ### After Show
-- [ ] Stop recording gracefully (`./scripts/stop-exhibition.sh`)
+- [ ] Stop services (kill processes on ports 3000/4000 or close terminal)
 - [ ] Archive session data to external drive
 - [ ] Export final video from archive/
 - [ ] Backup configuration for future shows
+
+## Troubleshooting
+
+### Common Issues
+
+**Enter issue:**
+- Steps to solve
 
 ## API Reference
 

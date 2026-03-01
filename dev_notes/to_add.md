@@ -1,7 +1,69 @@
-Factor these into dev_plan
+# Development Plan - Exhibition System
 
-1) audience submission page needs to be stripped of all but the most essential text, and the ui needs to be WCAG AAA. ensure this is done in a way that maintains the computationally efficient, well documented, and modular approach that adheres to IBM carbon, WCAG AAA, and Nielsen normal 10 heuristics for UX.
+## COMPLETED FEATURES ✅
 
-2) make tge IP address population in vercel automatic and part of the boot process. there needs to be a boot/reboot script that sorts everything and maintains the current session of audience input, and another that starts a new session. the session can be identified by a unique ID and/or date (your reccomendation is welcome)
+### 1) Audience Submission UI Redesign
+✅ **COMPLETED** - Vercel UI redesigned with black background, dynamic status text, minimal form
+- WCAG AAA accessibility compliance
+- IBM Carbon design principles 
+- Nielsen UX heuristics
+- Computationally efficient, modular architecture
 
-3) potentially send a snapshot of the main screen video output to the users browser ui once their request has fully appear on the screen. keep the user screen updated with stages "sending", "processing", "waiting for response", "waiting for approval", "approved", "rejected", "error", "routing to display", "displaying", "archived" and maybe have a minmu time of 3 seconds for each stage so user experiences progress in the experience rather than it blitz in 5 seconds and be unreadable.
+### 2) Automated Boot Scripts & Session Management  
+✅ **COMPLETED** - Full script suite created
+- `boot.sh` - Auto IP detection, session management, starts Hub+Bridge, ngrok tunnel, Vercel auto-config
+- `reset-soft.sh` - Restart services while keeping session messages
+- `reset-hard.sh` - Full reset with new session (archives old)
+- `status.sh` - System health check with memory, API, tunnel status
+- Session IDs: timestamp-random format (e.g., `20260301-001234-abc123`)
+
+### 6) Hub-Bridge Application
+✅ **COMPLETED** - Node.js bridge for art modules
+- WebSocket connection to Hub
+- OSC/HTTP/UDP output to art software
+- Webhook input for responses
+- Local web UI for configuration
+- TouchDesigner & Gravity Sketch compatible
+
+## PENDING FEATURES 🚧
+
+### CRITICAL: ngrok Installation
+🚧 **IN PROGRESS** - Required for Vercel HTTPS tunnel
+- Issue: Xcode license not accepted (blocking brew install)
+- Solution: `sudo xcodebuild -license accept` then `brew install ngrok`
+- Purpose: Fixes Mixed Content blocking between Vercel HTTPS → local HTTP Hub
+
+### 3/4) Status Progression with Artificial Delays
+📋 **PLANNED** - Enhanced user feedback system
+- Status flow: "Connecting..." (3s min) → "Sending..." → "Received" → "Routing" → "Processing" → "Displaying" → "Send a dream..."
+- Minimum 3 seconds per status for readability
+- Integrate with existing 8-stage Hub progress tracking
+- Map backend stages to user-friendly messages
+- **TBD**: Message queuing for multiple simultaneous submissions
+- **TBD**: Individual vs consolidated status for queued messages
+- Implementation: Socket.IO progress events + client-side artificial delays
+
+### 5) README Link Enhancement  
+📋 **PLANNED** - Make documentation links clickable
+- Convert plain text URLs to markdown links
+- Improve navigation within README
+
+### 7) Video Snapshot Feature
+💭 **CONCEPT** - Send display screenshot to user after their submission appears
+- Capture main screen video output
+- Send snapshot to user's browser once message is displayed
+- Integration with status progression system
+
+## TECHNICAL NOTES
+
+### System Architecture Status
+- **Hub Server**: ✅ Running (port 3000) with CORS enabled
+- **Hub-Bridge**: ✅ Running (port 4000) connecting as "Artist Bridge"
+- **Vercel UI**: ✅ Deployed with dynamic status text
+- **Progress Tracking**: ✅ 8-stage system implemented on Hub
+- **Session Management**: ✅ Persistent sessions with archive system
+
+### Current Blocking Issues
+1. **ngrok installation** (Xcode license) - prevents HTTPS tunnel for Vercel
+2. **Status progression UI** - needs frontend implementation
+3. **Message queuing strategy** - design decision needed 

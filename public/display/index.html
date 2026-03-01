@@ -5,17 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Display</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --transition-ms: 500ms;
+      --grid-gap: 4px;
     }
     
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #000;
       color: #fff;
-      min-height: 100vh;
+      width: 100vw;
+      height: 100vh;
       overflow: hidden;
     }
     
@@ -23,10 +25,10 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(3, 1fr);
-      width: 100vw;
-      height: 100vh;
-      gap: 4px;
-      padding: 4px;
+      width: 100%;
+      height: 100%;
+      gap: var(--grid-gap);
+      padding: var(--grid-gap);
     }
     
     .cell {
@@ -50,6 +52,7 @@
       letter-spacing: 0.1em;
       color: #444;
       font-weight: 600;
+      z-index: 2;
     }
     
     .cell-status {
@@ -60,11 +63,10 @@
       height: 8px;
       border-radius: 50%;
       background: #333;
+      z-index: 2;
     }
     
-    .cell-status.online {
-      background: #10b981;
-    }
+    .cell-status.online { background: #10b981; }
     
     .cell-status.processing {
       background: #f59e0b;
@@ -89,7 +91,7 @@
       max-width: 80%;
       opacity: 0;
       transform: scale(0.9);
-      transition: all 0.5s ease;
+      transition: all var(--transition-ms) ease;
     }
     
     .center .incoming-message.visible {
@@ -110,24 +112,45 @@
       text-align: center;
       width: 100%;
       height: 100%;
+      position: relative;
     }
     
-    .cell-content .placeholder {
-      color: #333;
-      font-size: 0.9rem;
-    }
+    .cell-content .placeholder { color: #333; font-size: 0.9rem; }
     
     .cell-content .output-text {
       font-size: 1.2rem;
       line-height: 1.5;
       max-height: 100%;
       overflow: hidden;
+      animation: fadeIn var(--transition-ms) ease;
     }
     
     .cell-content .output-image {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
+      animation: fadeIn var(--transition-ms) ease;
+    }
+    
+    .cell-content .output-html {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn var(--transition-ms) ease;
+    }
+    
+    .cell-content video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 4px;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
     }
     
     .routing-indicator {
@@ -153,11 +176,84 @@
       letter-spacing: 0.1em;
       opacity: 0;
       transition: opacity 0.3s;
+      z-index: 2;
     }
     
-    .cell.next .next-indicator {
-      opacity: 1;
+    .cell.next .next-indicator { opacity: 1; }
+    
+    /* Config overlay — top-right, toggleable with 'c' key */
+    .config-overlay {
+      position: fixed;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.8);
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.65rem;
+      font-family: monospace;
+      color: #666;
+      z-index: 100;
+      display: none;
+      line-height: 1.6;
     }
+    
+    .config-overlay.visible { display: block; }
+    
+    /* Progress tracker — bottom of center cell */
+    .progress-tracker {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 3;
+    }
+    
+    .progress-tracker.active { opacity: 1; }
+    
+    .progress-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #888;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 3px;
+      background: #222;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: #f59e0b;
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.8s ease;
+    }
+    
+    .progress-stages {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+    
+    .progress-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #333;
+      transition: background 0.3s;
+    }
+    
+    .progress-dot.done { background: #f59e0b; }
+    .progress-dot.current { background: #fff; }
   </style>
 </head>
 <body>
@@ -166,63 +262,70 @@
     <div class="cell" data-position="0" data-module-id="">
       <span class="cell-label">Module 1</span>
       <span class="cell-status"></span>
-      <div class="cell-content"><span class="placeholder">—</span></div>
+      <div class="cell-content"><span class="placeholder">&mdash;</span></div>
       <span class="next-indicator">Next</span>
     </div>
     <div class="cell" data-position="1" data-module-id="">
       <span class="cell-label">Module 2</span>
       <span class="cell-status"></span>
-      <div class="cell-content"><span class="placeholder">—</span></div>
+      <div class="cell-content"><span class="placeholder">&mdash;</span></div>
       <span class="next-indicator">Next</span>
     </div>
     <div class="cell" data-position="2" data-module-id="">
       <span class="cell-label">Module 3</span>
       <span class="cell-status"></span>
-      <div class="cell-content"><span class="placeholder">—</span></div>
+      <div class="cell-content"><span class="placeholder">&mdash;</span></div>
       <span class="next-indicator">Next</span>
     </div>
-    
     <!-- Row 2 -->
     <div class="cell" data-position="3" data-module-id="">
       <span class="cell-label">Module 4</span>
       <span class="cell-status"></span>
-      <div class="cell-content"><span class="placeholder">—</span></div>
+      <div class="cell-content"><span class="placeholder">&mdash;</span></div>
       <span class="next-indicator">Next</span>
     </div>
     <div class="cell center" data-position="4">
       <span class="cell-label">Incoming</span>
       <p class="incoming-message" id="incomingMessage"></p>
       <p class="waiting" id="waitingText">Waiting for messages...</p>
+      <div class="progress-tracker" id="progressTracker">
+        <div class="progress-label" id="progressLabel"></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-stages" id="progressDots"></div>
+      </div>
     </div>
     <div class="cell" data-position="5" data-module-id="">
       <span class="cell-label">Module 5</span>
       <span class="cell-status"></span>
-      <div class="cell-content"><span class="placeholder">—</span></div>
+      <div class="cell-content"><span class="placeholder">&mdash;</span></div>
       <span class="next-indicator">Next</span>
     </div>
-    
     <!-- Row 3 -->
     <div class="cell" data-position="6" data-module-id="">
       <span class="cell-label">Module 6</span>
       <span class="cell-status"></span>
-      <div class="cell-content"><span class="placeholder">—</span></div>
+      <div class="cell-content"><span class="placeholder">&mdash;</span></div>
       <span class="next-indicator">Next</span>
     </div>
     <div class="cell" data-position="7" data-module-id="">
       <span class="cell-label">Module 7</span>
       <span class="cell-status"></span>
-      <div class="cell-content"><span class="placeholder">—</span></div>
+      <div class="cell-content"><span class="placeholder">&mdash;</span></div>
       <span class="next-indicator">Next</span>
     </div>
     <div class="cell" data-position="8" data-module-id="">
       <span class="cell-label">Module 8</span>
       <span class="cell-status"></span>
-      <div class="cell-content"><span class="placeholder">—</span></div>
+      <div class="cell-content"><span class="placeholder">&mdash;</span></div>
       <span class="next-indicator">Next</span>
     </div>
   </div>
   
   <div class="routing-indicator" id="routingIndicator"></div>
+  
+  <div class="config-overlay" id="configOverlay">
+    <div id="configText">Loading config...</div>
+  </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
@@ -231,22 +334,71 @@
     const incomingMessage = document.getElementById('incomingMessage');
     const waitingText = document.getElementById('waitingText');
     const routingIndicator = document.getElementById('routingIndicator');
+    const configOverlay = document.getElementById('configOverlay');
+    const configText = document.getElementById('configText');
     
-    // Module positions (excluding center which is position 4)
+    // Module positions (excluding center = position 4)
     const modulePositions = [0, 1, 2, 3, 5, 6, 7, 8];
     let modules = [];
     let currentModuleIndex = 0;
     let messageQueue = [];
     let isAnimating = false;
     
+    // Display config (fetched from Hub)
+    let displayConfig = {
+      resolution: '1080p',
+      width: 1920,
+      height: 1080,
+      framerate: 25,
+      messageDisplayMs: 3000,
+      transitionMs: 500
+    };
+    
+    // WebRTC peer connections for video streams (moduleId -> RTCPeerConnection)
+    const peerConnections = new Map();
+    
+    // ---- CONFIG ----
+    
+    async function loadDisplayConfig() {
+      try {
+        const res = await fetch('/api/config/display');
+        const config = await res.json();
+        applyConfig(config);
+      } catch (e) {
+        console.warn('Failed to load display config, using defaults', e);
+      }
+    }
+    
+    function applyConfig(config) {
+      displayConfig = { ...displayConfig, ...config };
+      
+      // Apply transition timing
+      document.documentElement.style.setProperty('--transition-ms', displayConfig.transitionMs + 'ms');
+      
+      // Update overlay
+      configText.innerHTML = 
+        `${displayConfig.resolution} (${displayConfig.width}x${displayConfig.height})<br>` +
+        `${displayConfig.framerate} fps<br>` +
+        `msg: ${displayConfig.messageDisplayMs}ms / transition: ${displayConfig.transitionMs}ms`;
+      
+      console.log(`[DISPLAY] Config: ${displayConfig.resolution} @ ${displayConfig.framerate}fps`);
+    }
+    
+    // ---- SOCKET EVENTS ----
+    
     socket.on('connect', () => {
       console.log('Display connected');
       socket.emit('identify', { role: 'display' });
       loadModules();
+      loadDisplayConfig();
+    });
+    
+    socket.on('display-config', (config) => {
+      console.log('[DISPLAY] Config update received', config);
+      applyConfig(config);
     });
     
     socket.on('module-status', (data) => {
-      // Update individual module status
       const idx = modules.findIndex(m => m.id === data.moduleId);
       if (idx !== -1) {
         modules[idx].status = data.status;
@@ -263,13 +415,101 @@
     });
     
     socket.on('message-routed', (data) => {
-      // Module received the message, animate routing
       animateRouting(data.moduleId);
     });
     
     socket.on('module-output', (data) => {
       updateModuleContent(data.moduleId, data.output);
     });
+    
+    socket.on('message-progress', (data) => {
+      updateProgress(data);
+    });
+    
+    // WebRTC signaling for video streams from hub-bridge
+    socket.on('webrtc-offer', async (data) => {
+      const { moduleId, offer } = data;
+      console.log(`[DISPLAY] WebRTC offer from module ${moduleId}`);
+      
+      try {
+        const pc = new RTCPeerConnection({
+          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        });
+        
+        peerConnections.set(moduleId, pc);
+        
+        pc.ontrack = (event) => {
+          console.log(`[DISPLAY] Video track received from ${moduleId}`);
+          attachVideoStream(moduleId, event.streams[0]);
+        };
+        
+        pc.onicecandidate = (event) => {
+          if (event.candidate) {
+            socket.emit('webrtc-ice-candidate', { moduleId, candidate: event.candidate });
+          }
+        };
+        
+        pc.onconnectionstatechange = () => {
+          console.log(`[DISPLAY] WebRTC state for ${moduleId}: ${pc.connectionState}`);
+          if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+            detachVideoStream(moduleId);
+            peerConnections.delete(moduleId);
+          }
+        };
+        
+        await pc.setRemoteDescription(new RTCSessionDescription(offer));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        
+        socket.emit('webrtc-answer', { moduleId, answer });
+      } catch (e) {
+        console.error(`[DISPLAY] WebRTC error for ${moduleId}:`, e);
+      }
+    });
+    
+    socket.on('webrtc-ice-candidate', async (data) => {
+      const pc = peerConnections.get(data.moduleId);
+      if (pc) {
+        try {
+          await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+        } catch (e) {
+          console.error('[DISPLAY] ICE candidate error:', e);
+        }
+      }
+    });
+    
+    // ---- VIDEO STREAM HELPERS ----
+    
+    function attachVideoStream(moduleId, stream) {
+      const cell = grid.querySelector(`[data-module-id="${moduleId}"]`);
+      if (!cell) return;
+      
+      const content = cell.querySelector('.cell-content');
+      content.innerHTML = '';
+      
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      video.autoplay = true;
+      video.muted = true;
+      video.playsInline = true;
+      content.appendChild(video);
+      
+      console.log(`[DISPLAY] Video stream attached to ${moduleId}`);
+    }
+    
+    function detachVideoStream(moduleId) {
+      const cell = grid.querySelector(`[data-module-id="${moduleId}"]`);
+      if (!cell) return;
+      
+      const content = cell.querySelector('.cell-content');
+      const video = content.querySelector('video');
+      if (video) {
+        video.srcObject = null;
+        content.innerHTML = '<span class="placeholder">&mdash;</span>';
+      }
+    }
+    
+    // ---- MODULE DISPLAY ----
     
     async function loadModules() {
       try {
@@ -282,7 +522,6 @@
     }
     
     function updateModuleDisplay() {
-      // Assign modules to positions
       modules.forEach((mod, i) => {
         if (i < modulePositions.length) {
           const pos = modulePositions[i];
@@ -295,29 +534,23 @@
           }
         }
       });
-      
-      // Update next indicator
       updateNextIndicator();
     }
     
     function updateNextIndicator() {
-      // Remove all next indicators
       grid.querySelectorAll('.cell.next').forEach(c => c.classList.remove('next'));
-      
-      // Find next online module
       const onlineModules = modules.filter(m => m.status === 'online');
       if (onlineModules.length > 0) {
         const nextModule = onlineModules[currentModuleIndex % onlineModules.length];
         const cell = grid.querySelector(`[data-module-id="${nextModule.id}"]`);
-        if (cell) {
-          cell.classList.add('next');
-        }
+        if (cell) cell.classList.add('next');
       }
     }
     
+    // ---- MESSAGE QUEUE ----
+    
     function processQueue() {
       if (isAnimating || messageQueue.length === 0) return;
-      
       const message = messageQueue.shift();
       showIncomingMessage(message);
     }
@@ -328,32 +561,11 @@
       incomingMessage.textContent = message.message;
       incomingMessage.classList.add('visible');
       
-      // Auto-route after display time
+      // Display message then finish — routing is server-side
       setTimeout(() => {
-        routeToNextModule(message);
-      }, 3000);
-    }
-    
-    function routeToNextModule(message) {
-      const onlineModules = modules.filter(m => m.status === 'online');
-      
-      if (onlineModules.length === 0) {
-        console.log('No modules online');
+        incomingMessage.classList.remove('visible');
         finishAnimation();
-        return;
-      }
-      
-      const targetModule = onlineModules[currentModuleIndex % onlineModules.length];
-      currentModuleIndex++;
-      
-      // Send route request
-      fetch(`/api/route/${message.id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ moduleId: targetModule.id })
-      });
-      
-      updateNextIndicator();
+      }, displayConfig.messageDisplayMs);
     }
     
     function animateRouting(moduleId) {
@@ -373,42 +585,35 @@
       const endX = targetRect.left + targetRect.width / 2;
       const endY = targetRect.top + targetRect.height / 2;
       
-      // Position indicator
       routingIndicator.style.left = startX + 'px';
       routingIndicator.style.top = startY + 'px';
       routingIndicator.style.opacity = '1';
       
-      // Animate
       setTimeout(() => {
-        routingIndicator.style.transition = 'all 0.8s ease-in-out';
+        routingIndicator.style.transition = `all ${displayConfig.transitionMs * 1.5}ms ease-in-out`;
         routingIndicator.style.left = endX + 'px';
         routingIndicator.style.top = endY + 'px';
       }, 50);
       
-      // Hide incoming message
       incomingMessage.classList.remove('visible');
-      
-      // Mark target as processing
       targetCell.querySelector('.cell-status').classList.add('processing');
       
-      // Finish animation
       setTimeout(() => {
         routingIndicator.style.opacity = '0';
         routingIndicator.style.transition = 'none';
         finishAnimation();
-      }, 1000);
+      }, displayConfig.transitionMs * 1.5 + 200);
     }
     
     function finishAnimation() {
       isAnimating = false;
-      
       if (messageQueue.length === 0) {
         waitingText.style.display = 'block';
       }
-      
-      // Process next in queue
-      setTimeout(processQueue, 500);
+      setTimeout(processQueue, Math.max(200, displayConfig.transitionMs / 2));
     }
+    
+    // ---- MODULE OUTPUT ----
     
     function updateModuleContent(moduleId, data) {
       const cell = grid.querySelector(`[data-module-id="${moduleId}"]`);
@@ -419,12 +624,27 @@
       
       status.classList.remove('processing');
       status.classList.add('online');
-      if (data.type === 'text') {
-        content.innerHTML = '<p class="output-text">' + escapeHtml(data.content) + '</p>';
-      } else if (data.type === 'image') {
-        content.innerHTML = `<img class="output-image" src="${data.url}" alt="">`;
-      } else if (data.type === 'html') {
-        content.innerHTML = data.content;
+      
+      if (!data) return;
+      
+      switch (data.type) {
+        case 'text':
+          content.innerHTML = '<p class="output-text">' + escapeHtml(data.content) + '</p>';
+          break;
+        case 'image':
+          content.innerHTML = `<img class="output-image" src="${data.url}" alt="">`;
+          break;
+        case 'html':
+          content.innerHTML = '<div class="output-html">' + data.content + '</div>';
+          break;
+        case 'video':
+          // Direct video URL (e.g. from hub-bridge recording)
+          content.innerHTML = `<video src="${data.url}" autoplay muted loop playsinline></video>`;
+          break;
+        default:
+          if (data.content) {
+            content.innerHTML = '<p class="output-text">' + escapeHtml(String(data.content)) + '</p>';
+          }
       }
     }
     
@@ -433,6 +653,73 @@
       div.textContent = text;
       return div.innerHTML;
     }
+    
+    // ---- PROGRESS TRACKING ----
+    
+    const progressTracker = document.getElementById('progressTracker');
+    const progressLabel = document.getElementById('progressLabel');
+    const progressFill = document.getElementById('progressFill');
+    const progressDots = document.getElementById('progressDots');
+    let progressTimeout = null;
+    
+    // Initialize dots
+    function initProgressDots(total) {
+      progressDots.innerHTML = '';
+      for (let i = 0; i < total; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'progress-dot';
+        dot.dataset.stage = i;
+        progressDots.appendChild(dot);
+      }
+    }
+    
+    function updateProgress(data) {
+      const { stage, stageLabel, totalStages, percent } = data;
+      
+      // Initialize dots if needed
+      if (progressDots.children.length !== totalStages) {
+        initProgressDots(totalStages);
+      }
+      
+      // Show tracker
+      progressTracker.classList.add('active');
+      
+      // Update label and bar
+      progressLabel.textContent = stageLabel;
+      progressFill.style.width = percent + '%';
+      
+      // Update dots
+      Array.from(progressDots.children).forEach((dot, i) => {
+        dot.classList.toggle('done', i < stage);
+        dot.classList.toggle('current', i === stage);
+      });
+      
+      // Auto-hide after completion
+      if (progressTimeout) clearTimeout(progressTimeout);
+      if (stage === totalStages - 1) {
+        progressTimeout = setTimeout(() => {
+          progressTracker.classList.remove('active');
+          progressFill.style.width = '0%';
+        }, 5000);
+      }
+    }
+    
+    // ---- KEYBOARD SHORTCUTS ----
+    
+    document.addEventListener('keydown', (e) => {
+      // 'c' toggles config overlay
+      if (e.key === 'c' && !e.ctrlKey && !e.metaKey) {
+        configOverlay.classList.toggle('visible');
+      }
+      // 'f' toggles fullscreen
+      if (e.key === 'f' && !e.ctrlKey && !e.metaKey) {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen();
+        }
+      }
+    });
   </script>
 </body>
 </html>

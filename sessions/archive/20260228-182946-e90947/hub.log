@@ -1,0 +1,35 @@
+[HUB] Scanning for modules on ports: [
+  3001, 3002, 3003,
+  3004, 3005, 3006,
+  3007, 3008
+]
+[HUB] Found potential modules on ports: []
+[HUB] Module discovery complete. Found 0 potential modules.
+[ARCHIVE] HUB_STARTUP: f89e7e2b
+[HUB v2] Running on port 3000
+[HUB v2] Submission: http://localhost:3000/submit
+[HUB v2] Moderation: http://localhost:3000/moderate
+[HUB v2] Display: http://localhost:3000/display
+[HUB v2] History: http://localhost:3000/history
+[HUB v2] Test Console: http://localhost:3000/test
+[HUB v2] Archive: /Users/joe/Library/CloudStorage/OneDrive-OurWiltonTrust/Jen and Jones/2026-02-25 Nottingham Contempory AI Exhibition/Windsurf/archive
+
+[NETWORK] LAN Access:
+[NETWORK] Hub: http://192.168.1.252:3000
+[NETWORK] Submission: http://192.168.1.252:3000/submit
+[NETWORK] Moderation: http://192.168.1.252:3000/moderate
+[NETWORK] Display: http://192.168.1.252:3000/display
+[NETWORK] History: http://192.168.1.252:3000/history
+[QR CODE] Install 'qrcode' package for QR code generation
+
+[HUB v2] Ready for modules on ports: 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008
+[HUB v2] WebSocket heartbeat: 30000ms
+[HUB v2] Module timeout: 60000ms
+[WS] Module registered: Artist Bridge (bridge-mm71b9jg) on port 4000
+[ARCHIVE] MODULE_CONNECT: ad57abdd
+
+[HUB] Shutting down gracefully...
+[ARCHIVE] HUB_SHUTDOWN: 4d51beab
+[ARCHIVE] MODULE_DISCONNECT: 6f66c404
+[WS] Module disconnected: Artist Bridge (queue: 0)
+[WS] Client disconnected: WGTrwbPs9h5r_9FzAAAB

@@ -1,0 +1,19 @@
+{
+  "name": "hub-bridge",
+  "version": "1.0.0",
+  "description": "Bridge between Hub v2 and local artist creative tools (TouchDesigner, Processing, Max/MSP, etc.)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js --verbose"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.7.2",
+    "express": "^4.18.2",
+    "node-osc": "^9.0.1",
+    "screenshot-desktop": "^1.15.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

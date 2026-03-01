@@ -9,23 +9,28 @@ const socket = io(SERVER_URL);
 socket.on('connect', () => {
   console.log(`[${MODULE_NAME}] Connected to server`);
   
-  socket.emit('join', {
+  socket.emit('identify', {
     role: 'module',
     moduleId: MODULE_ID,
-    moduleName: MODULE_NAME
+    name: MODULE_NAME
   });
 });
 
 socket.on('process-message', (data) => {
-  console.log(`[${MODULE_NAME}] Received message: "${data.message}"`);
+  console.log(`[${MODULE_NAME}] Received message: "${data.content}"`);
+  
+  const startTime = Date.now();
   
   // Simulate processing delay
   setTimeout(() => {
-    // Send output back
-    socket.emit('module-output', {
-      type: 'text',
-      content: `Processed: "${data.message.toUpperCase()}"`,
-      messageId: data.id
+    // Send output back using correct event name and format
+    socket.emit('message-processed', {
+      messageId: data.id,
+      output: {
+        type: 'text',
+        content: `Processed: "${(data.content || '').toUpperCase()}"`
+      },
+      processingTime: Date.now() - startTime
     });
     
     console.log(`[${MODULE_NAME}] Sent output`);

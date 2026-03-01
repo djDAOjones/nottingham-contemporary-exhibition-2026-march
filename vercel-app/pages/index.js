@@ -1,121 +1,212 @@
 // Vercel Audience Submission UI - Main Page
-// Public interface for audience to submit content to Hub v2
+// Minimal, accessible interface following IBM Carbon, WCAG AAA, and Nielsen's heuristics
+// Modular design with computational efficiency and clear user feedback
 
-import { useState, useEffect, useRef } from 'react';
-import io from 'socket.io-client';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Head from 'next/head';
 
+// Configuration constants
+const CONFIG = {
+  WS_URL: process.env.NEXT_PUBLIC_HUB_URL || 'ws://localhost:3000',
+  MAX_LENGTH: 280,
+  COOLDOWN_SECONDS: 30,
+  CONNECTION_CHECK_INTERVAL: 15000,
+  REQUEST_TIMEOUT: 5000
+};
+
+// Utility functions for better modularity
+const createSessionId = () => `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+const formatDate = () => new Date().toLocaleDateString('en-GB', { 
+  weekday: 'long', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric' 
+});
+
+// Status configuration following IBM Carbon color tokens
+const STATUS_CONFIG = {
+  connected: { color: '#24a148', text: 'Connected to Exhibition', ariaLabel: 'System connected' },
+  connecting: { color: '#f1c21b', text: 'Connecting...', ariaLabel: 'System connecting' },
+  error: { color: '#da1e28', text: 'Connection Error', ariaLabel: 'System disconnected' }
+};
+
 export default function Home() {
-  // Core state
-  const [socket, setSocket] = useState(null);
+  // Core state management
   const [connected, setConnected] = useState(false);
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState('connecting');
   const [feedback, setFeedback] = useState('');
-  const [feedbackType, setFeedbackType] = useState(''); // 'success' | 'error' | 'info'
+  const [feedbackType, setFeedbackType] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const [history, setHistory] = useState([]);
   
-  // Configuration
-  const HUB_URL = process.env.NEXT_PUBLIC_HUB_URL || 'ws://localhost:3000';
-  const MAX_LENGTH = 280;
+  // Memoized API URL for efficiency
+  const HUB_API = useMemo(() => CONFIG.WS_URL.replace(/^ws/, 'http'), []);
   
-  const socketRef = useRef(null);
-  const reconnectRef = useRef(null);
-  const sessionId = useRef(`sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+  // Refs for cleanup and persistence
+  const cooldownRef = useRef(null);
+  const sessionId = useRef(null);
+  const connectionCheckRef = useRef(null);
 
+  // Session initialization with error handling
   useEffect(() => {
-    connect();
+    if (typeof window === 'undefined') return;
+    
+    try {
+      let stored = localStorage.getItem('exhibition_session_id');
+      if (!stored) {
+        stored = createSessionId();
+        localStorage.setItem('exhibition_session_id', stored);
+      }
+      sessionId.current = stored;
+      
+      // Load submission history
+      const savedHistory = localStorage.getItem('exhibition_history');
+      if (savedHistory) {
+        setHistory(JSON.parse(savedHistory).slice(-5)); // Keep last 5 entries
+      }
+    } catch (error) {
+      console.warn('Storage access failed:', error);
+      sessionId.current = createSessionId();
+    }
+  }, []);
+
+  // Connection management with cleanup
+  useEffect(() => {
+    checkConnection();
+    connectionCheckRef.current = setInterval(checkConnection, CONFIG.CONNECTION_CHECK_INTERVAL);
+    
     return () => {
-      if (socketRef.current) socketRef.current.disconnect();
-      if (reconnectRef.current) clearTimeout(reconnectRef.current);
+      if (connectionCheckRef.current) clearInterval(connectionCheckRef.current);
+      if (cooldownRef.current) clearInterval(cooldownRef.current);
     };
   }, []);
 
-  const connect = () => {
-    setStatus('connecting');
-    setFeedback('');
-    
-    const newSocket = io(HUB_URL, {
-      transports: ['websocket', 'polling'],
-      timeout: 8000
-    });
-    
-    newSocket.on('connect', () => {
-      setConnected(true);
-      setStatus('connected');
-      setFeedback('');
-      newSocket.emit('identify', { role: 'audience', sessionId: sessionId.current });
-    });
-    
-    newSocket.on('disconnect', () => {
-      setConnected(false);
-      setStatus('disconnected');
-      reconnectRef.current = setTimeout(connect, 3000);
-    });
-    
-    newSocket.on('connect_error', () => {
+  // Memoized connection check for efficiency
+  const checkConnection = useCallback(async () => {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT);
+      
+      const res = await fetch(`${HUB_API}/api/prompt`, { 
+        signal: controller.signal,
+        headers: { 'Accept': 'application/json' }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (res.ok) {
+        setConnected(true);
+        setStatus('connected');
+      } else {
+        setConnected(false);
+        setStatus('error');
+      }
+    } catch (error) {
       setConnected(false);
       setStatus('error');
-      setFeedback('Connection failed');
-      setFeedbackType('error');
-      reconnectRef.current = setTimeout(connect, 5000);
-    });
-    
-    newSocket.on('submission-received', () => {
-      setFeedback('Message sent successfully');
-      setFeedbackType('success');
-      setTimeout(() => setFeedback(''), 3000);
-    });
-    
-    newSocket.on('submission-error', (error) => {
-      setFeedback(error.message || 'Failed to send');
-      setFeedbackType('error');
-      setTimeout(() => setFeedback(''), 4000);
-    });
-    
-    socketRef.current = newSocket;
-    setSocket(newSocket);
-  };
+    }
+  }, [HUB_API]);
 
-  const handleChange = (e) => {
+  // Optimized input handler with validation
+  const handleChange = useCallback((e) => {
     const value = e.target.value;
-    if (value.length <= MAX_LENGTH) {
+    if (value.length <= CONFIG.MAX_LENGTH) {
       setMessage(value);
     }
-  };
+  }, []);
 
-  const handleSubmit = (e) => {
+  // Enhanced submit handler with history tracking
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     
     const text = message.trim();
-    if (!text) return;
+    if (!text || submitting || cooldown > 0) return;
     
-    if (!connected || !socket) {
-      setFeedback('Not connected');
+    if (!connected) {
+      setFeedback('Connection required to submit');
       setFeedbackType('error');
       return;
     }
     
-    socket.emit('submit-content', {
-      message: text,
-      sessionId: sessionId.current,
-      timestamp: Date.now()
-    });
-    
-    setMessage('');
-    setFeedback('Sending...');
+    setSubmitting(true);
+    setFeedback('Submitting...');
     setFeedbackType('info');
-  };
-
-  const getStatusDisplay = () => {
-    switch (status) {
-      case 'connected': return { color: 'rgb(34, 197, 94)', text: 'Connected' };
-      case 'connecting': return { color: 'rgb(251, 191, 36)', text: 'Connecting' };
-      case 'error': return { color: 'rgb(239, 68, 68)', text: 'Offline' };
-      default: return { color: 'rgb(156, 163, 175)', text: 'Unknown' };
+    
+    try {
+      const res = await fetch(`${HUB_API}/api/submit`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          message: text,
+          sessionId: sessionId.current
+        })
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok) {
+        // Success - update history and clear form
+        const newEntry = {
+          id: data.id || Date.now().toString(),
+          message: text,
+          timestamp: new Date().toISOString(),
+          status: 'submitted'
+        };
+        
+        const updatedHistory = [newEntry, ...history.slice(0, 4)];
+        setHistory(updatedHistory);
+        
+        try {
+          localStorage.setItem('exhibition_history', JSON.stringify(updatedHistory));
+        } catch (error) {
+          console.warn('Failed to save history:', error);
+        }
+        
+        setMessage('');
+        setFeedback('Submitted successfully');
+        setFeedbackType('success');
+        startCooldown(CONFIG.COOLDOWN_SECONDS);
+      } else if (res.status === 429) {
+        const match = data.error?.match(/(\d+)s/);
+        const wait = match ? parseInt(match[1]) : CONFIG.COOLDOWN_SECONDS;
+        setFeedback(`Please wait ${wait}s before submitting again`);
+        setFeedbackType('error');
+        startCooldown(wait);
+      } else {
+        setFeedback(data.error || 'Submission failed');
+        setFeedbackType('error');
+      }
+    } catch (error) {
+      setFeedback('Network error - please try again');
+      setFeedbackType('error');
+    } finally {
+      setSubmitting(false);
     }
-  };
+  }, [message, submitting, cooldown, connected, history, HUB_API]);
 
-  const statusDisplay = getStatusDisplay();
+  // Modular cooldown management
+  const startCooldown = useCallback((seconds) => {
+    setCooldown(seconds);
+    if (cooldownRef.current) clearInterval(cooldownRef.current);
+    cooldownRef.current = setInterval(() => {
+      setCooldown(prev => {
+        if (prev <= 1) {
+          clearInterval(cooldownRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, []);
+
+  // Memoized status display for efficiency
+  const statusDisplay = useMemo(() => STATUS_CONFIG[status] || STATUS_CONFIG.error, [status]);
+  const currentDate = useMemo(() => formatDate(), []);
   
   return (
     <>
@@ -126,104 +217,94 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="min-h-screen bg-black text-white flex flex-col">
-        {/* Skip link for screen readers */}
+      <div className="min-h-screen bg-black text-white flex flex-col justify-center items-center px-4">
+        {/* Skip link for accessibility */}
         <a 
           href="#main-form" 
-          className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 bg-white text-black p-2 z-50"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-white text-black px-4 py-2 rounded z-50 font-medium"
         >
-          Skip to main form
+          Skip to submission form
         </a>
 
-        {/* Header */}
-        <header className="p-6 text-center border-b border-gray-800" role="banner">
-          <h1 className="text-2xl font-bold">AI Exhibition</h1>
-        </header>
+        {/* Main centered content */}
+        <main className="w-full max-w-md space-y-6" role="main">
+          
+          {/* Dynamic status heading */}
+          <h1 className="text-center text-xl text-white mb-8">
+            {!connected ? 'Connecting...' : 'Send a dream...'}
+          </h1>
 
-        {/* Main content */}
-        <main className="flex-1 flex items-center justify-center p-6" role="main">
-          <div className="w-full max-w-md space-y-6">
-            
-            {/* Connection status */}
-            <div 
-              className="flex items-center gap-2 text-sm"
-              role="status" 
-              aria-live="polite"
-            >
+          {/* Submission form */}
+          <form 
+            id="main-form"
+            onSubmit={handleSubmit} 
+            className="space-y-4"
+            noValidate
+          >
+            <div>
+              <label htmlFor="message-input" className="sr-only">
+                Type your response here
+              </label>
+              <textarea
+                id="message-input"
+                value={message}
+                onChange={handleChange}
+                placeholder="Type your response here..."
+                className="w-full h-32 p-4 bg-gray-800 border border-gray-700 rounded text-white placeholder-gray-400 
+                         focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500
+                         disabled:bg-gray-900 disabled:border-gray-800 disabled:text-gray-500
+                         resize-none text-base"
+                maxLength={CONFIG.MAX_LENGTH}
+                disabled={!connected}
+                aria-describedby="char-count"
+                required
+              />
               <div 
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: statusDisplay.color }}
-                aria-hidden="true"
-              ></div>
-              <span>{statusDisplay.text}</span>
+                id="char-count"
+                className="text-right text-sm text-gray-400 mt-2"
+                aria-live="polite"
+              >
+                {message.length}/{CONFIG.MAX_LENGTH}
+              </div>
             </div>
 
-            {/* Submission form */}
-            <form 
-              id="main-form"
-              onSubmit={handleSubmit} 
-              className="space-y-6"
-              noValidate
+            <button
+              type="submit"
+              disabled={!connected || !message.trim() || submitting || cooldown > 0}
+              className="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded
+                       disabled:bg-gray-800 disabled:text-gray-500 disabled:cursor-not-allowed
+                       focus:outline-none focus:ring-1 focus:ring-gray-500
+                       transition-colors duration-200"
+              aria-describedby="feedback"
             >
-              <div>
-                <label 
-                  htmlFor="message-input"
-                  className="block text-lg font-medium mb-3"
-                >
-                  Your message
-                </label>
-                <textarea
-                  id="message-input"
-                  value={message}
-                  onChange={handleChange}
-                  placeholder="Share a thought..."
-                  className="w-full h-24 p-4 bg-gray-900 border border-gray-700 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent resize-none"
-                  maxLength={MAX_LENGTH}
-                  disabled={!connected}
-                  aria-describedby="char-count feedback"
-                  required
-                />
-                <div 
-                  id="char-count"
-                  className="text-sm text-gray-400 mt-1"
-                  aria-live="polite"
-                >
-                  {message.length}/{MAX_LENGTH}
-                </div>
-              </div>
+              {submitting ? 'Sending...' : cooldown > 0 ? `Wait ${cooldown}s` : 'Send'}
+            </button>
+          </form>
 
-              <button
-                type="submit"
-                disabled={!connected || !message.trim()}
-                className="w-full bg-white text-black font-medium py-4 px-6 rounded hover:bg-gray-100 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black transition-colors"
-                aria-describedby="feedback"
-              >
-                {connected ? 'Send' : 'Connecting...'}
-              </button>
-            </form>
-
-            {/* Feedback */}
-            {feedback && (
-              <div 
-                id="feedback"
-                className={`text-center text-sm p-3 rounded ${
-                  feedbackType === 'success' ? 'text-green-400 bg-green-950' :
-                  feedbackType === 'error' ? 'text-red-400 bg-red-950' :
-                  'text-gray-300 bg-gray-800'
-                }`}
-                role="alert"
-                aria-live="assertive"
-              >
-                {feedback}
-              </div>
-            )}
+          {/* Disclaimer */}
+          <div className="text-center text-sm text-gray-400 space-y-1">
+            <p>Your submission will be displayed publicly.</p>
+            <p>Please don't include personal information.</p>
           </div>
-        </main>
 
-        {/* Footer */}
-        <footer className="p-4 text-center text-sm text-gray-500 border-t border-gray-800" role="contentinfo">
-          Nottingham Contemporary 2026
-        </footer>
+          {/* Feedback messages */}
+          {feedback && (
+            <div 
+              id="feedback"
+              className={`text-center text-sm p-3 rounded ${
+                feedbackType === 'success' 
+                  ? 'text-green-400 bg-green-950/30' :
+                feedbackType === 'error' 
+                  ? 'text-red-400 bg-red-950/30' :
+                  'text-gray-300 bg-gray-800/30'
+              }`}
+              role="alert"
+              aria-live="assertive"
+            >
+              {feedback}
+            </div>
+          )}
+        </main>
       </div>
     </>
   );
