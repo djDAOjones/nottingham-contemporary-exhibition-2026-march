@@ -96,24 +96,18 @@ Helper app for routing messages and media signal to and from Art Modules
 
 All pages (except venue-specific) share the same codebase and are available both locally and online. Online versions enable remote team testing and venue redundancy. Pages auto-detect whether to connect to `localhost:3000` or the ngrok public URL.
 
-### Local + Online Pages (Shared Codebase)
+### All Pages
 
 | Panel | Local URL | Online URL | Purpose |
-|-------|-----------|-----------|---------|
-| **Audience Submission** | [Local](http://localhost:3000/submit) | [Online](https://nottingham-contemporary-exhibition.vercel.app/) | Visitor text input |
+|-------|-----------|------------|---------|
+| **Audience Submission** | [Local](http://localhost:3000/submit) | [Online](https://nottingham-contemporary-exhibition.vercel.app/submit) | Visitor text input (QR code target) |
 | **Moderation Panel** | [Local](http://localhost:3000/moderate) | [Online](https://nottingham-contemporary-exhibition.vercel.app/moderate) | Approve/reject submissions, control modules |
 | **Art Display** | [Local](http://localhost:3000/display) | [Online](https://nottingham-contemporary-exhibition.vercel.app/display) | 3×3 grid of Art Module outputs for projection |
 | **Message Queue Display** | [Local](http://localhost:3000/queue) | [Online](https://nottingham-contemporary-exhibition.vercel.app/queue) | Paginated queue of approved audience submissions |
-| **History Page** | [Local](http://localhost:3000/history) | [Online](https://nottingham-contemporary-exhibition.vercel.app/history) | Recent approved messages |
-| **Testing Console** | [Local](http://localhost:3000/test) | [Online](https://nottingham-contemporary-exhibition.vercel.app/test) | Diagnostics and bulk test generation |
 | **Message Checker** | [Local](http://localhost:3000/checker) | [Online](https://nottingham-contemporary-exhibition.vercel.app/checker) | Team view: all messages + moderation status (read-only) |
-
-### Venue-Specific Pages (Local Only)
-
-| Panel | URL | Purpose |
-|-------|-----|---------|
-| **Archive/Event Log** | [Local](http://localhost:3000/archive) | Event history and logs |
-| **Hub Bridge Config** | [Local](http://localhost:4000/) | Control panel for Hub-Bridge helper app on Art Module Laptops |
+| **Testing Console** | [Local](http://localhost:3000/test) | [Online](https://nottingham-contemporary-exhibition.vercel.app/test) | Diagnostics and bulk test generation |
+| **Archive/Event Log** | [Local](http://localhost:3000/archive) | [Online](https://nottingham-contemporary-exhibition.vercel.app/archive) | Event history and logs (venue only) |
+| **Hub Bridge Config** | [Local](http://localhost:4000/) | [Online](https://nottingham-contemporary-exhibition.vercel.app/bridge) | Hub-Bridge control panel for Art Module Laptops (venue only) |
 
 ---
 

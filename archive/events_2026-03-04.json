@@ -25,3 +25,31 @@
 {"id":"04ebbdc8-b0ca-4220-81cd-19bbbc7967e3","timestamp":"2026-03-04T15:48:02.178Z","type":"module_connect","data":{"moduleId":"bridge-mmc4gllm","moduleName":"Artist Bridge","port":4000}}
 {"id":"176b6284-0ac0-4c57-88f0-e0e17e2cc014","timestamp":"2026-03-04T16:12:20.146Z","type":"module_disconnect","data":{"moduleId":"bridge-mmc4gllm","moduleName":"Artist Bridge","queueDepth":0}}
 {"id":"dca3d7d6-a386-40b3-95f8-1eb15316d0f1","timestamp":"2026-03-04T16:12:22.839Z","type":"module_connect","data":{"moduleId":"bridge-mmc4gllm","moduleName":"Artist Bridge","port":4000}}
+{"id":"9d5157c9-674d-46bc-8e34-967ad484f8b6","timestamp":"2026-03-04T18:00:16.359Z","type":"test_bulk_pending","data":{"count":50}}
+{"id":"57e063ea-a15e-4434-ac0a-0c4c13fd88da","timestamp":"2026-03-04T18:00:16.812Z","type":"test_bulk_approved","data":{"count":100}}
+{"id":"259177a9-51cd-405e-b65f-c9ed8277cc64","timestamp":"2026-03-04T18:16:32.429Z","type":"hub_startup","data":{"port":3000,"modulePorts":[],"timestamp":"2026-03-04T18:16:32.428Z"}}
+{"id":"69bc6406-5dad-475f-8c86-8e319eb0756c","timestamp":"2026-03-04T18:16:35.584Z","type":"module_connect","data":{"moduleId":"bridge-mmc4gllm","moduleName":"Artist Bridge","port":4000}}
+{"id":"d164f8d5-908f-43ae-8397-96de09c06567","timestamp":"2026-03-04T18:33:25.623Z","type":"test_bulk_pending","data":{"count":50}}
+{"id":"380b7bf0-2d99-4e70-ae0b-62af4d77feda","timestamp":"2026-03-04T18:33:26.172Z","type":"test_bulk_approved","data":{"count":100}}
+{"id":"f8b8a637-3dfe-4abf-a470-5e593c0c34d0","timestamp":"2026-03-04T18:33:37.705Z","type":"approval","data":{"submissionId":"2af89c13-2ffd-4974-bc1c-77dc1912c940","originalMessage":"Music flows through fiber optic veins [50]","finalMessage":"Music flows through fiber optic veins [50]","edited":false}}
+{"id":"ba57723a-77f1-430e-89a6-d4c86bddfdbf","timestamp":"2026-03-04T18:33:37.706Z","type":"routing","data":{"routedMessageId":"7f3b9342-b210-4b87-84fd-35f8cc9ff943","originalSubmissionId":"2af89c13-2ffd-4974-bc1c-77dc1912c940","targetModuleId":"bridge-mmc4gllm","targetModuleName":"Artist Bridge","queueDepth":1}}
+{"id":"26e6b1af-cb1c-408a-afe7-705519d01a1b","timestamp":"2026-03-04T18:33:38.980Z","type":"approval","data":{"submissionId":"596690e3-9aa9-4862-9099-8042006ee5c3","originalMessage":"I believe in the kindness of strangers online [48]","finalMessage":"I believe in the kindness of strangers online [48]","edited":false}}
+{"id":"ed65480b-946e-4276-b2d3-8a5ca0da71ab","timestamp":"2026-03-04T18:33:40.829Z","type":"approval","data":{"submissionId":"9ff6ff0e-8bbb-48d7-9688-dd7bc6079981","originalMessage":"Tomorrow is a canvas waiting for our brushstrokes [49]","finalMessage":"Tomorrow is a canvas waiting for our brushstrokes [49]","edited":false}}
+{"id":"cf733587-b15c-40ce-b93b-d9b42017bc67","timestamp":"2026-03-04T18:34:07.709Z","type":"module_error","data":{"moduleId":"bridge-mmc4gllm","moduleName":"Artist Bridge","messageId":"7f3b9342-b210-4b87-84fd-35f8cc9ff943","error":"Output capture timed out"}}
+{"id":"be58eb86-d602-4f05-bf91-8b6d3cec9afe","timestamp":"2026-03-04T21:03:21.538Z","type":"submission","data":{"submissionId":"8b36de90-dd45-46f2-b4b3-203b86c41a0a","sessionId":"sess_vtiqitamimm5lcvkf","messageLength":10,"prompt":"Send a dream..."}}
+{"id":"354585aa-aec3-4053-94a6-cb6fad58fe3a","timestamp":"2026-03-04T21:04:04.030Z","type":"safe_mode_toggle","data":{"enabled":true}}
+{"id":"b9df319a-6016-4ef7-8199-70bc0fdd9367","timestamp":"2026-03-04T21:04:05.124Z","type":"safe_mode_toggle","data":{"enabled":false}}
+{"id":"5acf9ed6-19c9-4973-b909-03f2ced4af26","timestamp":"2026-03-04T21:04:05.673Z","type":"safe_mode_toggle","data":{"enabled":true}}
+{"id":"637ea4b2-ba9d-42a9-a74f-935d0bf3e448","timestamp":"2026-03-04T21:04:06.572Z","type":"safe_mode_toggle","data":{"enabled":false}}
+{"id":"ae98e04f-30ba-4809-bc82-4a2b66e770c2","timestamp":"2026-03-04T21:05:47.211Z","type":"module_disconnect","data":{"moduleId":"bridge-mmc4gllm","moduleName":"Artist Bridge","queueDepth":0}}
+{"id":"a7108b00-7972-41a4-b927-884091a83aa8","timestamp":"2026-03-04T21:05:50.748Z","type":"hub_startup","data":{"port":3000,"modulePorts":[],"timestamp":"2026-03-04T21:05:50.747Z"}}
+{"id":"537d2978-2754-4711-a627-61345dda67d0","timestamp":"2026-03-04T21:05:53.751Z","type":"module_connect","data":{"moduleId":"bridge-mmcj0jlq","moduleName":"Artist Bridge","port":4000}}
+{"id":"2b0a1c73-6032-4aff-9913-0e2298dbd340","timestamp":"2026-03-04T21:05:58.714Z","type":"connection_mode_changed","data":{"mode":"remote","localUrl":"http://192.168.1.252:3000","publicUrl":"https://dominatingly-sociogenetic-kym.ngrok-free.dev"}}
+{"id":"7e28e9ee-b490-4838-a299-492f8c7a096b","timestamp":"2026-03-04T21:19:49.236Z","type":"hub_startup","data":{"port":3000,"modulePorts":[],"timestamp":"2026-03-04T21:19:49.235Z"}}
+{"id":"d8413209-2a35-46e5-bdeb-08f8f4eabb52","timestamp":"2026-03-04T21:19:50.026Z","type":"module_connect","data":{"moduleId":"bridge-mmcj0jlq","moduleName":"Artist Bridge","port":4000}}
+{"id":"33870b83-99c3-4213-9074-b92e4c442916","timestamp":"2026-03-04T21:37:34.796Z","type":"module_disconnect","data":{"moduleId":"bridge-mmcj0jlq","moduleName":"Artist Bridge","queueDepth":0}}
+{"id":"7891d0ec-b22b-48f1-84a5-dc95d10c2a45","timestamp":"2026-03-04T21:37:38.326Z","type":"hub_startup","data":{"port":3000,"modulePorts":[],"timestamp":"2026-03-04T21:37:38.325Z"}}
+{"id":"1d8f33d5-96f5-4384-8b18-cfdaf7e1aa06","timestamp":"2026-03-04T21:37:41.373Z","type":"module_connect","data":{"moduleId":"bridge-mmck5fj3","moduleName":"Artist Bridge","port":4000}}
+{"id":"7f6b1b9a-3451-42e0-a024-24ccdeea1b29","timestamp":"2026-03-04T21:37:46.308Z","type":"connection_mode_changed","data":{"mode":"remote","localUrl":"http://192.168.1.252:3000","publicUrl":"https://dominatingly-sociogenetic-kym.ngrok-free.dev"}}
+{"id":"57241b21-15ef-4a70-a05c-aae59d33b5e4","timestamp":"2026-03-04T22:00:25.434Z","type":"test_bulk_pending","data":{"count":50}}
+{"id":"19890f0a-632b-4aa0-8752-c7cdbdc7b4b6","timestamp":"2026-03-04T22:00:26.381Z","type":"test_bulk_approved","data":{"count":100}}

@@ -19,7 +19,7 @@ const io = new Server(server, {
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Accept, ngrok-skip-browser-warning');
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
@@ -171,7 +171,6 @@ function broadcastProgress(messageId, stageIndex) {
 app.use('/submit', express.static(path.join(__dirname, '../public/submit')));
 app.use('/moderate', express.static(path.join(__dirname, '../public/moderate')));
 app.use('/display', express.static(path.join(__dirname, '../public/display')));
-app.use('/history', express.static(path.join(__dirname, '../public/history')));
 app.use('/queue', express.static(path.join(__dirname, '../public/queue')));
 app.use('/checker', express.static(path.join(__dirname, '../public/checker')));
 

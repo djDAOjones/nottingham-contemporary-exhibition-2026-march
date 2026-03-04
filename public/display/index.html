@@ -343,6 +343,7 @@
     let currentModuleIndex = 0;
     let messageQueue = [];
     let isAnimating = false;
+    let demoMode = false;
     
     // Display config (fetched from Hub)
     let displayConfig = {
@@ -353,6 +354,86 @@
       messageDisplayMs: 3000,
       transitionMs: 500
     };
+    
+    // ---- DEMO MODE (for online/concept sharing) ----
+    
+    const DEMO_MODULES = [
+      { id: 'demo-1', name: 'Artist Bridge',     status: 'online',  output: 'Translating dreams into visual poetry...' },
+      { id: 'demo-2', name: 'Sound Weaver',      status: 'online',  output: 'Harmonics shifting to collective mood' },
+      { id: 'demo-3', name: 'Pattern Engine',     status: 'online',  output: null },
+      { id: 'demo-4', name: 'Memory Archive',     status: 'offline', output: null },
+      { id: 'demo-5', name: 'Light Sculptor',     status: 'online',  output: 'Projection mapping: active' },
+      { id: 'demo-6', name: 'Text Decay',         status: 'offline', output: null },
+      { id: 'demo-7', name: 'Collective Voice',   status: 'online',  output: null },
+      { id: 'demo-8', name: 'Rhythm Pulse',       status: 'online',  output: 'BPM synced to submission rate' }
+    ];
+    
+    const DEMO_MESSAGES = [
+      'I dream of electric gardens growing in the clouds',
+      'What if machines could feel the warmth of sunrise?',
+      'My hope is that technology brings people closer together',
+      'In the future, art creates itself and we just watch',
+      'Dancing with algorithms under neon skies',
+      'The stars remember every wish ever made',
+      'Music flows through fiber optic veins'
+    ];
+    
+    function startDemoMode() {
+      if (demoMode) return;
+      demoMode = true;
+      console.log('[DISPLAY] Demo mode — showing concept layout');
+      
+      // Populate modules
+      DEMO_MODULES.forEach((mod, i) => {
+        const pos = modulePositions[i];
+        const cell = grid.querySelector(`[data-position="${pos}"]`);
+        if (!cell) return;
+        cell.dataset.moduleId = mod.id;
+        cell.querySelector('.cell-label').textContent = mod.name;
+        const status = cell.querySelector('.cell-status');
+        status.classList.toggle('online', mod.status === 'online');
+        if (mod.output) {
+          cell.querySelector('.cell-content').innerHTML =
+            '<p class="output-text" style="font-size:1rem;color:#888;">' + mod.output + '</p>';
+        }
+      });
+      
+      // Cycle demo messages through center cell
+      let msgIdx = 0;
+      function cycleMessage() {
+        if (!demoMode) return;
+        const msg = DEMO_MESSAGES[msgIdx % DEMO_MESSAGES.length];
+        msgIdx++;
+        
+        waitingText.style.display = 'none';
+        incomingMessage.textContent = msg;
+        incomingMessage.classList.add('visible');
+        
+        setTimeout(() => {
+          incomingMessage.classList.remove('visible');
+          
+          // Simulate routing to a random online module
+          const onlineCells = DEMO_MODULES
+            .map((m, i) => m.status === 'online' ? modulePositions[i] : -1)
+            .filter(p => p >= 0);
+          const targetPos = onlineCells[Math.floor(Math.random() * onlineCells.length)];
+          const targetCell = grid.querySelector(`[data-position="${targetPos}"]`);
+          
+          if (targetCell) {
+            targetCell.querySelector('.cell-status').classList.add('processing');
+            setTimeout(() => {
+              targetCell.querySelector('.cell-status').classList.remove('processing');
+              targetCell.querySelector('.cell-status').classList.add('online');
+            }, 1500);
+          }
+          
+          setTimeout(cycleMessage, 2000);
+        }, displayConfig.messageDisplayMs);
+      }
+      
+      // Start after a brief pause
+      setTimeout(cycleMessage, 1500);
+    }
     
     // WebRTC peer connections for video streams (moduleId -> RTCPeerConnection)
     const peerConnections = new Map();
@@ -386,14 +467,26 @@
     
     // ---- SOCKET EVENTS ----
     
+    // Start demo mode if socket doesn't connect within 5s
+    let demoTimeout = setTimeout(() => {
+      if (!socket || !socket.connected) startDemoMode();
+    }, 5000);
+    
     HubConnection.ready.then(() => {
       socket = HubConnection.connectSocket();
+      if (!socket) { startDemoMode(); return; }
 
       socket.on('connect', () => {
+      clearTimeout(demoTimeout);
+      demoMode = false;
       console.log('Display connected');
       socket.emit('identify', { role: 'display' });
       loadModules();
       loadDisplayConfig();
+    });
+    
+    socket.on('connect_error', () => {
+      if (!demoMode) startDemoMode();
     });
     
     socket.on('display-config', (config) => {

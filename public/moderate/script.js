@@ -628,8 +628,31 @@ setInterval(() => {
   }
 }, 30000);
 
+// ---- DISCONNECTED FALLBACK ----
+
+function showDisconnectedGrid() {
+  console.log('[MODERATOR] Hub not reachable — showing disconnected state');
+  moduleGrid.innerHTML = '';
+  for (let i = 0; i < 9; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'module-slot' + (i === 4 ? ' center' : '');
+    if (i === 4) {
+      slot.innerHTML = '<div class="empty-slot" style="color:#888;">Hub not connected</div>';
+    } else {
+      slot.innerHTML = '<div class="empty-slot">—</div>';
+    }
+    moduleGrid.appendChild(slot);
+  }
+  moduleStatus.innerHTML = '<div class="empty-state">Unable to reach Hub</div>';
+}
+
 // Initialize on load
 window.addEventListener('load', () => {
   loadSubmissions();
   loadModuleStatus();
+
+  // If not connected after 8s, show disconnected grid
+  setTimeout(() => {
+    if (!isConnected && modules.size === 0) showDisconnectedGrid();
+  }, 8000);
 });

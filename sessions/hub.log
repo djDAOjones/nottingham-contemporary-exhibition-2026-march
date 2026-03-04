@@ -5,8 +5,8 @@
 ]
 [HUB] Found potential modules on ports: []
 [HUB] Module discovery complete. Found 0 potential modules.
-[ARCHIVE] HUB_STARTUP: 4ff2996e
-[CONNECTION] Local URL: http://172.21.27.142:3000
+[ARCHIVE] HUB_STARTUP: 7891d0ec
+[CONNECTION] Local URL: http://192.168.1.252:3000
 [HUB v2] Running on port 3000
 [HUB v2] Submission: http://localhost:3000/submit
 [HUB v2] Moderation: http://localhost:3000/moderate
@@ -17,49 +17,31 @@
 [HUB v2] Archive: /Users/joe/Library/CloudStorage/OneDrive-OurWiltonTrust/Jen and Jones/2026-02-25 Nottingham Contempory AI Exhibition/Windsurf/archive
 
 [NETWORK] LAN Access:
-[NETWORK] Hub: http://172.21.27.142:3000
-[NETWORK] Submission: http://172.21.27.142:3000/submit
-[NETWORK] Moderation: http://172.21.27.142:3000/moderate
-[NETWORK] Display: http://172.21.27.142:3000/display
-[NETWORK] History: http://172.21.27.142:3000/history
+[NETWORK] Hub: http://192.168.1.252:3000
+[NETWORK] Submission: http://192.168.1.252:3000/submit
+[NETWORK] Moderation: http://192.168.1.252:3000/moderate
+[NETWORK] Display: http://192.168.1.252:3000/display
+[NETWORK] History: http://192.168.1.252:3000/history
 [QR CODE] Install 'qrcode' package for QR code generation
 
 [HUB v2] Ready for modules on ports: 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008
 [HUB v2] WebSocket heartbeat: 30000ms
 [HUB v2] Module timeout: 60000ms
-[WS] Display joined: q07rrsMRS4uI9R4vAAAC
-[WS] Moderator joined: AVNJkur8Lj1-tunkAAAD
-[WS] Module registered: Artist Bridge (bridge-mmc4gllm) on port 4000
-[ARCHIVE] MODULE_CONNECT: 4aee246c
+[WS] Moderator joined: 12YBbd3fj7n3TMiBAAAB
+[WS] Module registered: Artist Bridge (bridge-mmck5fj3) on port 4000
+[ARCHIVE] MODULE_CONNECT: 1d8f33d5
 [CONNECTION] hub-config.json updated: https://dominatingly-sociogenetic-kym.ngrok-free.dev
-[ARCHIVE] CONNECTION_MODE_CHANGED: d1091ea7
+[ARCHIVE] CONNECTION_MODE_CHANGED: 7f6b1b9a
 [CONNECTION] Mode: remote, Public URL: https://dominatingly-sociogenetic-kym.ngrok-free.dev
-[WS] Client disconnected: AVNJkur8Lj1-tunkAAAD
-[WS] Client disconnected: q07rrsMRS4uI9R4vAAAC
-[WS] Moderator joined: HS-jwQmXOMZqmgkSAAAI
-[WS] Display joined: vr6AbxEHx4CkXftmAAAJ
-[HEARTBEAT] Module Artist Bridge appears offline (last seen 227s ago)
-[HEARTBEAT] Module Artist Bridge appears offline (last seen 435s ago)
-[ARCHIVE] MODULE_DISCONNECT: b0852ed1
-[WS] Module disconnected: Artist Bridge (queue: 0)
-[WS] Client disconnected: 70HHhtTfNoMeGVokAAAF
-[WS] Module registered: Artist Bridge (bridge-mmc4gllm) on port 4000
-[ARCHIVE] MODULE_CONNECT: e8471f4f
-[HEARTBEAT] Module Artist Bridge appears offline (last seen 86s ago)
-[ARCHIVE] MODULE_DISCONNECT: 5b827ac6
-[WS] Module disconnected: Artist Bridge (queue: 0)
-[WS] Client disconnected: NxO17Rf22eQjcXU_AAAL
-[WS] Module registered: Artist Bridge (bridge-mmc4gllm) on port 4000
-[ARCHIVE] MODULE_CONNECT: 04ebbdc8
-[HEARTBEAT] Module Artist Bridge appears offline (last seen 990s ago)
-[HEARTBEAT] Module Artist Bridge appears offline (last seen 61s ago)
-[HEARTBEAT] Module Artist Bridge appears offline (last seen 257s ago)
-[ARCHIVE] MODULE_DISCONNECT: 176b6284
-[WS] Module disconnected: Artist Bridge (queue: 0)
-[WS] Client disconnected: MgbOqHYlyTXsh6lfAAAN
-[WS] Module registered: Artist Bridge (bridge-mmc4gllm) on port 4000
-[ARCHIVE] MODULE_CONNECT: dca3d7d6
-[HEARTBEAT] Module Artist Bridge appears offline (last seen 845s ago)
-[HEARTBEAT] Module Artist Bridge appears offline (last seen 371s ago)
-[WS] Client disconnected: vr6AbxEHx4CkXftmAAAJ
-[WS] Client disconnected: HS-jwQmXOMZqmgkSAAAI
+[WS] Client disconnected: Sa_zXOBIzuHCkPjLAAAF
+[WS] Moderator joined: dk-r6Mzh9ahePjd9AAAH
+[WS] Client disconnected: dk-r6Mzh9ahePjd9AAAH
+[WS] Client disconnected: 12YBbd3fj7n3TMiBAAAB
+[WS] Display joined: cjzMdfVD3O4uAZAHAAAJ
+[WS] Display joined: fbxfc-WkDRy71OIkAAAL
+[WS] Client disconnected: fbxfc-WkDRy71OIkAAAL
+[WS] Client disconnected: cjzMdfVD3O4uAZAHAAAJ
+[ARCHIVE] TEST_BULK_PENDING: 57241b21
+[TEST] Bulk created 50 pending messages for moderation
+[ARCHIVE] TEST_BULK_APPROVED: 19890f0a
+[TEST] Bulk created 100 approved messages for display queue

@@ -64,19 +64,43 @@ const HubConnection = (() => {
         resolve();
         return;
       }
-      const script = document.createElement('script');
-      script.src = baseUrl ? `${baseUrl}/socket.io/socket.io.js` : '/socket.io/socket.io.js';
-      script.onload = resolve;
-      script.onerror = () => {
-        console.warn('[hub-connect] Failed to load Socket.IO from ' + script.src);
-        resolve(); // Resolve anyway — page may not need Socket.IO
-      };
-      document.head.appendChild(script);
+
+      // Remote: always load Socket.IO client from CDN (script tags can't
+      // send custom headers, so ngrok's interstitial blocks the load).
+      // Local: load from the Hub itself so we stay version-matched.
+      const sources = baseUrl
+        ? [
+            'https://cdn.socket.io/4.8.3/socket.io.min.js',
+            `${baseUrl}/socket.io/socket.io.js`
+          ]
+        : ['/socket.io/socket.io.js'];
+
+      function tryLoad(index) {
+        if (index >= sources.length) {
+          console.warn('[hub-connect] Failed to load Socket.IO from all sources');
+          resolve();
+          return;
+        }
+        const script = document.createElement('script');
+        script.src = sources[index];
+        script.onload = resolve;
+        script.onerror = () => {
+          console.warn('[hub-connect] Failed to load Socket.IO from ' + script.src);
+          tryLoad(index + 1);
+        };
+        document.head.appendChild(script);
+      }
+
+      tryLoad(0);
     });
   }
 
   function hubFetch(path, opts = {}) {
     const url = hubUrl ? `${hubUrl}${path}` : path;
+    // ngrok free tier returns HTML interstitial without this header
+    if (hubUrl && hubUrl.includes('.ngrok')) {
+      opts.headers = Object.assign({ 'ngrok-skip-browser-warning': 'true' }, opts.headers || {});
+    }
     return fetch(url, opts);
   }
 
@@ -84,6 +108,15 @@ const HubConnection = (() => {
     if (!window.io) {
       console.error('[hub-connect] Socket.IO not loaded');
       return null;
+    }
+    // Remote connections: force WebSocket transport (skip HTTP long-polling)
+    // This is critical for ngrok where polling requests hit the interstitial
+    if (hubUrl) {
+      opts.transports = ['websocket'];
+    }
+    // ngrok free tier needs this header on transport requests
+    if (hubUrl && hubUrl.includes('.ngrok')) {
+      opts.extraHeaders = Object.assign({ 'ngrok-skip-browser-warning': 'true' }, opts.extraHeaders || {});
     }
     return hubUrl ? io(hubUrl, opts) : io(opts);
   }
