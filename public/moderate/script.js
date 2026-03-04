@@ -183,8 +183,8 @@ function renderModuleGrid() {
         
         slot.innerHTML = `
           <div class="module-actions">
-            <button class="module-btn" onclick="retryModule('${moduleId}')" title="Retry">↻</button>
-            <button class="module-btn" onclick="clearQueue('${moduleId}')" title="Clear Queue">✕</button>
+            <button class="module-btn" onclick="retryModule('${moduleId}')" title="Retry" aria-label="Retry ${module.name}">Retry</button>
+            <button class="module-btn" onclick="clearQueue('${moduleId}')" title="Clear Queue" aria-label="Clear queue for ${module.name}">Clear</button>
           </div>
           <div class="module-info">
             <div class="module-name">${module.name}</div>
@@ -222,21 +222,21 @@ function renderModuleStatus() {
   
   let html = '';
   modules.forEach(module => {
-    const statusColor = {
-      online: '#10b981',
-      offline: '#ef4444',
-      processing: '#f59e0b',
-      timeout: '#8b5cf6'
-    }[module.status] || '#666';
+    const statusVar = {
+      online: 'var(--success)',
+      offline: 'var(--danger)',
+      processing: 'var(--warning)',
+      timeout: 'var(--purple)'
+    }[module.status] || 'var(--text-secondary)';
     
     html += `
-      <div style="margin-bottom: 12px; padding: 8px; background: #1a1a1a; border-radius: 6px; border: 1px solid #333;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div role="listitem" style="margin-bottom:8px;padding:8px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border-subtle);">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
           <strong>${module.name}</strong>
-          <span style="color: ${statusColor}; font-size: 0.8rem;">${module.status}</span>
+          <span style="color:${statusVar};font-size:0.75rem;text-transform:uppercase;letter-spacing:0.04em;">${module.status}</span>
         </div>
-        <div style="font-size: 0.75rem; color: #888; margin-top: 4px;">
-          Queue: ${module.queueDepth || 0} | 
+        <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:4px;">
+          Queue: ${module.queueDepth || 0} |
           Port: ${module.port || 'Unknown'}
         </div>
       </div>
@@ -258,9 +258,11 @@ function updateSystemInfo() {
 function updateSafeModeUI() {
   if (safeMode) {
     safeModeToggle.classList.add('active');
+    safeModeToggle.setAttribute('aria-checked', 'true');
     safeModeContainer.classList.add('active');
   } else {
     safeModeToggle.classList.remove('active');
+    safeModeToggle.setAttribute('aria-checked', 'false');
     safeModeContainer.classList.remove('active');
   }
 }
@@ -298,6 +300,8 @@ function createSubmissionElement(submission) {
   const timeStr = new Date(submission.timestamp).toLocaleTimeString();
   const source = submission.source === 'local-fallback' ? ' (Local)' : '';
   
+  div.setAttribute('role', 'listitem');
+
   div.innerHTML = `
     <div class="submission-header">
       <span class="submission-id">${submission.id.slice(0, 8)}${source}</span>
@@ -305,9 +309,9 @@ function createSubmissionElement(submission) {
     </div>
     <div class="submission-message">${escapeHtml(submission.message)}</div>
     <div class="submission-actions">
-      <button class="btn warning" onclick="toggleEdit('${submission.id}')">✏️ Edit</button>
-      <button class="btn success" onclick="approveSubmission('${submission.id}')">✅ Approve</button>
-      <button class="btn danger" onclick="toggleReject('${submission.id}')">❌ Reject</button>
+      <button class="btn warning" onclick="toggleEdit('${submission.id}')" aria-label="Edit submission ${submission.id.slice(0, 8)}">Edit</button>
+      <button class="btn success" onclick="approveSubmission('${submission.id}')" aria-label="Approve submission ${submission.id.slice(0, 8)}">Approve</button>
+      <button class="btn danger" onclick="toggleReject('${submission.id}')" aria-label="Reject submission ${submission.id.slice(0, 8)}">Reject</button>
     </div>
     
     <div class="edit-form" id="edit-${submission.id}">
@@ -637,13 +641,13 @@ function showDisconnectedGrid() {
     const slot = document.createElement('div');
     slot.className = 'module-slot' + (i === 4 ? ' center' : '');
     if (i === 4) {
-      slot.innerHTML = '<div class="empty-slot" style="color:#888;">Hub not connected</div>';
+      slot.innerHTML = '<div class="empty-slot">Hub not connected</div>';
     } else {
       slot.innerHTML = '<div class="empty-slot">—</div>';
     }
     moduleGrid.appendChild(slot);
   }
-  moduleStatus.innerHTML = '<div class="empty-state">Unable to reach Hub</div>';
+  moduleStatus.innerHTML = '<div class="empty-state" role="status">Unable to reach Hub</div>';
 }
 
 // Initialize on load

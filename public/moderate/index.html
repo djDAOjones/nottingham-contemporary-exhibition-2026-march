@@ -3,700 +3,780 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hub v2 Control Center</title>
+  <title>Moderation Panel — AI Art Installation</title>
+  <meta name="description" content="Moderation and control panel for AI art exhibition">
+
+  <!-- IBM Plex Sans — Carbon Design System typeface -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    /* ── Carbon Design Tokens ─────────────────────────────────── */
+    :root {
+      /* Spacing (16px base grid) */
+      --spacing-01: 2px;
+      --spacing-02: 4px;
+      --spacing-03: 8px;
+      --spacing-04: 12px;
+      --spacing-05: 16px;
+      --spacing-06: 24px;
+      --spacing-07: 32px;
+      --spacing-08: 40px;
+      --spacing-09: 48px;
+
+      /* Typography */
+      --font: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+      /* Carbon Gray 100 theme (dark) */
+      --bg:            #161616;
+      --bg-elevated:   #1e1e1e;
+      --bg-hover:      #272727;
+      --bg-active:     #333333;
+
+      /* Borders */
+      --border-subtle:  #393939;
+      --border-strong:  #525252;
+
+      /* Text — all pass WCAG AAA 7:1 on --bg */
+      --text-primary:   #f4f4f4;  /* 13.5:1 on #161616 */
+      --text-secondary: #c6c6c6;  /* 9.1:1  on #161616 */
+      --text-helper:    #a8a8a8;  /* 6.8:1 on #1e1e1e — used only on elevated bg */
+
+      /* Interactive / semantic */
+      --interactive:    #4589ff;
+      --interactive-hover: #1062fe;
+      --focus:          #ffffff;
+      --focus-inset:    #161616;
+
+      --success:        #42be65;
+      --success-bg:     rgba(66,190,101,0.12);
+      --warning:        #f1c21b;
+      --warning-bg:     rgba(241,194,27,0.12);
+      --danger:         #fa4d56;
+      --danger-bg:      rgba(250,77,86,0.12);
+      --info:           #4589ff;
+      --info-bg:        rgba(69,137,255,0.12);
+      --purple:         #a56eff;
+      --purple-bg:      rgba(165,110,255,0.12);
+
+      /* Motion (Carbon productive) */
+      --duration-fast:  110ms;
+      --duration-moderate: 240ms;
+      --easing-standard: cubic-bezier(0.2, 0, 0.38, 0.9);
+
+      /* Shape */
+      --radius: 4px;
     }
-    
+
+    /* ── Reset ────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #0a0a0a;
-      color: #fff;
+      font-family: var(--font);
+      font-size: 0.875rem;
+      line-height: 1.5;
+      background: var(--bg);
+      color: var(--text-primary);
       min-height: 100vh;
-      padding: 16px;
+      padding: var(--spacing-05);
       overflow-x: auto;
     }
-    
+
+    /* ── Focus indicator (WCAG AAA) ──────────────────────────── */
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* ── Skip navigation ─────────────────────────────────────── */
+    .skip-nav {
+      position: absolute;
+      left: -10000px;
+      top: var(--spacing-03);
+      background: var(--interactive);
+      color: var(--text-primary);
+      padding: var(--spacing-03) var(--spacing-05);
+      border-radius: var(--radius);
+      font-weight: 600;
+      z-index: 2000;
+      text-decoration: none;
+    }
+    .skip-nav:focus {
+      left: var(--spacing-05);
+    }
+
+    /* ── Header ───────────────────────────────────────────────── */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #333;
+      margin-bottom: var(--spacing-06);
+      padding-bottom: var(--spacing-05);
+      border-bottom: 1px solid var(--border-subtle);
     }
-    
+
     .header-left {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: var(--spacing-05);
     }
-    
+
     h1 {
-      font-size: 1.6rem;
+      font-size: 1.25rem;
       font-weight: 600;
-      background: linear-gradient(135deg, #fff, #888);
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.01em;
+      color: var(--text-primary);
     }
-    
+
     .hub-status {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      border-radius: 6px;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      font-size: 0.85rem;
+      gap: var(--spacing-03);
+      padding: var(--spacing-02) var(--spacing-04);
+      border-radius: var(--radius);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
     }
-    
+
     .status-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #ef4444;
+      background: var(--danger);
       animation: pulse 2s infinite;
     }
-    
+
     .status-dot.connected {
-      background: #10b981;
+      background: var(--success);
     }
-    
+
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
     }
-    
+
     .controls {
       display: flex;
-      gap: 12px;
+      gap: var(--spacing-03);
       align-items: center;
     }
-    
+
+    /* ── Dashboard grid ──────────────────────────────────────── */
     .dashboard {
       display: grid;
-      grid-template-columns: 1fr 400px;
-      gap: 24px;
-      margin-bottom: 24px;
+      grid-template-columns: 1fr 380px;
+      gap: var(--spacing-06);
+      margin-bottom: var(--spacing-06);
     }
-    
-    .main-panel {
-      min-width: 0;
-    }
-    
+
+    .main-panel { min-width: 0; }
+
     .side-panel {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: var(--spacing-05);
     }
-    
+
+    /* ── Panel (card) ────────────────────────────────────────── */
     .panel {
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 20px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: var(--spacing-05);
+      margin-bottom: var(--spacing-05);
     }
-    
+
     .panel-title {
-      font-size: 1.1rem;
+      font-size: 0.875rem;
       font-weight: 600;
-      margin-bottom: 16px;
-      color: #fff;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      margin-bottom: var(--spacing-05);
+      color: var(--text-secondary);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: var(--spacing-03);
     }
-    
-    .icon {
-      width: 16px;
-      height: 16px;
-    }
-    
+
+    /* ── Module grid ─────────────────────────────────────────── */
     .module-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-bottom: 20px;
+      gap: var(--spacing-03);
+      margin-bottom: var(--spacing-05);
     }
-    
+
     .module-slot {
-      background: #1a1a1a;
-      border: 2px dashed #444;
-      border-radius: 12px;
-      padding: 16px;
-      min-height: 120px;
+      background: var(--bg);
+      border: 2px dashed var(--border-strong);
+      border-radius: var(--radius);
+      padding: var(--spacing-05);
+      min-height: 112px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       position: relative;
-      transition: all 0.2s ease;
-      cursor: pointer;
+      transition: border-color var(--duration-fast) var(--easing-standard),
+                  background var(--duration-fast) var(--easing-standard);
+      cursor: default;
     }
-    
+
     .module-slot.filled {
-      border: 2px solid #333;
-      background: #1a1a1a;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg);
       cursor: grab;
     }
-    
-    .module-slot.filled:active {
-      cursor: grabbing;
-    }
-    
+
+    .module-slot.filled:active { cursor: grabbing; }
+
     .module-slot.drag-over {
-      border-color: #3b82f6;
-      background: #1e293b;
+      border-color: var(--interactive);
+      background: var(--info-bg);
     }
-    
+
     .module-slot.center {
-      border-color: #fbbf24;
-      background: #1f1611;
+      border-color: var(--warning);
+      background: var(--warning-bg);
     }
-    
+
     .module-info {
       text-align: center;
       width: 100%;
     }
-    
+
     .module-name {
       font-weight: 600;
-      margin-bottom: 8px;
+      font-size: 0.8125rem;
+      margin-bottom: var(--spacing-03);
+      color: var(--text-primary);
     }
-    
+
     .module-status {
-      font-size: 0.8rem;
-      padding: 4px 8px;
-      border-radius: 6px;
-      margin-bottom: 8px;
+      display: inline-block;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      padding: var(--spacing-01) var(--spacing-03);
+      border-radius: var(--radius);
+      margin-bottom: var(--spacing-03);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
-    
-    .module-status.online {
-      background: #10b98120;
-      color: #10b981;
-      border: 1px solid #10b981;
-    }
-    
-    .module-status.offline {
-      background: #ef444420;
-      color: #ef4444;
-      border: 1px solid #ef4444;
-    }
-    
-    .module-status.processing {
-      background: #f59e0b20;
-      color: #f59e0b;
-      border: 1px solid #f59e0b;
-    }
-    
-    .module-status.timeout {
-      background: #8b5cf620;
-      color: #8b5cf6;
-      border: 1px solid #8b5cf6;
-    }
-    
+
+    .module-status.online  { background: var(--success-bg); color: var(--success); border: 1px solid var(--success); }
+    .module-status.offline { background: var(--danger-bg);  color: var(--danger);  border: 1px solid var(--danger); }
+    .module-status.processing { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning); }
+    .module-status.timeout { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple); }
+
     .module-stats {
       display: flex;
       justify-content: space-between;
-      font-size: 0.7rem;
-      color: #888;
-      margin-top: 8px;
+      font-size: 0.6875rem;
+      color: var(--text-secondary);
+      margin-top: var(--spacing-03);
     }
-    
+
     .empty-slot {
-      color: #666;
-      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
       text-align: center;
     }
-    
+
+    /* ── Queue ────────────────────────────────────────────────── */
     .queue {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: var(--spacing-03);
       max-height: 600px;
       overflow-y: auto;
     }
-    
+
     .submission {
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 16px;
-      animation: slideIn 0.3s ease;
+      background: var(--bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: var(--spacing-05);
+      animation: slideIn var(--duration-moderate) var(--easing-standard);
       position: relative;
     }
-    
+
     @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-    
+
     .submission.processing {
       opacity: 0.6;
       pointer-events: none;
     }
-    
+
     .submission-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
-      font-size: 0.8rem;
-      color: #666;
+      margin-bottom: var(--spacing-04);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
     }
-    
+
     .submission-time {
-      color: #666;
-      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-size: 0.75rem;
     }
-    
+
     .submission-message {
-      margin-bottom: 16px;
-      line-height: 1.5;
-      font-size: 0.95rem;
+      margin-bottom: var(--spacing-05);
+      line-height: 1.6;
+      font-size: 0.9375rem;
+      color: var(--text-primary);
     }
-    
+
     .submission-actions {
       display: flex;
-      gap: 8px;
+      gap: var(--spacing-03);
       flex-wrap: wrap;
     }
-    
+
     .edit-form {
-      margin-top: 12px;
+      margin-top: var(--spacing-04);
       display: none;
-      border-top: 1px solid #333;
-      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: var(--spacing-04);
     }
-    
-    .edit-form.active {
-      display: block;
-    }
-    
+
+    .edit-form.active { display: block; }
+
     .edit-actions {
       display: flex;
-      gap: 8px;
+      gap: var(--spacing-03);
       justify-content: flex-end;
-      margin-top: 8px;
+      margin-top: var(--spacing-03);
     }
-    
+
     .rejection-form {
-      margin-top: 12px;
+      margin-top: var(--spacing-04);
       display: none;
-      border-top: 1px solid #333;
-      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: var(--spacing-04);
     }
-    
-    .rejection-form.active {
-      display: block;
-    }
-    
+
+    .rejection-form.active { display: block; }
+
+    /* ── Notification toast ──────────────────────────────────── */
     .notification {
       position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #10b981;
-      color: #fff;
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
+      top: var(--spacing-05);
+      right: var(--spacing-05);
+      background: var(--success);
+      color: var(--bg);
+      padding: var(--spacing-04) var(--spacing-05);
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      transform: translateX(calc(100% + var(--spacing-05)));
+      transition: transform var(--duration-moderate) var(--easing-standard);
       z-index: 1000;
       max-width: 400px;
     }
-    
-    .notification.show {
-      transform: translateX(0);
-    }
-    
-    .notification.error {
-      background: #ef4444;
-    }
-    
-    .notification.warning {
-      background: #f59e0b;
-      color: #000;
-    }
-    
+
+    .notification.show { transform: translateX(0); }
+    .notification.error   { background: var(--danger); color: #fff; }
+    .notification.warning { background: var(--warning); color: var(--bg); }
+
+    /* ── Stats bar ───────────────────────────────────────────── */
     .stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 16px;
-      margin-bottom: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+      gap: var(--spacing-03);
+      margin-bottom: var(--spacing-05);
     }
-    
+
     .stat {
-      background: #1a1a1a;
-      padding: 16px;
-      border-radius: 8px;
-      border: 1px solid #333;
+      background: var(--bg);
+      padding: var(--spacing-04);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-subtle);
       text-align: center;
     }
-    
+
     .stat-value {
       font-size: 1.5rem;
       font-weight: 700;
-      color: #10b981;
-      margin-bottom: 4px;
+      color: var(--success);
+      margin-bottom: var(--spacing-01);
     }
-    
+
     .stat-label {
-      color: #888;
-      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-size: 0.6875rem;
+      font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.08em;
     }
-    
+
     .empty-state {
       text-align: center;
-      color: #666;
-      padding: 40px 20px;
-      font-size: 0.9rem;
+      color: var(--text-secondary);
+      padding: var(--spacing-08) var(--spacing-05);
+      font-size: 0.875rem;
     }
-    
+
+    /* ── Module action buttons ───────────────────────────────── */
     .module-actions {
       position: absolute;
-      top: 8px;
-      right: 8px;
+      top: var(--spacing-03);
+      right: var(--spacing-03);
       display: flex;
-      gap: 4px;
+      gap: var(--spacing-02);
     }
-    
+
     .module-btn {
-      background: #333;
-      border: 1px solid #555;
-      color: #fff;
-      border-radius: 4px;
-      padding: 4px 8px;
-      font-size: 0.7rem;
+      background: var(--bg-active);
+      border: 1px solid var(--border-strong);
+      color: var(--text-secondary);
+      border-radius: var(--radius);
+      padding: var(--spacing-01) var(--spacing-03);
+      font-family: var(--font);
+      font-size: 0.6875rem;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: background var(--duration-fast) var(--easing-standard);
     }
-    
-    .module-btn:hover {
-      background: #444;
-    }
-    
+
+    .module-btn:hover { background: var(--bg-hover); }
+
+    /* ── Responsive ──────────────────────────────────────────── */
     @media (max-width: 1200px) {
-      .dashboard {
-        grid-template-columns: 1fr;
-      }
-      
-      .side-panel {
-        order: -1;
-      }
+      .dashboard { grid-template-columns: 1fr; }
+      .side-panel { order: -1; }
     }
-    
-    /* Buttons */
+
+    @media (max-width: 768px) {
+      body { padding: var(--spacing-04); }
+      .module-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ── Buttons ─────────────────────────────────────────────── */
     .btn {
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: 1px solid #555;
-      background: #333;
-      color: #fff;
-      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-02);
+      padding: var(--spacing-03) var(--spacing-05);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-strong);
+      background: var(--bg-active);
+      color: var(--text-primary);
+      font-family: var(--font);
+      font-size: 0.8125rem;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: background var(--duration-fast) var(--easing-standard);
       white-space: nowrap;
     }
-    
+
     .btn:hover {
-      background: #444;
-      border-color: #666;
+      background: var(--bg-hover);
+      border-color: var(--text-secondary);
     }
-    
+
     .btn.primary {
-      background: #3b82f6;
-      border-color: #3b82f6;
+      background: var(--interactive);
+      border-color: var(--interactive);
+      color: #fff;
     }
-    
-    .btn.primary:hover {
-      background: #2563eb;
-    }
-    
+    .btn.primary:hover { background: var(--interactive-hover); }
+
     .btn.success {
-      background: #10b981;
-      border-color: #10b981;
+      background: var(--success);
+      border-color: var(--success);
+      color: var(--bg);
     }
-    
-    .btn.success:hover {
-      background: #059669;
-    }
-    
+    .btn.success:hover { background: #36a656; }
+
     .btn.danger {
-      background: #ef4444;
-      border-color: #ef4444;
+      background: var(--danger);
+      border-color: var(--danger);
+      color: #fff;
     }
-    
-    .btn.danger:hover {
-      background: #dc2626;
-    }
-    
+    .btn.danger:hover { background: #da1e28; }
+
     .btn.warning {
-      background: #f59e0b;
-      border-color: #f59e0b;
-      color: #000;
+      background: var(--warning);
+      border-color: var(--warning);
+      color: var(--bg);
     }
-    
-    .btn.warning:hover {
-      background: #d97706;
-    }
-    
-    /* Form inputs */
+    .btn.warning:hover { background: #d4a90e; }
+
+    /* ── Form inputs ─────────────────────────────────────────── */
     .input {
       width: 100%;
-      padding: 10px 12px;
-      background: #1a1a1a;
-      border: 1px solid #444;
-      border-radius: 8px;
-      color: #fff;
-      font-family: inherit;
-      font-size: 0.9rem;
+      padding: var(--spacing-03) var(--spacing-04);
+      background: var(--bg);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-family: var(--font);
+      font-size: 0.875rem;
+      line-height: 1.5;
       resize: vertical;
     }
-    
+
     .input:focus {
-      outline: none;
-      border-color: #3b82f6;
+      outline: 2px solid var(--interactive);
+      outline-offset: -2px;
+      border-color: var(--interactive);
     }
-    
-    .textarea {
-      min-height: 80px;
-    }
-    
-    /* Safe mode toggle */
+
+    .textarea { min-height: 80px; }
+
+    /* ── Safe mode toggle (accessible) ───────────────────────── */
     .safe-mode {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
-      padding: 10px 14px;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      color: #888;
+      gap: var(--spacing-04);
+      margin-bottom: var(--spacing-05);
+      padding: var(--spacing-03) var(--spacing-04);
+      background: var(--bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
       cursor: pointer;
     }
-    
+
     .safe-mode.active {
-      border-color: #f59e0b;
-      color: #f59e0b;
+      border-color: var(--warning);
+      color: var(--warning);
     }
-    
+
     .toggle {
       width: 36px;
       height: 20px;
       border-radius: 10px;
-      background: #444;
+      background: var(--border-strong);
       position: relative;
-      transition: background 0.2s;
+      transition: background var(--duration-fast) var(--easing-standard);
       flex-shrink: 0;
+      border: none;
+      cursor: pointer;
+      padding: 0;
     }
-    
+
     .toggle::after {
       content: '';
       position: absolute;
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background: #fff;
+      background: var(--text-primary);
       top: 2px;
       left: 2px;
-      transition: transform 0.2s;
+      transition: transform var(--duration-fast) var(--easing-standard);
     }
-    
-    .toggle.active {
-      background: #f59e0b;
-    }
-    
-    .toggle.active::after {
-      transform: translateX(16px);
-    }
-    
-    /* Queue info bar */
+
+    .toggle.active { background: var(--warning); }
+    .toggle.active::after { transform: translateX(16px); }
+
+    /* ── Queue info bar ──────────────────────────────────────── */
     .queue-info {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
-      font-size: 0.85rem;
-      color: #888;
+      margin-bottom: var(--spacing-04);
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
     }
-    
+
     .archive-link {
-      color: #f59e0b;
+      color: var(--warning);
       text-decoration: none;
-      font-size: 0.8rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
     }
-    
-    .archive-link:hover {
-      text-decoration: underline;
-    }
-    
-    /* Local submit */
+
+    .archive-link:hover { text-decoration: underline; }
+
+    /* ── Local submit ────────────────────────────────────────── */
     .local-submit {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-    }
-    
-    .local-submit .textarea {
-      min-height: 60px;
+      gap: var(--spacing-03);
     }
 
-    @media (max-width: 768px) {
-      body {
-        padding: 12px;
-      }
-      
-      .module-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      
-      .stats {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    .local-submit .textarea { min-height: 60px; }
+
+    /* ── System info ─────────────────────────────────────────── */
+    .system-info-list {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      line-height: 1.75;
+    }
+
+    .system-info-list dt {
+      display: inline;
+      font-weight: 500;
+    }
+
+    .system-info-list dd {
+      display: inline;
+      margin-left: var(--spacing-02);
+    }
+
+    .system-info-list dd::after {
+      content: '';
+      display: block;
+    }
+
+    /* ── Keyboard shortcuts help ─────────────────────────────── */
+    .shortcuts-help {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: var(--spacing-04);
+      padding-top: var(--spacing-04);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .shortcuts-help kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      font-family: var(--font);
+      font-size: 0.6875rem;
+      background: var(--bg-active);
+      border: 1px solid var(--border-strong);
+      border-radius: 3px;
+      margin: 0 2px;
     }
   </style>
 </head>
 <body>
-  <div class="header">
+  <a class="skip-nav" href="#queue">Skip to moderation queue</a>
+
+  <header class="header" role="banner">
     <div class="header-left">
-      <h1>Hub v2 Control Center</h1>
-      <div class="hub-status">
-        <div class="status-dot" id="statusDot"></div>
-        <span id="statusText">Connecting...</span>
+      <h1>Moderation Panel</h1>
+      <div class="hub-status" role="status" aria-live="polite">
+        <div class="status-dot" id="statusDot" aria-hidden="true"></div>
+        <span id="statusText">Connecting…</span>
       </div>
     </div>
-    <div class="controls">
-      <button class="btn" onclick="refreshModules()">🔄 Refresh</button>
-      <button class="btn" onclick="toggleArchive()">📋 Archive</button>
-    </div>
-  </div>
+    <nav class="controls" aria-label="Global actions">
+      <button class="btn" onclick="refreshModules()" aria-label="Refresh module status">Refresh</button>
+      <button class="btn" onclick="toggleArchive()" aria-label="Open archive in new tab">Archive</button>
+    </nav>
+  </header>
 
   <div class="dashboard">
-    <div class="main-panel">
+    <main class="main-panel">
       <!-- Module Grid -->
-      <div class="panel">
-        <div class="panel-title">
-          <span>🎯</span>
-          Module Layout (Drag to Reorder)
-        </div>
-        
+      <section class="panel" aria-labelledby="module-layout-title">
+        <h2 class="panel-title" id="module-layout-title">Module Layout</h2>
+
         <div class="safe-mode" id="safeModeContainer">
-          <div class="toggle" id="safeModeToggle" onclick="toggleSafeMode()"></div>
-          <span>Safe Mode (Skip Offline Modules)</span>
+          <button
+            class="toggle"
+            id="safeModeToggle"
+            role="switch"
+            aria-checked="false"
+            aria-label="Safe mode — skip offline modules"
+            onclick="toggleSafeMode()"
+          ></button>
+          <span id="safeModeLabel">Safe Mode (Skip Offline Modules)</span>
         </div>
-        
-        <div class="module-grid" id="moduleGrid">
-          <!-- Grid will be populated by JavaScript -->
+
+        <div class="module-grid" id="moduleGrid" role="group" aria-label="Module grid — drag to reorder">
+          <!-- Populated by JavaScript -->
         </div>
-      </div>
+      </section>
 
       <!-- Queue Management -->
-      <div class="panel">
-        <div class="panel-title">
-          <span>📝</span>
-          Moderation Queue
-        </div>
-        
-        <div class="stats" id="stats">
+      <section class="panel" aria-labelledby="queue-title" id="queue-section">
+        <h2 class="panel-title" id="queue-title">Moderation Queue</h2>
+
+        <div class="stats" id="stats" role="group" aria-label="Submission statistics">
           <div class="stat">
-            <div class="stat-value" id="totalSubmissions">0</div>
+            <div class="stat-value" id="totalSubmissions" aria-label="Total submissions">0</div>
             <div class="stat-label">Total</div>
           </div>
           <div class="stat">
-            <div class="stat-value" id="pendingCount">0</div>
+            <div class="stat-value" id="pendingCount" aria-label="Pending submissions">0</div>
             <div class="stat-label">Pending</div>
           </div>
           <div class="stat">
-            <div class="stat-value" id="approvedCount">0</div>
+            <div class="stat-value" id="approvedCount" aria-label="Approved submissions">0</div>
             <div class="stat-label">Approved</div>
           </div>
           <div class="stat">
-            <div class="stat-value" id="rejectedCount">0</div>
+            <div class="stat-value" id="rejectedCount" aria-label="Rejected submissions">0</div>
             <div class="stat-label">Rejected</div>
           </div>
         </div>
 
         <div class="queue-info">
-          <span id="queueInfo">Loading queue...</span>
-          <a href="#" class="archive-link" onclick="showRejected()">View Rejected (<span id="rejectedCountBadge">0</span>)</a>
+          <span id="queueInfo" role="status" aria-live="polite">Loading queue…</span>
+          <a href="#" class="archive-link" onclick="showRejected(); return false;" aria-label="View rejected submissions">View Rejected (<span id="rejectedCountBadge">0</span>)</a>
         </div>
 
-        <div class="queue" id="queue">
-          <div class="empty-state" id="emptyState">
-            Waiting for submissions...
+        <div class="queue" id="queue" role="list" aria-label="Pending submissions">
+          <div class="empty-state" id="emptyState" role="status">
+            Waiting for submissions…
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
 
-    <div class="side-panel">
+    <aside class="side-panel" aria-label="Side panels">
       <!-- Backup Local Submission -->
-      <div class="panel">
-        <div class="panel-title">
-          <span>⚡</span>
-          Backup Local Submission
-        </div>
-        
+      <section class="panel" aria-labelledby="local-submit-title">
+        <h2 class="panel-title" id="local-submit-title">Local Submission</h2>
+
         <div class="local-submit">
-          <textarea 
-            class="input textarea" 
-            id="localMessage" 
-            placeholder="Enter message for local submission (Vercel fallback)..."
+          <label for="localMessage" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Message text</label>
+          <textarea
+            class="input textarea"
+            id="localMessage"
+            placeholder="Enter message for local submission (fallback)…"
             maxlength="280"
+            aria-describedby="localCharHint"
           ></textarea>
+          <span id="localCharHint" style="font-size:0.75rem;color:var(--text-secondary);">Max 280 characters</span>
           <button class="btn primary" onclick="submitLocal()">Submit Locally</button>
         </div>
-      </div>
+      </section>
 
       <!-- Module Status -->
-      <div class="panel">
-        <div class="panel-title">
-          <span>🔌</span>
-          Module Status
+      <section class="panel" aria-labelledby="module-status-title">
+        <h2 class="panel-title" id="module-status-title">Module Status</h2>
+        <div id="moduleStatus" role="list" aria-label="Connected modules">
+          <div class="empty-state" role="status">Scanning for modules…</div>
         </div>
-        
-        <div id="moduleStatus">
-          <div class="empty-state">Scanning for modules...</div>
-        </div>
-      </div>
+      </section>
 
       <!-- System Info -->
-      <div class="panel">
-        <div class="panel-title">
-          <span>📊</span>
-          System Info
-        </div>
-        
+      <section class="panel" aria-labelledby="system-info-title">
+        <h2 class="panel-title" id="system-info-title">System Info</h2>
         <div id="systemInfo">
-          <div style="font-size: 0.8rem; color: #888; line-height: 1.4;">
-            <div>Hub: <span id="hubVersion">v2</span></div>
-            <div>Uptime: <span id="uptime">--</span></div>
-            <div>Active Modules: <span id="activeModules">0</span></div>
-            <div>Queue Depth: <span id="totalQueueDepth">0</span></div>
-          </div>
+          <dl class="system-info-list">
+            <dt>Hub:</dt><dd id="hubVersion">v2</dd>
+            <dt>Uptime:</dt><dd id="uptime">—</dd>
+            <dt>Active Modules:</dt><dd id="activeModules">0</dd>
+            <dt>Queue Depth:</dt><dd id="totalQueueDepth">0</dd>
+          </dl>
         </div>
-      </div>
-    </div>
+
+        <div class="shortcuts-help" aria-label="Keyboard shortcuts">
+          <strong>Shortcuts:</strong>
+          <kbd>Ctrl</kbd>+<kbd>R</kbd> Refresh &nbsp;
+          <kbd>Ctrl</kbd>+<kbd>L</kbd> Focus local input
+        </div>
+      </section>
+    </aside>
   </div>
 
-  <div class="notification" id="notification"></div>
+  <div class="notification" id="notification" role="alert" aria-live="assertive"></div>
 
   <script src="/hub-connect.js"></script>
   <script src="/moderate/script.js"></script>
