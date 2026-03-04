@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exhibition Queue - AI Art Installation</title>
+    <meta name="description" content="Live Message Queue Display for AI art exhibition submissions">
+    
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* All sizing uses --u (1% of container width) so layout scales identically at any size */
+        :root {
+            --u: 1vw;
+            --bg: #000000;
+            --text: #ffffff;
+            --text-dim: #c6c6c6;
+            --text-muted: #6f6f6f;
+            --border: #393939;
+            --success: #24a148;
+            --warning: #f1c21b;
+            --error: #da1e28;
+            --info: #0f62fe;
+            --font: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        /* When height-constrained, scale --u from height instead */
+        @media (min-aspect-ratio: 16/9) {
+            :root { --u: calc(16vh / 9); }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .skip-nav { position: absolute; left: -10000px; }
+
+        /* 16:9 container */
+        .queue-container {
+            width: calc(100 * var(--u));
+            height: calc(56.25 * var(--u));
+            max-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: calc(0.8 * var(--u));
+            position: relative;
+            overflow: hidden;
+        }
+        @media (min-aspect-ratio: 16/9) {
+            .queue-container {
+                width: calc(100vh * 16 / 9);
+                height: 100vh;
+            }
+        }
+        .queue-container:fullscreen {
+            width: 100vw;
+            height: 100vh;
+            padding: calc(0.8 * var(--u));
+        }
+
+        /* Fullscreen button */
+        .fullscreen-controls {
+            position: absolute;
+            top: calc(0.4 * var(--u));
+            right: calc(0.4 * var(--u));
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .queue-container:hover .fullscreen-controls { opacity: 1; }
+        .queue-container:fullscreen .fullscreen-controls { opacity: 0; }
+        .fullscreen-btn {
+            background: rgba(0,0,0,0.7);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: calc(0.2 * var(--u)) calc(0.4 * var(--u));
+            border-radius: calc(0.2 * var(--u));
+            cursor: pointer;
+            font-size: calc(0.65 * var(--u));
+        }
+
+        /* Section header */
+        .section-header {
+            font-size: calc(1.0 * var(--u));
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            padding-bottom: calc(0.35 * var(--u));
+            margin-bottom: calc(0.5 * var(--u));
+            border-bottom: calc(0.1 * var(--u)) solid var(--border);
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        .section-header .page-label {
+            font-size: calc(0.8 * var(--u));
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+        .queued-header { color: var(--warning); }
+        .ingested-header { color: var(--success); }
+
+        /* Main grid */
+        .queue-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: calc(0.6 * var(--u));
+            min-height: 0;
+            overflow: hidden;
+        }
+        .queue-grid.single-column { grid-template-columns: 1fr; }
+        .queue-section {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        /* Message cards grid — columns/rows set dynamically by JS grid presets */
+        .messages-grid {
+            display: grid;
+            gap: calc(0.5 * var(--u));
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        /* Message card */
+        .message-card {
+            background: rgba(255,255,255,0.06);
+            border: calc(0.08 * var(--u)) solid var(--border);
+            border-radius: calc(0.25 * var(--u));
+            padding: calc(0.7 * var(--u));
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            min-height: 0;
+        }
+        .message-card.ingested {
+            background: rgba(36,161,72,0.08);
+            border-color: rgba(36,161,72,0.25);
+        }
+        .message-card.animate-in { animation: fadeIn 0.5s ease-out; }
+
+        .message-text {
+            font-size: calc(1.8 * var(--u));
+            line-height: 1.35;
+            color: var(--text);
+            font-weight: 500;
+            flex: 1;
+            overflow: hidden;
+        }
+        .message-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: calc(0.4 * var(--u));
+            flex-shrink: 0;
+        }
+        .message-id {
+            font-size: calc(0.75 * var(--u));
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+        .message-status {
+            padding: calc(0.15 * var(--u)) calc(0.35 * var(--u));
+            border-radius: calc(0.15 * var(--u));
+            font-size: calc(0.7 * var(--u));
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .status-queued {
+            background: rgba(241,194,27,0.2);
+            color: var(--warning);
+            border: calc(0.05 * var(--u)) solid rgba(241,194,27,0.4);
+        }
+        .status-ingested {
+            background: rgba(36,161,72,0.2);
+            color: var(--success);
+            border: calc(0.05 * var(--u)) solid rgba(36,161,72,0.4);
+        }
+
+        /* Grid change toast */
+        .grid-toast {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.85);
+            color: var(--text);
+            padding: calc(0.6 * var(--u)) calc(1.2 * var(--u));
+            border-radius: calc(0.3 * var(--u));
+            font-size: calc(1.4 * var(--u));
+            font-weight: 600;
+            z-index: 200;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .grid-toast.show { opacity: 1; }
+
+        /* Pagination */
+        .pagination-indicator {
+            position: absolute;
+            bottom: calc(0.25 * var(--u));
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: calc(0.3 * var(--u));
+            background: rgba(0,0,0,0.85);
+            padding: calc(0.15 * var(--u)) calc(0.5 * var(--u));
+            border-radius: calc(0.15 * var(--u));
+            z-index: 100;
+            font-size: calc(0.55 * var(--u));
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+        .page-dots { display: flex; gap: calc(0.2 * var(--u)); }
+        .page-dot {
+            width: calc(0.35 * var(--u));
+            height: calc(0.35 * var(--u));
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+        .page-dot.active { background: var(--text); }
+
+        /* Loading / empty */
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            font-size: calc(1.2 * var(--u));
+        }
+        .loading-spinner {
+            width: calc(1.5 * var(--u));
+            height: calc(1.5 * var(--u));
+            border: calc(0.1 * var(--u)) solid var(--border);
+            border-top: calc(0.1 * var(--u)) solid var(--text);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: calc(0.4 * var(--u));
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(calc(0.5 * var(--u))); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+        @media (prefers-contrast: high) {
+            .message-card { border-width: calc(0.12 * var(--u)); }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-nav">Skip to main content</a>
+    
+    <div class="queue-container" role="main" id="main-content">
+        <div class="fullscreen-controls">
+            <button class="fullscreen-btn" id="fullscreen-toggle" title="Press F for fullscreen">⛶ Fullscreen (F)</button>
+        </div>
+
+        <div class="queue-grid" id="queue-grid">
+            <section class="queue-section" aria-labelledby="queued-heading">
+                <h2 id="queued-heading" class="section-header queued-header">
+                    <span>Queued</span>
+                    <span class="page-label" id="queued-page-label"></span>
+                </h2>
+                <div class="messages-grid" id="queued-messages">
+                    <div class="loading-state"><div class="loading-spinner"></div> Loading...</div>
+                </div>
+            </section>
+
+            <section class="queue-section" aria-labelledby="ingested-heading">
+                <h2 id="ingested-heading" class="section-header ingested-header">
+                    <span>Ingested</span>
+                    <span class="page-label" id="ingested-page-label"></span>
+                </h2>
+                <div class="messages-grid" id="ingested-messages">
+                    <div class="loading-state"><div class="loading-spinner"></div> Loading...</div>
+                </div>
+            </section>
+        </div>
+
+        <div class="grid-toast" id="grid-toast"></div>
+
+        <div class="pagination-indicator" id="pagination-indicator" style="display:none;">
+            <span id="phase-info"></span>
+            <span id="page-info"></span>
+            <div class="page-dots" id="page-dots"></div>
+        </div>
+    </div>
+
+    <script src="/hub-connect.js"></script>
+    <script>
+        // Grid presets — cycle with Up/Down arrow keys
+        const GRID_PRESETS = [
+            { label: '2 × 1', cols: 2, rows: 1, perPage: 2,  overviewPerSection: 2 },
+            { label: '2 × 2', cols: 2, rows: 2, perPage: 4,  overviewPerSection: 2 },
+            { label: '3 × 2', cols: 3, rows: 2, perPage: 6,  overviewPerSection: 3 },
+            { label: '3 × 3', cols: 3, rows: 3, perPage: 9,  overviewPerSection: 4 },
+            { label: '4 × 3', cols: 4, rows: 3, perPage: 12, overviewPerSection: 5 },
+            { label: '4 × 4', cols: 4, rows: 4, perPage: 16, overviewPerSection: 6 },
+            { label: '5 × 4', cols: 5, rows: 4, perPage: 20, overviewPerSection: 7 },
+            { label: '5 × 5', cols: 5, rows: 5, perPage: 25, overviewPerSection: 8 },
+            { label: '6 × 4', cols: 6, rows: 4, perPage: 24, overviewPerSection: 8 },
+            { label: '6 × 5', cols: 6, rows: 5, perPage: 30, overviewPerSection: 9 },
+            { label: '7 × 4', cols: 7, rows: 4, perPage: 28, overviewPerSection: 9 },
+            { label: '7 × 5', cols: 7, rows: 5, perPage: 35, overviewPerSection: 10 },
+        ];
+
+        const CONFIG = {
+            REFRESH_INTERVAL: 2000,
+            GRID_PRESET_INDEX: 2,             // Default: 3×2 (index into GRID_PRESETS)
+            PHASE_TIMING: {
+                OVERVIEW: 18000,    // 18 seconds - Phase 1
+                QUEUED_PAGE: 8000,  // 8 seconds per page - Phase 2  
+                INGESTED_PAGE: 5000 // 5 seconds per page - Phase 3
+            },
+            MAX_MESSAGE_LENGTH: 120
+        };
+
+        const PHASES = {
+            OVERVIEW: 'overview',
+            QUEUED_DETAIL: 'queued_detail',
+            INGESTED_DETAIL: 'ingested_detail'
+        };
+
+        class QueueDisplay {
+            constructor() {
+                this.queuedMessages = [];
+                this.ingestedMessages = [];
+                this.currentPhase = PHASES.OVERVIEW;
+                this.currentPageInPhase = 0;
+                this.totalQueuedPages = 0;
+                this.totalIngestedPages = 0;
+                this.pageTimer = null;
+                this.refreshTimer = null;
+                this.isAnimating = false;
+                this.gridPresetIndex = CONFIG.GRID_PRESET_INDEX;
+                this.toastTimer = null;
+                
+                this.elements = {
+                    container: document.getElementById('main-content'),
+                    grid: document.getElementById('queue-grid'),
+                    queuedSection: document.querySelector('.queue-section:first-child'),
+                    ingestedSection: document.querySelector('.queue-section:last-child'),
+                    queuedGrid: document.getElementById('queued-messages'),
+                    ingestedGrid: document.getElementById('ingested-messages'),
+                    queuedPageLabel: document.getElementById('queued-page-label'),
+                    ingestedPageLabel: document.getElementById('ingested-page-label'),
+                    paginationIndicator: document.getElementById('pagination-indicator'),
+                    phaseInfo: document.getElementById('phase-info'),
+                    pageInfo: document.getElementById('page-info'),
+                    pageDots: document.getElementById('page-dots'),
+                    fullscreenToggle: document.getElementById('fullscreen-toggle'),
+                    gridToast: document.getElementById('grid-toast')
+                };
+
+                this.init();
+            }
+
+            get gridPreset() {
+                return GRID_PRESETS[this.gridPresetIndex];
+            }
+
+            async init() {
+                console.log('Initializing three-phase Message Queue Display...');
+                this.applyGridPreset();
+                this.setupFullscreenControls();
+                this.setupKeyboardShortcuts();
+                await this.fetchMessages();
+                this.startRefreshTimer();
+                this.startPhaseTimer();
+            }
+
+            applyGridPreset() {
+                const p = this.gridPreset;
+                // Update CSS grid templates dynamically
+                const allGrids = document.querySelectorAll('.messages-grid');
+                allGrids.forEach(g => {
+                    g.style.gridTemplateColumns = `repeat(${p.cols}, 1fr)`;
+                    g.style.gridTemplateRows = `repeat(${p.rows}, 1fr)`;
+                });
+                // Re-apply overview override if in overview
+                this.applyOverviewGridOverride();
+                // Recalculate pages and re-render
+                this.recalcPages();
+                this.renderCurrentPage();
+                console.log(`Grid preset: ${p.label} (${p.perPage} per page)`);
+            }
+
+            applyOverviewGridOverride() {
+                if (this.currentPhase === PHASES.OVERVIEW) {
+                    const p = this.gridPreset;
+                    const allGrids = document.querySelectorAll('.messages-grid');
+                    allGrids.forEach(g => {
+                        g.style.gridTemplateColumns = '1fr';
+                        g.style.gridTemplateRows = `repeat(${p.overviewPerSection}, 1fr)`;
+                    });
+                }
+            }
+
+            changeGridPreset(direction) {
+                const newIndex = this.gridPresetIndex + direction;
+                if (newIndex < 0 || newIndex >= GRID_PRESETS.length) return;
+                this.gridPresetIndex = newIndex;
+                this.applyGridPreset();
+                this.showGridToast();
+            }
+
+            showGridToast() {
+                const toast = this.elements.gridToast;
+                const p = this.gridPreset;
+                toast.textContent = `${p.label}  (${p.perPage} cards)`;
+                toast.classList.add('show');
+                clearTimeout(this.toastTimer);
+                this.toastTimer = setTimeout(() => toast.classList.remove('show'), 1200);
+            }
+
+            recalcPages() {
+                const p = this.gridPreset;
+                this.totalQueuedPages = Math.max(1, Math.ceil(this.queuedMessages.length / p.perPage));
+                this.totalIngestedPages = Math.max(1, Math.ceil(this.ingestedMessages.length / p.perPage));
+                // Clamp current page
+                if (this.currentPageInPhase >= this.totalQueuedPages && this.currentPhase === PHASES.QUEUED_DETAIL) {
+                    this.currentPageInPhase = Math.max(0, this.totalQueuedPages - 1);
+                }
+                if (this.currentPageInPhase >= this.totalIngestedPages && this.currentPhase === PHASES.INGESTED_DETAIL) {
+                    this.currentPageInPhase = Math.max(0, this.totalIngestedPages - 1);
+                }
+            }
+
+            setupFullscreenControls() {
+                this.elements.fullscreenToggle.addEventListener('click', () => {
+                    this.toggleFullscreen();
+                });
+
+                // Listen for fullscreen changes
+                document.addEventListener('fullscreenchange', () => {
+                    this.updateFullscreenButton();
+                });
+            }
+
+            setupKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    // F key or Cmd/Ctrl + F for fullscreen
+                    if (e.key === 'f' || e.key === 'F') {
+                        if (e.metaKey || e.ctrlKey) {
+                            e.preventDefault();
+                            this.toggleFullscreen();
+                        } else if (!e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey) {
+                            // Just F key alone
+                            e.preventDefault();
+                            this.toggleFullscreen();
+                        }
+                    }
+                    // Escape to exit fullscreen
+                    if (e.key === 'Escape' && document.fullscreenElement) {
+                        document.exitFullscreen();
+                    }
+                    // Left/Right arrows for manual phase navigation
+                    if (e.key === 'ArrowRight') {
+                        e.preventDefault();
+                        this.manualNextPhase();
+                    }
+                    if (e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        this.manualPrevPhase();
+                    }
+                    // Up/Down arrows to change grid density
+                    if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        this.changeGridPreset(1);  // More cards (smaller)
+                    }
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        this.changeGridPreset(-1); // Fewer cards (bigger)
+                    }
+                });
+            }
+
+            toggleFullscreen() {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    this.elements.container.requestFullscreen();
+                }
+            }
+
+            updateFullscreenButton() {
+                const isFullscreen = !!document.fullscreenElement;
+                this.elements.fullscreenToggle.textContent = isFullscreen ? 
+                    '⛶ Exit Fullscreen (Esc)' : '⛶ Fullscreen (F)';
+            }
+
+            async fetchMessages() {
+                try {
+                    const response = await HubConnection.fetch('/api/queue');
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.processMessageData(data);
+                        this.renderCurrentPage();
+                    } else {
+                        console.warn('Failed to fetch queue data');
+                        this.showErrorState();
+                    }
+                } catch (error) {
+                    console.error('Error fetching messages:', error);
+                    this.showErrorState();
+                }
+            }
+
+            processMessageData(data) {
+                // Process queued messages
+                this.queuedMessages = (data.queued || []).map(msg => ({
+                    id: msg.id,
+                    text: this.truncateMessage(msg.message || msg.text),
+                    timestamp: new Date(msg.timestamp).toLocaleTimeString(),
+                    status: 'queued'
+                }));
+
+                // Process ingested messages (previously "processing")
+                this.ingestedMessages = (data.processing || []).map(msg => ({
+                    id: msg.id,
+                    text: this.truncateMessage(msg.message || msg.text),
+                    timestamp: new Date(msg.timestamp).toLocaleTimeString(),
+                    status: 'ingested',
+                    module: msg.module
+                }));
+
+                // Calculate pages using current grid preset
+                this.recalcPages();
+            }
+
+            truncateMessage(text) {
+                if (!text || text.length <= CONFIG.MAX_MESSAGE_LENGTH) return text;
+                return text.substring(0, CONFIG.MAX_MESSAGE_LENGTH) + '...';
+            }
+
+            renderCurrentPage() {
+                if (this.isAnimating) return;
+                const p = this.gridPreset;
+
+                let queuedPageMessages = [];
+                let ingestedPageMessages = [];
+
+                switch (this.currentPhase) {
+                    case PHASES.OVERVIEW:
+                        queuedPageMessages = this.queuedMessages.slice(0, p.overviewPerSection);
+                        ingestedPageMessages = this.ingestedMessages.slice(0, p.overviewPerSection);
+                        this.elements.queuedPageLabel.textContent = this.queuedMessages.length > 0 ? `${this.queuedMessages.length} total` : '';
+                        this.elements.ingestedPageLabel.textContent = this.ingestedMessages.length > 0 ? `${this.ingestedMessages.length} total` : '';
+                        this.showBothSections();
+                        this.applyOverviewGridOverride();
+                        break;
+                        
+                    case PHASES.QUEUED_DETAIL:
+                        const qStart = this.currentPageInPhase * p.perPage;
+                        queuedPageMessages = this.queuedMessages.slice(qStart, qStart + p.perPage);
+                        ingestedPageMessages = [];
+                        this.elements.queuedPageLabel.textContent = `Page ${this.currentPageInPhase + 1} of ${this.totalQueuedPages}`;
+                        this.showQueuedOnly();
+                        this.applyDetailGrid();
+                        break;
+                        
+                    case PHASES.INGESTED_DETAIL:
+                        const iStart = this.currentPageInPhase * p.perPage;
+                        queuedPageMessages = [];
+                        ingestedPageMessages = this.ingestedMessages.slice(iStart, iStart + p.perPage);
+                        this.elements.ingestedPageLabel.textContent = `Page ${this.currentPageInPhase + 1} of ${this.totalIngestedPages}`;
+                        this.showIngestedOnly();
+                        this.applyDetailGrid();
+                        break;
+                }
+
+                this.renderMessageSection(this.elements.queuedGrid, queuedPageMessages, 'queued');
+                this.renderMessageSection(this.elements.ingestedGrid, ingestedPageMessages, 'ingested');
+                this.updatePaginationIndicator();
+            }
+
+            applyDetailGrid() {
+                const p = this.gridPreset;
+                const allGrids = document.querySelectorAll('.messages-grid');
+                allGrids.forEach(g => {
+                    g.style.gridTemplateColumns = `repeat(${p.cols}, 1fr)`;
+                    g.style.gridTemplateRows = `repeat(${p.rows}, 1fr)`;
+                });
+            }
+
+            showBothSections() {
+                this.elements.grid.classList.remove('single-column');
+                this.elements.queuedSection.style.display = 'flex';
+                this.elements.ingestedSection.style.display = 'flex';
+            }
+
+            showQueuedOnly() {
+                this.elements.grid.classList.add('single-column');
+                this.elements.queuedSection.style.display = 'flex';
+                this.elements.ingestedSection.style.display = 'none';
+            }
+
+            showIngestedOnly() {
+                this.elements.grid.classList.add('single-column');
+                this.elements.queuedSection.style.display = 'none';
+                this.elements.ingestedSection.style.display = 'flex';
+            }
+
+            renderMessageSection(container, messages, type) {
+                container.innerHTML = '';
+                
+                if (messages.length === 0) {
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'loading-state';
+                    emptyState.innerHTML = `
+                        <p>${type === 'queued' ? 'No queued messages' : 'No ingested messages'}</p>
+                    `;
+                    container.appendChild(emptyState);
+                    return;
+                }
+
+                messages.forEach((message, index) => {
+                    const card = this.createMessageCard(message, index);
+                    container.appendChild(card);
+                });
+            }
+
+            createMessageCard(message, index) {
+                const card = document.createElement('div');
+                card.className = `message-card ${message.status === 'ingested' ? 'ingested' : ''}`;
+                card.setAttribute('data-message-id', message.id);
+                
+                // Add animation delay for staggered appearance
+                card.style.animationDelay = `${index * 100}ms`;
+                
+                card.innerHTML = `
+                    <div class="message-text">${this.escapeHtml(message.text)}</div>
+                    <div class="message-meta">
+                        <span class="message-id">#${message.id.slice(-6)}</span>
+                        <span class="message-status status-${message.status}">
+                            ${message.status === 'ingested' && message.module ? 
+                                message.module : 
+                                message.status.toUpperCase()
+                            }
+                        </span>
+                    </div>
+                `;
+
+                return card;
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            updatePaginationIndicator() {
+                let phaseText = '';
+                let pageText = '';
+                let totalPages = 1;
+                
+                switch (this.currentPhase) {
+                    case PHASES.OVERVIEW:
+                        phaseText = 'Overview';
+                        pageText = '';
+                        totalPages = 1;
+                        break;
+                    case PHASES.QUEUED_DETAIL:
+                        phaseText = 'Queued';
+                        pageText = `${this.currentPageInPhase + 1}/${this.totalQueuedPages}`;
+                        totalPages = this.totalQueuedPages;
+                        break;
+                    case PHASES.INGESTED_DETAIL:
+                        phaseText = 'Ingested';
+                        pageText = `${this.currentPageInPhase + 1}/${this.totalIngestedPages}`;
+                        totalPages = this.totalIngestedPages;
+                        break;
+                }
+                
+                this.elements.phaseInfo.textContent = phaseText;
+                this.elements.pageInfo.textContent = pageText;
+                this.elements.paginationIndicator.style.display = 'flex';
+                
+                // Render dots - cap at 20 to prevent overflow
+                this.elements.pageDots.innerHTML = '';
+                const maxDots = Math.min(totalPages, 20);
+                for (let i = 0; i < maxDots; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = `page-dot ${i === this.currentPageInPhase ? 'active' : ''}`;
+                    this.elements.pageDots.appendChild(dot);
+                }
+            }
+
+            calculatePhaseDuration() {
+                switch (this.currentPhase) {
+                    case PHASES.OVERVIEW:
+                        return CONFIG.PHASE_TIMING.OVERVIEW; // 18 seconds
+                    case PHASES.QUEUED_DETAIL:
+                        return CONFIG.PHASE_TIMING.QUEUED_PAGE; // 8 seconds per page
+                    case PHASES.INGESTED_DETAIL:
+                        return CONFIG.PHASE_TIMING.INGESTED_PAGE; // 5 seconds per page
+                    default:
+                        return CONFIG.PHASE_TIMING.OVERVIEW;
+                }
+            }
+
+            startPhaseTimer() {
+                this.clearPhaseTimer();
+                
+                const duration = this.calculatePhaseDuration();
+                console.log(`${this.currentPhase} - Page ${this.currentPageInPhase + 1} - Duration: ${duration}ms`);
+                
+                this.pageTimer = setTimeout(() => {
+                    this.nextPhase();
+                }, duration);
+            }
+
+            clearPhaseTimer() {
+                if (this.pageTimer) {
+                    clearTimeout(this.pageTimer);
+                    this.pageTimer = null;
+                }
+            }
+
+            nextPhase() {
+                switch (this.currentPhase) {
+                    case PHASES.OVERVIEW:
+                        // Move to queued detail if there are queued messages
+                        if (this.totalQueuedPages > 0) {
+                            this.currentPhase = PHASES.QUEUED_DETAIL;
+                            this.currentPageInPhase = 0;
+                        } else if (this.totalIngestedPages > 0) {
+                            this.currentPhase = PHASES.INGESTED_DETAIL;
+                            this.currentPageInPhase = 0;
+                        } else {
+                            // No detailed phases, stay in overview
+                            this.currentPageInPhase = 0;
+                        }
+                        break;
+                        
+                    case PHASES.QUEUED_DETAIL:
+                        this.currentPageInPhase++;
+                        if (this.currentPageInPhase >= this.totalQueuedPages) {
+                            // Move to ingested detail if available
+                            if (this.totalIngestedPages > 0) {
+                                this.currentPhase = PHASES.INGESTED_DETAIL;
+                                this.currentPageInPhase = 0;
+                            } else {
+                                // Back to overview
+                                this.currentPhase = PHASES.OVERVIEW;
+                                this.currentPageInPhase = 0;
+                            }
+                        }
+                        break;
+                        
+                    case PHASES.INGESTED_DETAIL:
+                        this.currentPageInPhase++;
+                        if (this.currentPageInPhase >= this.totalIngestedPages) {
+                            // Back to overview
+                            this.currentPhase = PHASES.OVERVIEW;
+                            this.currentPageInPhase = 0;
+                        }
+                        break;
+                }
+                
+                this.renderCurrentPage();
+                this.startPhaseTimer();
+            }
+
+            // Manual navigation for testing
+            manualNextPhase() {
+                console.log('Manual next phase navigation');
+                this.clearPhaseTimer();
+                this.nextPhase();
+            }
+
+            manualPrevPhase() {
+                console.log('Manual previous phase navigation');
+                this.clearPhaseTimer();
+                
+                // Navigate backwards through phases
+                switch (this.currentPhase) {
+                    case PHASES.OVERVIEW:
+                        // Go to last page of ingested or queued
+                        if (this.totalIngestedPages > 0) {
+                            this.currentPhase = PHASES.INGESTED_DETAIL;
+                            this.currentPageInPhase = this.totalIngestedPages - 1;
+                        } else if (this.totalQueuedPages > 0) {
+                            this.currentPhase = PHASES.QUEUED_DETAIL;
+                            this.currentPageInPhase = this.totalQueuedPages - 1;
+                        }
+                        break;
+                        
+                    case PHASES.QUEUED_DETAIL:
+                        if (this.currentPageInPhase > 0) {
+                            this.currentPageInPhase--;
+                        } else {
+                            // Back to overview
+                            this.currentPhase = PHASES.OVERVIEW;
+                            this.currentPageInPhase = 0;
+                        }
+                        break;
+                        
+                    case PHASES.INGESTED_DETAIL:
+                        if (this.currentPageInPhase > 0) {
+                            this.currentPageInPhase--;
+                        } else {
+                            // Go to last queued page or overview
+                            if (this.totalQueuedPages > 0) {
+                                this.currentPhase = PHASES.QUEUED_DETAIL;
+                                this.currentPageInPhase = this.totalQueuedPages - 1;
+                            } else {
+                                this.currentPhase = PHASES.OVERVIEW;
+                                this.currentPageInPhase = 0;
+                            }
+                        }
+                        break;
+                }
+                
+                this.renderCurrentPage();
+                this.startPhaseTimer();
+            }
+
+            startRefreshTimer() {
+                this.refreshTimer = setInterval(() => {
+                    this.fetchMessages();
+                }, CONFIG.REFRESH_INTERVAL);
+            }
+
+            showErrorState() {
+                const errorContent = `
+                    <div class="loading-state">
+                        <p style="color: var(--error);">Connection Error</p>
+                        <p style="font-size: var(--font-size-sm);">Retrying...</p>
+                    </div>
+                `;
+                this.elements.queuedGrid.innerHTML = errorContent;
+                this.elements.ingestedGrid.innerHTML = errorContent;
+            }
+        }
+
+        // Initialize the Message Queue Display
+        HubConnection.ready.then(() => {
+            new QueueDisplay();
+        });
+    </script>
+</body>
+</html>

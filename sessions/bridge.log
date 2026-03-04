@@ -1,5 +1,5 @@
 === Hub Bridge v1.0 ===
-Module: Artist Bridge (bridge-mm72h3fp)
+Module: Artist Bridge (bridge-mmc4gllm)
 Hub: ws://localhost:3000
 Capture: webhook
 OSC: disabled
@@ -8,25 +8,9 @@ OSC: disabled
 [BRIDGE] Local server: http://localhost:4000
 [BRIDGE] Webhook endpoint: POST http://localhost:4000/api/output
 [BRIDGE] Connected to Hub
-[BRIDGE] Received message a754a99d: "yo a dream"
-[BRIDGE] Processing error: Output capture timed out
 [BRIDGE] Disconnected from Hub
 [BRIDGE] Connected to Hub
 [BRIDGE] Disconnected from Hub
 [BRIDGE] Connected to Hub
 [BRIDGE] Disconnected from Hub
 [BRIDGE] Connected to Hub
-[BRIDGE] Disconnected from Hub
-[BRIDGE] Connected to Hub
-[BRIDGE] Disconnected from Hub
-[BRIDGE] Connected to Hub
-[BRIDGE] Disconnected from Hub
-[BRIDGE] Connected to Hub
-[BRIDGE] Disconnected from Hub
-[BRIDGE] Connected to Hub
-[BRIDGE] Disconnected from Hub
-[BRIDGE] Connected to Hub
-[BRIDGE] Disconnected from Hub
-[BRIDGE] Connected to Hub
-[BRIDGE] Received message db0bf8ac: "Breakfast"
-[BRIDGE] Processing error: Output capture timed out

@@ -162,6 +162,7 @@
     </p>
   </div>
 
+  <script src="/hub-connect.js"></script>
   <script>
     const promptEl = document.getElementById('prompt');
     const messageEl = document.getElementById('message');
@@ -179,7 +180,7 @@
     // Load prompt
     async function loadPrompt() {
       try {
-        const res = await fetch('/api/prompt');
+        const res = await HubConnection.fetch('/api/prompt');
         const data = await res.json();
         promptEl.textContent = data.prompt;
         maxLength = data.maxLength;
@@ -215,7 +216,7 @@
       feedbackEl.className = 'feedback';
       
       try {
-        const res = await fetch('/api/submit', {
+        const res = await HubConnection.fetch('/api/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message, sessionId })
@@ -249,7 +250,7 @@
       }
     });
     
-    loadPrompt();
+    HubConnection.ready.then(() => loadPrompt());
   </script>
 </body>
 </html>

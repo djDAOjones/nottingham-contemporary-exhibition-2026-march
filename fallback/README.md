@@ -262,7 +262,7 @@ fallbackManager.on('retry-failed', ({ item, error }) => {
 - **Module Detection**: Automatically registers connecting modules
 - **Event Monitoring**: Hooks into Hub events for failure detection
 - **Method Wrapping**: Transparent addition of fallback logic
-- **Status Broadcasting**: Updates moderator UI with system status
+- **Status Broadcasting**: Updates Moderation Panel with system status
 
 ### Manual Control
 ```javascript
@@ -279,9 +279,9 @@ fallbackIntegration.resetCircuitBreaker('module-id');
 const status = fallbackIntegration.getStatus();
 ```
 
-## Moderator UI Integration
+## Moderation Panel Integration
 
-The fallback system integrates with the Moderator UI to provide:
+The fallback system integrates with the Moderation Panel to provide:
 
 ### Status Dashboard
 - **Safe Mode Indicator**: Visual warning when in safe mode

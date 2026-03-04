@@ -143,22 +143,27 @@ if command -v ngrok >/dev/null 2>&1; then
     if [[ -n "$TUNNEL_URL" ]]; then
         success "HTTPS tunnel: $TUNNEL_URL"
 
-        # Update Vercel environment variable
-        log "Updating Vercel with HTTPS tunnel URL..."
-        cd "$PROJECT_ROOT/vercel-app"
-        # Remove old env var and add new one
-        vercel env rm NEXT_PUBLIC_HUB_URL production --yes 2>/dev/null || true
-        echo "$TUNNEL_URL" | vercel env add NEXT_PUBLIC_HUB_URL production 2>/dev/null
+        # Notify Hub of public URL and switch to remote mode
+        log "Setting Hub public URL..."
+        curl -s -X POST http://localhost:3000/api/config/mode \
+            -H 'Content-Type: application/json' \
+            -d "{\"mode\":\"remote\",\"publicUrl\":\"$TUNNEL_URL\"}" >/dev/null 2>&1
 
         if [ $? -eq 0 ]; then
-            success "Vercel env updated to $TUNNEL_URL"
-            log "Redeploying Vercel..."
-            vercel deploy --prod 2>/dev/null
-            success "Vercel redeployed with HTTPS tunnel"
+            success "Hub updated: mode=remote, publicUrl=$TUNNEL_URL"
         else
-            warn "Failed to update Vercel env. Set NEXT_PUBLIC_HUB_URL manually to: $TUNNEL_URL"
+            warn "Failed to notify Hub of tunnel URL"
         fi
-        cd "$PROJECT_ROOT"
+
+        # Deploy static pages to Vercel
+        log "Deploying pages to Vercel..."
+        cd "$PROJECT_ROOT/public"
+        if command -v vercel >/dev/null 2>&1; then
+            vercel deploy --prod 2>/dev/null
+            success "Vercel deployed with Hub URL: $TUNNEL_URL"
+        else
+            warn "Vercel CLI not installed — skipping online deployment"
+        fi
     else
         warn "ngrok started but tunnel URL not found. Check $SESSIONS_DIR/ngrok.log"
     fi

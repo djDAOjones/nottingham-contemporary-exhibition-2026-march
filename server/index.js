@@ -54,6 +54,11 @@ const state = {
     ],
     currentPromptIndex: 0,
     safeMode: false,      // Skip offline modules
+    connection: {
+      mode: 'local',        // 'local' or 'remote'
+      localUrl: '',         // Set on startup (e.g. http://192.168.1.252:3000)
+      publicUrl: ''         // Set when ngrok starts
+    },
     display: {
       resolution: '1080p',  // '720p' | '1080p' | '1440p' | '4k'
       framerate: 25,         // 25 | 30 | 50 | 60
@@ -167,6 +172,11 @@ app.use('/submit', express.static(path.join(__dirname, '../public/submit')));
 app.use('/moderate', express.static(path.join(__dirname, '../public/moderate')));
 app.use('/display', express.static(path.join(__dirname, '../public/display')));
 app.use('/history', express.static(path.join(__dirname, '../public/history')));
+app.use('/queue', express.static(path.join(__dirname, '../public/queue')));
+app.use('/checker', express.static(path.join(__dirname, '../public/checker')));
+
+// Serve shared files (hub-connect.js, hub-config.json) and root landing page
+app.use(express.static(path.join(__dirname, '../public')));
 
 // JSON body parsing
 app.use(express.json());
@@ -300,6 +310,53 @@ app.get('/api/rejected', (req, res) => {
 
 app.get('/api/submissions/approved', (req, res) => {
   res.json(state.approved);
+});
+
+app.get('/api/queue', (req, res) => {
+  // Get queued messages (approved but not yet sent to modules)
+  const queued = state.approved.map(msg => ({
+    id: msg.id,
+    message: msg.message,
+    timestamp: msg.timestamp,
+    status: 'queued'
+  }));
+
+  // Get processing messages (currently being handled by modules)
+  const processing = [];
+  state.modules.forEach((module, moduleId) => {
+    module.queue.forEach(msg => {
+      processing.push({
+        id: msg.id,
+        message: msg.message,
+        timestamp: msg.timestamp,
+        status: 'processing',
+        module: module.name
+      });
+    });
+  });
+
+  // Also include recently routed messages as "processing"
+  const recentlyRouted = state.routed
+    .filter(msg => Date.now() - new Date(msg.routedAt).getTime() < 60000) // Last 60 seconds
+    .map(msg => ({
+      id: msg.id,
+      message: msg.message,
+      timestamp: msg.timestamp,
+      status: 'processing',
+      module: msg.routedTo || 'Unknown'
+    }));
+
+  processing.push(...recentlyRouted);
+
+  res.json({
+    queued,
+    processing,
+    stats: {
+      totalQueued: queued.length,
+      totalProcessing: processing.length,
+      activeModules: Array.from(state.modules.values()).filter(m => m.status === 'online').length
+    }
+  });
 });
 
 app.get('/api/archive', (req, res) => {
@@ -449,6 +506,31 @@ app.post('/api/config/display', (req, res) => {
   console.log(`[DISPLAY] Config updated: ${d.resolution} @ ${d.framerate}fps`);
   
   res.json({ success: true, ...config });
+});
+
+// ============ CONNECTION CONFIG API ============
+
+app.get('/api/config/connection', (req, res) => {
+  res.json(state.config.connection);
+});
+
+app.post('/api/config/mode', (req, res) => {
+  const { mode, publicUrl } = req.body;
+  if (mode && ['local', 'remote'].includes(mode)) {
+    state.config.connection.mode = mode;
+  }
+  if (publicUrl !== undefined) {
+    state.config.connection.publicUrl = publicUrl.replace(/\/$/, '');
+    // Update hub-config.json for Vercel deployments
+    const configPath = path.join(__dirname, '../public/hub-config.json');
+    const hubConfig = { hubUrl: state.config.connection.publicUrl };
+    fs.writeFileSync(configPath, JSON.stringify(hubConfig, null, 2) + '\n');
+    console.log(`[CONNECTION] hub-config.json updated: ${state.config.connection.publicUrl || '(empty)'}`);
+  }
+  logEvent('connection_mode_changed', state.config.connection);
+  console.log(`[CONNECTION] Mode: ${state.config.connection.mode}, Public URL: ${state.config.connection.publicUrl || '(none)'}`);
+  io.to('moderators').emit('connection-config', state.config.connection);
+  res.json({ success: true, ...state.config.connection });
 });
 
 app.post('/api/moderate', (req, res) => {
@@ -1059,6 +1141,137 @@ app.post('/api/test/stop', (req, res) => {
   }
 });
 
+// Bulk generate pending messages for moderation queue
+app.post('/api/test/bulk-pending', (req, res) => {
+  const { count = 50 } = req.body;
+  const limitedCount = Math.min(Math.max(1, count), 200);
+  
+  const testMessages = [
+    "I dream of electric gardens growing in the clouds",
+    "What if machines could feel the warmth of sunrise?",
+    "In the future, art creates itself and we just watch",
+    "My hope is that technology brings people closer together",
+    "I imagine a world where creativity has no boundaries",
+    "The sound of rain on a digital window",
+    "What does it mean to be human in an age of AI?",
+    "I see colours that haven't been invented yet",
+    "A future where every voice is heard and amplified",
+    "Dancing with algorithms under neon skies",
+    "When the network sleeps, do the machines dream?",
+    "I want to send a message to the year 3000",
+    "Beauty exists in the space between ones and zeros",
+    "The exhibition is alive and breathing with our words",
+    "Can art made by everyone belong to no one?",
+    "My grandmother's memories stored in silicon",
+    "A whisper becomes a shout across the digital void",
+    "The future smells like fresh rain and ozone",
+    "We are all connected by invisible threads of light",
+    "What would you tell your past self about today?",
+    "Hope is a seed planted in binary soil",
+    "The stars remember every wish ever made",
+    "I believe in the kindness of strangers online",
+    "Tomorrow is a canvas waiting for our brushstrokes",
+    "Music flows through fiber optic veins"
+  ];
+  
+  const created = [];
+  for (let i = 0; i < limitedCount; i++) {
+    const messageText = testMessages[i % testMessages.length] + ` [${i + 1}]`;
+    const submission = {
+      id: uuidv4(),
+      message: messageText,
+      sessionId: `test-bulk-${Date.now()}`,
+      timestamp: Date.now() - (limitedCount - i) * 1000, // Stagger timestamps
+      status: 'pending',
+      source: 'test-bulk'
+    };
+    
+    state.submissions.unshift(submission);
+    created.push(submission);
+  }
+  
+  // Notify moderators of new submissions
+  io.to('moderators').emit('bulk-submissions', { count: created.length });
+  
+  logEvent('test_bulk_pending', { count: created.length });
+  console.log(`[TEST] Bulk created ${created.length} pending messages for moderation`);
+  
+  res.json({ 
+    success: true, 
+    created: created.length,
+    message: `Added ${created.length} messages to moderation queue`
+  });
+});
+
+// Bulk generate approved messages for display queue
+app.post('/api/test/bulk-approved', (req, res) => {
+  const { count = 100 } = req.body;
+  const limitedCount = Math.min(Math.max(1, count), 500);
+  
+  const testMessages = [
+    "I dream of electric gardens growing in the clouds",
+    "What if machines could feel the warmth of sunrise?",
+    "In the future, art creates itself and we just watch",
+    "My hope is that technology brings people closer together",
+    "I imagine a world where creativity has no boundaries",
+    "The sound of rain on a digital window",
+    "What does it mean to be human in an age of AI?",
+    "I see colours that haven't been invented yet",
+    "A future where every voice is heard and amplified",
+    "Dancing with algorithms under neon skies",
+    "When the network sleeps, do the machines dream?",
+    "I want to send a message to the year 3000",
+    "Beauty exists in the space between ones and zeros",
+    "The exhibition is alive and breathing with our words",
+    "Can art made by everyone belong to no one?",
+    "My grandmother's memories stored in silicon",
+    "A whisper becomes a shout across the digital void",
+    "The future smells like fresh rain and ozone",
+    "We are all connected by invisible threads of light",
+    "What would you tell your past self about today?",
+    "Hope is a seed planted in binary soil",
+    "The stars remember every wish ever made",
+    "I believe in the kindness of strangers online",
+    "Tomorrow is a canvas waiting for our brushstrokes",
+    "Music flows through fiber optic veins",
+    "In the silence between heartbeats, machines listen",
+    "The ocean of data holds infinite stories",
+    "Every pixel is a universe waiting to be explored",
+    "We paint with light and dream in code",
+    "The boundary between real and virtual dissolves"
+  ];
+  
+  const created = [];
+  for (let i = 0; i < limitedCount; i++) {
+    const messageText = testMessages[i % testMessages.length] + ` [${i + 1}]`;
+    const submission = {
+      id: uuidv4(),
+      message: messageText,
+      sessionId: `test-bulk-${Date.now()}`,
+      timestamp: Date.now() - (limitedCount - i) * 1000, // Stagger timestamps
+      status: 'approved',
+      source: 'test-bulk'
+    };
+    
+    state.submissions.unshift(submission);
+    state.approved.unshift(submission);
+    created.push(submission);
+  }
+  
+  // Notify display and moderators
+  io.to('display').emit('bulk-messages', { count: created.length });
+  io.to('moderators').emit('bulk-approved', { count: created.length });
+  
+  logEvent('test_bulk_approved', { count: created.length });
+  console.log(`[TEST] Bulk created ${created.length} approved messages for display queue`);
+  
+  res.json({ 
+    success: true, 
+    created: created.length,
+    message: `Added ${created.length} messages to display queue`
+  });
+});
+
 // Remove all virtual modules
 app.post('/api/test/cleanup', (req, res) => {
   // Stop auto-run
@@ -1356,16 +1569,21 @@ async function startServer() {
   }
   
   server.listen(PORT, '0.0.0.0', () => {
+    // Set local URL in connection config
+    const lanIP = localIP !== 'localhost' ? localIP : null;
+    state.config.connection.localUrl = lanIP
+      ? `http://${lanIP}:${PORT}`
+      : `http://localhost:${PORT}`;
+    console.log(`[CONNECTION] Local URL: ${state.config.connection.localUrl}`);
+
     console.log(`[HUB v2] Running on port ${PORT}`);
     console.log(`[HUB v2] Submission: http://localhost:${PORT}/submit`);
     console.log(`[HUB v2] Moderation: http://localhost:${PORT}/moderate`);
     console.log(`[HUB v2] Display: http://localhost:${PORT}/display`);
     console.log(`[HUB v2] History: http://localhost:${PORT}/history`);
     console.log(`[HUB v2] Test Console: http://localhost:${PORT}/test`);
+    console.log(`[HUB v2] Checker: http://localhost:${PORT}/checker`);
     console.log(`[HUB v2] Archive: ${archiveDir}`);
-    
-    // Show network information for LAN access
-    const lanIP = localIP !== 'localhost' ? localIP : null;
     
     if (lanIP) {
       console.log(`\n[NETWORK] LAN Access:`);

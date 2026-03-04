@@ -300,7 +300,7 @@ class HubFallbackIntegration {
     this.fallbackManager.on('safe-mode-entered', (data) => {
       console.warn(`[HubFallbackIntegration] SAFE MODE ENTERED: ${data.reason}`);
       
-      // Broadcast safe mode to moderator UI
+      // Broadcast safe mode to Moderation Panel
       this.hubServer.io?.to('moderators').emit('safe-mode-changed', {
         safeMode: true,
         reason: data.reason,
@@ -311,7 +311,7 @@ class HubFallbackIntegration {
     this.fallbackManager.on('safe-mode-exited', (data) => {
       console.log(`[HubFallbackIntegration] SAFE MODE EXITED: ${data.reason}`);
       
-      // Broadcast safe mode exit to moderator UI
+      // Broadcast safe mode exit to Moderation Panel
       this.hubServer.io?.to('moderators').emit('safe-mode-changed', {
         safeMode: false,
         reason: data.reason,
@@ -323,7 +323,7 @@ class HubFallbackIntegration {
     this.fallbackManager.on('circuit-breaker-open', (data) => {
       console.warn(`[HubFallbackIntegration] Circuit breaker opened for ${data.moduleId}`);
       
-      // Notify moderator UI
+      // Notify Moderation Panel
       this.hubServer.io?.to('moderators').emit('module-circuit-breaker', {
         moduleId: data.moduleId,
         state: 'open'

@@ -12,16 +12,6 @@ Interactive art installation with real-time audience participation and AI<>human
 - **Art Modules:** AI-human analysis, processing, and generation
 - **Display:** 3×3 grid projection of art module outputs and audience view of routing
 
-## UI Pages
-
-| Panel | URL | Purpose |
-|-------|-----|---------|
-| **Submit** | [Audience Submission](https://nottingham-contemporary-exhibition.vercel.app/) | Public submissions |
-| **Test Submit** | [Local Submission Testing](http://localhost:3000/submit) | Local submission testing |
-| **Moderation** | [Moderation Panel](http://localhost:3000/moderate) | Approve/reject submissions, control modules |
-| **Display** | [Display Panel](http://localhost:3000/display) | 3×3 grid for projection |
-| **Archive** | [Event Archive](http://localhost:3000/archive) | Event history and logs |
-| **Config** | [Art Module Config](http://localhost:3000/art-module-config-{module}) | Control panel for each Hub-Bridge helper app on each Art Module Laptop |
 
 ## QR Code
 
@@ -29,11 +19,6 @@ Interactive art installation with real-time audience participation and AI<>human
 
 ## Hardware Setup
 
-### Equipment
-- **Router:** Ethernet connection for each laptop
-- **Main Laptop:** Runs Hub server (port 3000)
-- **Module Laptops:** Connect to ports 3001, 3002, etc
-- **Projectors / Screens:** Connected to display laptops
 
 ###  Layout
 ```
@@ -174,7 +159,7 @@ tail -f sessions/bridge.log
 - [ ] All laptops connected to router
 - [ ] Hub starts without errors (`npm start`)
 - [ ] All 8 modules connect and show "online"
-- [ ] Moderator UI loads and shows module grid
+- [ ] Moderation Panel loads and shows module grid
 - [ ] Display projects 3×3 grid correctly
 - [ ] Vercel URL accessible from phones
 - [ ] QR codes generated and printed

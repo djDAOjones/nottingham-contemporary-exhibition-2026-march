@@ -75,32 +75,17 @@
     <p class="empty-state">Waiting for submissions...</p>
   </div>
 
-  <script src="/socket.io/socket.io.js"></script>
+  <script src="/hub-connect.js"></script>
   <script>
-    const socket = io();
     const messagesEl = document.getElementById('messages');
-    
     let messages = [];
     const MAX_MESSAGES = 20;
-    
-    socket.on('connect', () => {
-      socket.emit('join', { role: 'history' });
-    });
-    
-    socket.on('message-approved', (message) => {
-      messages.unshift(message);
-      if (messages.length > MAX_MESSAGES) {
-        messages = messages.slice(0, MAX_MESSAGES);
-      }
-      render();
-    });
-    
+
     function render() {
       if (messages.length === 0) {
         messagesEl.innerHTML = '<p class="empty-state">Waiting for submissions...</p>';
         return;
       }
-      
       messagesEl.innerHTML = messages.map(m => `
         <div class="message">
           <p class="message-text">${escapeHtml(m.message)}</p>
@@ -108,17 +93,31 @@
         </div>
       `).join('');
     }
-    
+
     function formatTime(ts) {
       const d = new Date(ts);
       return d.toLocaleTimeString();
     }
-    
+
     function escapeHtml(text) {
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
     }
+
+    HubConnection.ready.then(() => {
+      const socket = HubConnection.connectSocket();
+      socket.on('connect', () => {
+        socket.emit('join', { role: 'history' });
+      });
+      socket.on('message-approved', (message) => {
+        messages.unshift(message);
+        if (messages.length > MAX_MESSAGES) {
+          messages = messages.slice(0, MAX_MESSAGES);
+        }
+        render();
+      });
+    });
   </script>
 </body>
 </html>

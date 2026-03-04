@@ -327,9 +327,9 @@
     <div id="configText">Loading config...</div>
   </div>
 
-  <script src="/socket.io/socket.io.js"></script>
+  <script src="/hub-connect.js"></script>
   <script>
-    const socket = io();
+    let socket;
     const grid = document.getElementById('grid');
     const incomingMessage = document.getElementById('incomingMessage');
     const waitingText = document.getElementById('waitingText');
@@ -361,7 +361,7 @@
     
     async function loadDisplayConfig() {
       try {
-        const res = await fetch('/api/config/display');
+        const res = await HubConnection.fetch('/api/config/display');
         const config = await res.json();
         applyConfig(config);
       } catch (e) {
@@ -386,7 +386,10 @@
     
     // ---- SOCKET EVENTS ----
     
-    socket.on('connect', () => {
+    HubConnection.ready.then(() => {
+      socket = HubConnection.connectSocket();
+
+      socket.on('connect', () => {
       console.log('Display connected');
       socket.emit('identify', { role: 'display' });
       loadModules();
@@ -467,16 +470,17 @@
       }
     });
     
-    socket.on('webrtc-ice-candidate', async (data) => {
-      const pc = peerConnections.get(data.moduleId);
-      if (pc) {
-        try {
-          await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-        } catch (e) {
-          console.error('[DISPLAY] ICE candidate error:', e);
+      socket.on('webrtc-ice-candidate', async (data) => {
+        const pc = peerConnections.get(data.moduleId);
+        if (pc) {
+          try {
+            await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+          } catch (e) {
+            console.error('[DISPLAY] ICE candidate error:', e);
+          }
         }
-      }
-    });
+      });
+    }); // end HubConnection.ready
     
     // ---- VIDEO STREAM HELPERS ----
     
@@ -513,7 +517,7 @@
     
     async function loadModules() {
       try {
-        const res = await fetch('/api/modules');
+        const res = await HubConnection.fetch('/api/modules');
         modules = await res.json();
         updateModuleDisplay();
       } catch (e) {

@@ -283,6 +283,30 @@
         <button class="btn warning" onclick="startAutoRun()">Start Auto-Run</button>
         <button class="btn danger" onclick="stopAutoRun()">Stop</button>
       </div>
+      
+      <div class="panel-title" style="margin-top:16px;">4. Bulk Generate Messages</div>
+      <p style="font-size:0.75rem;color:#666;margin-bottom:12px;">Quickly populate queues for testing pagination and display</p>
+      
+      <div class="btn-group">
+        <button class="btn" onclick="bulkPending(50)">+50 Pending</button>
+        <button class="btn primary" onclick="bulkApproved(100)">+100 Approved</button>
+      </div>
+      
+      <div style="display:flex;gap:10px;margin-top:8px;">
+        <div class="field" style="flex:1;">
+          <label>Custom pending count</label>
+          <input type="number" id="bulkPendingCount" value="50" min="1" max="200">
+        </div>
+        <div class="field" style="flex:1;">
+          <label>Custom approved count</label>
+          <input type="number" id="bulkApprovedCount" value="100" min="1" max="500">
+        </div>
+      </div>
+      
+      <div class="btn-group">
+        <button class="btn" onclick="bulkPendingCustom()">Add Pending</button>
+        <button class="btn primary" onclick="bulkApprovedCustom()">Add Approved</button>
+      </div>
     </div>
     
     <!-- Status Panel -->
@@ -308,6 +332,7 @@
     </div>
   </div>
 
+  <script src="/hub-connect.js"></script>
   <script>
     let statusInterval = null;
     
@@ -326,7 +351,7 @@
       try {
         const opts = { method, headers: { 'Content-Type': 'application/json' } };
         if (body) opts.body = JSON.stringify(body);
-        const res = await fetch(path, opts);
+        const res = await HubConnection.fetch(path, opts);
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
         return data;
@@ -397,9 +422,35 @@
       } catch (e) { /* logged */ }
     }
     
+    async function bulkPending(count) {
+      try {
+        const data = await api('POST', '/api/test/bulk-pending', { count });
+        log(`Bulk created ${data.created} pending messages for moderation`, 'ok');
+        refreshStatus();
+      } catch (e) { /* logged */ }
+    }
+    
+    async function bulkApproved(count) {
+      try {
+        const data = await api('POST', '/api/test/bulk-approved', { count });
+        log(`Bulk created ${data.created} approved messages for display queue`, 'ok');
+        refreshStatus();
+      } catch (e) { /* logged */ }
+    }
+    
+    function bulkPendingCustom() {
+      const count = parseInt(document.getElementById('bulkPendingCount').value) || 50;
+      bulkPending(count);
+    }
+    
+    function bulkApprovedCustom() {
+      const count = parseInt(document.getElementById('bulkApprovedCount').value) || 100;
+      bulkApproved(count);
+    }
+    
     async function refreshStatus() {
       try {
-        const data = await fetch('/api/test/status').then(r => r.json());
+        const data = await HubConnection.fetch('/api/test/status').then(r => r.json());
         
         // Update stats
         document.getElementById('statModules').textContent = data.hubState.totalModules;
@@ -433,8 +484,10 @@
     }
     
     // Initial load
-    refreshStatus();
-    setInterval(refreshStatus, 10000);
+    HubConnection.ready.then(() => {
+      refreshStatus();
+      setInterval(refreshStatus, 10000);
+    });
   </script>
 </body>
 </html>

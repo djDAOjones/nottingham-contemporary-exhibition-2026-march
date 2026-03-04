@@ -1,5 +1,5 @@
-// Hub v2 Moderator UI - Complete JavaScript Implementation
-const socket = io();
+// Hub v2 Moderation Panel - Complete JavaScript Implementation
+let socket;
 let isConnected = false;
 
 // State
@@ -27,52 +27,56 @@ const safeModeToggle = document.getElementById('safeModeToggle');
 const safeModeContainer = document.getElementById('safeModeContainer');
 
 // Connect to server
-socket.on('connect', () => {
-  console.log('[MODERATOR] Connected to Hub v2');
-  isConnected = true;
-  updateStatus();
-  
-  // Identify as moderator
-  socket.emit('identify', { role: 'moderator' });
-  
-  // Load initial data
-  loadSubmissions();
-  loadModuleStatus();
-});
+HubConnection.ready.then(() => {
+  socket = HubConnection.connectSocket();
 
-socket.on('disconnect', () => {
-  console.log('[MODERATOR] Disconnected from Hub v2');
-  isConnected = false;
-  updateStatus();
-});
+  socket.on('connect', () => {
+    console.log('[MODERATOR] Connected to Hub v2');
+    isConnected = true;
+    updateStatus();
+    
+    // Identify as moderator
+    socket.emit('identify', { role: 'moderator' });
+    
+    // Load initial data
+    loadSubmissions();
+    loadModuleStatus();
+  });
 
-// Handle real-time updates
-socket.on('new-submission', (submission) => {
-  console.log('[MODERATOR] New submission:', submission);
-  submissions.unshift(submission);
-  renderQueue();
-  showNotification('New submission received', 'success');
-});
+  socket.on('disconnect', () => {
+    console.log('[MODERATOR] Disconnected from Hub v2');
+    isConnected = false;
+    updateStatus();
+  });
 
-socket.on('modules-status', (data) => {
-  console.log('[MODERATOR] Module status update:', data);
-  updateModuleStatus(data);
-});
+  // Handle real-time updates
+  socket.on('new-submission', (submission) => {
+    console.log('[MODERATOR] New submission:', submission);
+    submissions.unshift(submission);
+    renderQueue();
+    showNotification('New submission received', 'success');
+  });
 
-socket.on('module-connected', (data) => {
-  showNotification(`Module connected: ${data.name}`, 'success');
-  loadModuleStatus();
-});
+  socket.on('modules-status', (data) => {
+    console.log('[MODERATOR] Module status update:', data);
+    updateModuleStatus(data);
+  });
 
-socket.on('module-disconnected', (data) => {
-  showNotification(`Module disconnected: ${data.name}`, 'warning');
-  loadModuleStatus();
-});
+  socket.on('module-connected', (data) => {
+    showNotification(`Module connected: ${data.name}`, 'success');
+    loadModuleStatus();
+  });
 
-socket.on('module-timeout', (data) => {
-  showNotification(`Module timeout: ${data.moduleName}`, 'error');
-  loadModuleStatus();
-});
+  socket.on('module-disconnected', (data) => {
+    showNotification(`Module disconnected: ${data.name}`, 'warning');
+    loadModuleStatus();
+  });
+
+  socket.on('module-timeout', (data) => {
+    showNotification(`Module timeout: ${data.moduleName}`, 'error');
+    loadModuleStatus();
+  });
+}); // end HubConnection.ready
 
 function updateStatus() {
   if (isConnected) {
@@ -86,7 +90,7 @@ function updateStatus() {
 
 async function loadSubmissions() {
   try {
-    const response = await fetch('/api/submissions');
+    const response = await HubConnection.fetch('/api/submissions');
     if (response.ok) {
       submissions = await response.json();
       await loadStats();
@@ -101,8 +105,8 @@ async function loadSubmissions() {
 async function loadStats() {
   try {
     const [approved, rejected] = await Promise.all([
-      fetch('/api/submissions/approved').then(r => r.json()),
-      fetch('/api/rejected').then(r => r.json())
+      HubConnection.fetch('/api/submissions/approved').then(r => r.json()),
+      HubConnection.fetch('/api/rejected').then(r => r.json())
     ]);
     
     approvedCount.textContent = approved.length;
@@ -116,7 +120,7 @@ async function loadStats() {
 
 async function loadModuleStatus() {
   try {
-    const response = await fetch('/api/modules/status');
+    const response = await HubConnection.fetch('/api/modules/status');
     if (response.ok) {
       const data = await response.json();
       updateModuleStatus(data);
@@ -386,7 +390,7 @@ function handleDrop(e) {
 
 async function updateModuleOrder(newOrder) {
   try {
-    const response = await fetch('/api/modules/reorder', {
+    const response = await HubConnection.fetch('/api/modules/reorder', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ newOrder })
@@ -451,7 +455,7 @@ async function moderateSubmission(submissionId, action, options = {}) {
   try {
     const body = { submissionId, action, ...options };
     
-    const response = await fetch('/api/moderate', {
+    const response = await HubConnection.fetch('/api/moderate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -478,7 +482,7 @@ async function moderateSubmission(submissionId, action, options = {}) {
 // Module Actions
 async function retryModule(moduleId) {
   try {
-    const response = await fetch('/api/modules/retry', {
+    const response = await HubConnection.fetch('/api/modules/retry', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ moduleId })
@@ -501,7 +505,7 @@ async function clearQueue(moduleId) {
   if (!confirm('Clear all queued messages for this module?')) return;
   
   try {
-    const response = await fetch('/api/modules/clear-queue', {
+    const response = await HubConnection.fetch('/api/modules/clear-queue', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ moduleId })
@@ -522,7 +526,7 @@ async function clearQueue(moduleId) {
 
 async function toggleSafeMode() {
   try {
-    const response = await fetch('/api/config/safe-mode', {
+    const response = await HubConnection.fetch('/api/config/safe-mode', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ enabled: !safeMode })
@@ -550,7 +554,7 @@ async function submitLocal() {
   }
   
   try {
-    const response = await fetch('/api/local-submit', {
+    const response = await HubConnection.fetch('/api/local-submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message })

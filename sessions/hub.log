@@ -5,110 +5,61 @@
 ]
 [HUB] Found potential modules on ports: []
 [HUB] Module discovery complete. Found 0 potential modules.
-[ARCHIVE] HUB_STARTUP: 38c508c9
+[ARCHIVE] HUB_STARTUP: 4ff2996e
+[CONNECTION] Local URL: http://172.21.27.142:3000
 [HUB v2] Running on port 3000
 [HUB v2] Submission: http://localhost:3000/submit
 [HUB v2] Moderation: http://localhost:3000/moderate
 [HUB v2] Display: http://localhost:3000/display
 [HUB v2] History: http://localhost:3000/history
 [HUB v2] Test Console: http://localhost:3000/test
+[HUB v2] Checker: http://localhost:3000/checker
 [HUB v2] Archive: /Users/joe/Library/CloudStorage/OneDrive-OurWiltonTrust/Jen and Jones/2026-02-25 Nottingham Contempory AI Exhibition/Windsurf/archive
 
 [NETWORK] LAN Access:
-[NETWORK] Hub: http://192.168.1.252:3000
-[NETWORK] Submission: http://192.168.1.252:3000/submit
-[NETWORK] Moderation: http://192.168.1.252:3000/moderate
-[NETWORK] Display: http://192.168.1.252:3000/display
-[NETWORK] History: http://192.168.1.252:3000/history
+[NETWORK] Hub: http://172.21.27.142:3000
+[NETWORK] Submission: http://172.21.27.142:3000/submit
+[NETWORK] Moderation: http://172.21.27.142:3000/moderate
+[NETWORK] Display: http://172.21.27.142:3000/display
+[NETWORK] History: http://172.21.27.142:3000/history
 [QR CODE] Install 'qrcode' package for QR code generation
 
 [HUB v2] Ready for modules on ports: 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008
 [HUB v2] WebSocket heartbeat: 30000ms
 [HUB v2] Module timeout: 60000ms
-[WS] Display joined: s42MBzRdqrPcKXW4AAAB
-[WS] Module registered: Artist Bridge (bridge-mm72h3fp) on port 4000
-[ARCHIVE] MODULE_CONNECT: 13a14361
-[ARCHIVE] SUBMISSION: debea81d
-[PROGRESS] 83f91b28: Message Received (1/8)
-[SUBMIT] 83f91b28: "yo a dream..."
-[PROGRESS] 83f91b28: Entering Queue (2/8)
-[WS] Moderator joined: nGS_bgkYRda4dsX5AAAF
-[ARCHIVE] APPROVAL: 01c0131c
-[ARCHIVE] ROUTING: 024054b4
-[ROUTE] a754a99d → Artist Bridge (queue: 1)
-[MODERATE] APPROVE: 83f91b28 - "yo a dream..."
-[PROGRESS] 83f91b28: Under Review (3/8)
-[PROGRESS] 83f91b28: Approved (4/8)
-[PROGRESS] 83f91b28: Routing to Module (5/8)
-[MODULE ERROR] Artist Bridge: Output capture timed out
-[ARCHIVE] MODULE_ERROR: b96e3063
-[ARCHIVE] MODULE_REORDER: 2b79481a
-[ARCHIVE] MODULE_REORDER: 5698145a
-[WS] Client disconnected: s42MBzRdqrPcKXW4AAAB
-[WS] Client disconnected: nGS_bgkYRda4dsX5AAAF
-[WS] Display joined: sjvHv7sdiEuhMf4IAAAH
-[WS] Moderator joined: 5NJJ6toZgrLrVf41AAAJ
-[ARCHIVE] MODULE_DISCONNECT: d3000ae4
+[WS] Display joined: q07rrsMRS4uI9R4vAAAC
+[WS] Moderator joined: AVNJkur8Lj1-tunkAAAD
+[WS] Module registered: Artist Bridge (bridge-mmc4gllm) on port 4000
+[ARCHIVE] MODULE_CONNECT: 4aee246c
+[CONNECTION] hub-config.json updated: https://dominatingly-sociogenetic-kym.ngrok-free.dev
+[ARCHIVE] CONNECTION_MODE_CHANGED: d1091ea7
+[CONNECTION] Mode: remote, Public URL: https://dominatingly-sociogenetic-kym.ngrok-free.dev
+[WS] Client disconnected: AVNJkur8Lj1-tunkAAAD
+[WS] Client disconnected: q07rrsMRS4uI9R4vAAAC
+[WS] Moderator joined: HS-jwQmXOMZqmgkSAAAI
+[WS] Display joined: vr6AbxEHx4CkXftmAAAJ
+[HEARTBEAT] Module Artist Bridge appears offline (last seen 227s ago)
+[HEARTBEAT] Module Artist Bridge appears offline (last seen 435s ago)
+[ARCHIVE] MODULE_DISCONNECT: b0852ed1
 [WS] Module disconnected: Artist Bridge (queue: 0)
-[WS] Client disconnected: z9vXCE4K0MjTEa9fAAAD
-[WS] Module registered: Artist Bridge (bridge-mm72h3fp) on port 4000
-[ARCHIVE] MODULE_CONNECT: 306fdfd6
-[HEARTBEAT] Module Artist Bridge appears offline (last seen 593s ago)
-[ARCHIVE] MODULE_DISCONNECT: 8bf2cfb6
+[WS] Client disconnected: 70HHhtTfNoMeGVokAAAF
+[WS] Module registered: Artist Bridge (bridge-mmc4gllm) on port 4000
+[ARCHIVE] MODULE_CONNECT: e8471f4f
+[HEARTBEAT] Module Artist Bridge appears offline (last seen 86s ago)
+[ARCHIVE] MODULE_DISCONNECT: 5b827ac6
 [WS] Module disconnected: Artist Bridge (queue: 0)
-[WS] Client disconnected: obXH2IlIJK-D1oXPAAAL
-[WS] Module registered: Artist Bridge (bridge-mm72h3fp) on port 4000
-[ARCHIVE] MODULE_CONNECT: 9fcaa20f
-[HEARTBEAT] Module Artist Bridge appears offline (last seen 171s ago)
-[ARCHIVE] MODULE_DISCONNECT: 25bfb62d
+[WS] Client disconnected: NxO17Rf22eQjcXU_AAAL
+[WS] Module registered: Artist Bridge (bridge-mmc4gllm) on port 4000
+[ARCHIVE] MODULE_CONNECT: 04ebbdc8
+[HEARTBEAT] Module Artist Bridge appears offline (last seen 990s ago)
+[HEARTBEAT] Module Artist Bridge appears offline (last seen 61s ago)
+[HEARTBEAT] Module Artist Bridge appears offline (last seen 257s ago)
+[ARCHIVE] MODULE_DISCONNECT: 176b6284
 [WS] Module disconnected: Artist Bridge (queue: 0)
-[WS] Client disconnected: JJA0Ucw2MCMP6_yaAAAN
-[WS] Module registered: Artist Bridge (bridge-mm72h3fp) on port 4000
-[ARCHIVE] MODULE_CONNECT: fb33d377
-[HEARTBEAT] Module Artist Bridge appears offline (last seen 924s ago)
-[ARCHIVE] MODULE_DISCONNECT: e6922c3c
-[WS] Module disconnected: Artist Bridge (queue: 0)
-[WS] Client disconnected: J8DdbNAtDt_KRP7gAAAP
-[WS] Module registered: Artist Bridge (bridge-mm72h3fp) on port 4000
-[ARCHIVE] MODULE_CONNECT: 4c2d81f3
-[ARCHIVE] MODULE_DISCONNECT: 8c8bf697
-[WS] Module disconnected: Artist Bridge (queue: 0)
-[WS] Client disconnected: ilLtRJ36UaEAjMeQAAAR
-[WS] Module registered: Artist Bridge (bridge-mm72h3fp) on port 4000
-[ARCHIVE] MODULE_CONNECT: f1d84ca3
-[ARCHIVE] MODULE_DISCONNECT: 065f7e4f
-[WS] Module disconnected: Artist Bridge (queue: 0)
-[WS] Client disconnected: A5SSaMAhtVuEScErAAAT
-[WS] Module registered: Artist Bridge (bridge-mm72h3fp) on port 4000
-[ARCHIVE] MODULE_CONNECT: 3621ffbe
-[WS] Client disconnected: 5NJJ6toZgrLrVf41AAAJ
-[HEARTBEAT] Module Artist Bridge appears offline (last seen 515s ago)
-[ARCHIVE] MODULE_DISCONNECT: 58cd592a
-[WS] Module disconnected: Artist Bridge (queue: 0)
-[WS] Client disconnected: rgfuSyiqWHto-DboAAAV
-[WS] Module registered: Artist Bridge (bridge-mm72h3fp) on port 4000
-[ARCHIVE] MODULE_CONNECT: 9824a4a1
-[ARCHIVE] MODULE_DISCONNECT: d8c12993
-[WS] Module disconnected: Artist Bridge (queue: 0)
-[WS] Client disconnected: b9C6EHP9EZrWV4hsAAAX
-[WS] Module registered: Artist Bridge (bridge-mm72h3fp) on port 4000
-[ARCHIVE] MODULE_CONNECT: 446e208c
-[ARCHIVE] MODULE_DISCONNECT: 70a1b9c5
-[WS] Module disconnected: Artist Bridge (queue: 0)
-[WS] Client disconnected: U1xOlJ-wCAwY_HCSAAAZ
-[WS] Module registered: Artist Bridge (bridge-mm72h3fp) on port 4000
-[ARCHIVE] MODULE_CONNECT: 1d292bde
-[WS] Moderator joined: ciVFyN-yY3gxnSkzAAAd
-[ARCHIVE] SUBMISSION: 855b5d30
-[PROGRESS] 36f7fbf9: Message Received (1/8)
-[SUBMIT] 36f7fbf9: "Breakfast..."
-[PROGRESS] 36f7fbf9: Entering Queue (2/8)
-[ARCHIVE] APPROVAL: 16d04039
-[ARCHIVE] ROUTING: 28198a4d
-[ROUTE] db0bf8ac → Artist Bridge (queue: 1)
-[MODERATE] APPROVE: 36f7fbf9 - "Breakfast..."
-[PROGRESS] 36f7fbf9: Under Review (3/8)
-[PROGRESS] 36f7fbf9: Approved (4/8)
-[PROGRESS] 36f7fbf9: Routing to Module (5/8)
-[MODULE ERROR] Artist Bridge: Output capture timed out
-[ARCHIVE] MODULE_ERROR: 1adfde42
+[WS] Client disconnected: MgbOqHYlyTXsh6lfAAAN
+[WS] Module registered: Artist Bridge (bridge-mmc4gllm) on port 4000
+[ARCHIVE] MODULE_CONNECT: dca3d7d6
+[HEARTBEAT] Module Artist Bridge appears offline (last seen 845s ago)
+[HEARTBEAT] Module Artist Bridge appears offline (last seen 371s ago)
+[WS] Client disconnected: vr6AbxEHx4CkXftmAAAJ
+[WS] Client disconnected: HS-jwQmXOMZqmgkSAAAI
