@@ -2,7 +2,7 @@
 
 **Show date:** March 29th 2026  
 
-**Concept:** [AI Jam](DADA%20KE%20fund%20template_25_26%20K%20Jones.docx)  
+**Concept:** [AI Jam](DADA%20KE%20fund%20template_25_26%20K%20Jones.pdf) (funding bid)  
 
 **Team:**  
 - Jen (artist/producer)  
