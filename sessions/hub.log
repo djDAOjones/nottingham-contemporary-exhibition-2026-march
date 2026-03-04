@@ -35,3 +35,7 @@
 [CONNECTION] Mode: remote, Public URL: https://dominatingly-sociogenetic-kym.ngrok-free.dev
 [WS] Display joined: YGK4E5azZhg43Rw_AAAF
 [WS] Moderator joined: R4O9s7bdHPq45dfiAAAJ
+[ARCHIVE] TEST_BULK_PENDING: 6abe8f77
+[TEST] Bulk created 50 pending messages for moderation
+[ARCHIVE] TEST_BULK_APPROVED: 2399d40f
+[TEST] Bulk created 100 approved messages for display queue

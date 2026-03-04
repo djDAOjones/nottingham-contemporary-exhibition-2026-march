@@ -56,3 +56,5 @@
 {"id":"1be81c3c-5449-4581-8770-20d592d313ab","timestamp":"2026-03-04T22:50:43.348Z","type":"hub_startup","data":{"port":3000,"modulePorts":[],"timestamp":"2026-03-04T22:50:43.347Z"}}
 {"id":"b1733147-ffb5-44cb-93a0-0a8b8bb89ba1","timestamp":"2026-03-04T22:50:46.377Z","type":"module_connect","data":{"moduleId":"bridge-mmcmrf0t","moduleName":"Artist Bridge","port":4000}}
 {"id":"fc854d02-6ffc-406d-9f40-9184714e5b6e","timestamp":"2026-03-04T22:50:51.285Z","type":"connection_mode_changed","data":{"mode":"remote","localUrl":"http://192.168.1.252:3000","publicUrl":"https://dominatingly-sociogenetic-kym.ngrok-free.dev"}}
+{"id":"6abe8f77-4074-4ef5-9194-93ea96bf5339","timestamp":"2026-03-04T23:00:59.613Z","type":"test_bulk_pending","data":{"count":50}}
+{"id":"2399d40f-16cc-4211-81f3-2c295621e95c","timestamp":"2026-03-04T23:01:00.133Z","type":"test_bulk_approved","data":{"count":100}}
