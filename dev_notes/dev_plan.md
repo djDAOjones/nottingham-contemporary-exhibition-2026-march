@@ -1,25 +1,33 @@
 # Development Plan — Interactive Art Installation
 
-**Timeline:** ~4 weeks (target: late March 2026)  
-**Team:** Joe (artist/developer), Jen (artist/producer), Ian (artist/developer), Krisitan (artist/developer), Juju (artist/dancer), Lars (artist/musician), Priten (3D artist/developer)
-**Hardware:** Multiple laptops, projector + screens, domestic router (4× ethernet)  
-**Approach:** Vibe coding with Claude AI models — iterative, experimental, human-AI collaborative
+**Show date:** March 29th 2026  
+
+**Concept:** [AI Jam](DADA%20KE%20fund%20template_25_26%20K%20Jones.docx)  
+
+**Team:**  
+- Jen (artist/producer)  
+- Krisitan (artist/developer)  
+- Lars (artist/musician)  
+- Ian (artist/developer)  
+- Priten (3D artist/developer)  
+- Juju (artist/dancer)  
+- Joe (artist/developer)  
 
 ---
 
----
-## System Overview
-**Core loop:**
-1. Visitor scans QR → opens web page on phone
-2. Responds to prompt (e.g., "send a dream") → submits text
-3. Moderator approves/rejects on separate screen
-4. Approved message appears in **center cell** of 3×3 grid projection
-5. Message animates → travels to one of **8 surrounding module cells**
-6. Module processes message → outputs visual/text to its cell
-7. Archive captures everything (including master AV recording)
+**Core flow:**  
 
-**Secondary display:** History feed showing recent submissions
-
+QR code  
+&nbsp;&nbsp;&nbsp;&nbsp;↓  
+Visitor submits text  
+&nbsp;&nbsp;&nbsp;&nbsp;↓  
+Moderator approves / rejects  
+&nbsp;&nbsp;&nbsp;&nbsp;↓  
+Approved Message routes to 1..N Art Modules  
+&nbsp;&nbsp;&nbsp;&nbsp;↓  
+Public displays update  
+&nbsp;&nbsp;&nbsp;&nbsp;↓  
+Archive logs + 4K records Art Display
 
 ---
 
@@ -30,50 +38,44 @@
 │                        CENTRAL HUB                              │
 │  (Node.js server on main laptop)                                │
 │                                                                 │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
-│  │ Submit   │  │ Moderate │  │ Router/  │  │ Display  │        │
-│  │ Web App  │  │ UI       │  │ Queue    │  │ Composer │        │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘        │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐         │
+│  │ Submit   │  │ Moderate │  │ Router/  │  │ Display  │         │
+│  │ Web App  │  │ UI       │  │ Queue    │  │ Composer │         │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘         │
 └─────────────────────────────────────────────────────────────────┘
          │              │              │              │
          ▼              ▼              ▼              ▼
-    [Phones]      [Mod laptop]    [Modules]     [Projector]
+    [Phones]      [Mod laptop]    [Modules]     [Projectors]
                                       │
          ┌────────────────────────────┴────────────────────────┐
          │                8 ART MODULES                        │
-         │  (connect via WebSocket, some on separate laptops)  │
-         │                                                     │
-         │  LOCAL:                    EXTERNAL (video feed):   │
-         │  • Terminal Critic         • VJ (TouchDesigner)     │
-         │  • Boring Stock            • Ian's Module           │
-         │  • Music Prompt            • Gravity Sketch         │
-         │  • 3D Scene + Body Track   • Dancer Cam             │
+         │       (connection TBC, separate laptops etc)        │
          └─────────────────────────────────────────────────────┘
 ```
 
 **Core loop:** QR scan → submit → moderate → route → process → display (3×3 grid)  
-**Communication:** WebSocket + NDI/RTSP for video feeds  
+**Communication:** TBC (websockets?)
 **Network Architecture:**
 - **Vercel (Cloud):** Audience submission UI, moderation UI, history feed (easy access, no latency concerns)
-- **Local LAN (192.168.1.252:3000):** Central hub, all artistic modules, archive system, module control panels
-- **Rationale:** Audience interaction is web-accessible; all processing/AI/video stays local for reliability, speed, and offline capability
+- **Local LAN (192.168.1.252:3000):** Central hub, art modules, archive, module control panels
+- **Rationale:** Audience interaction is web-accessible; all processing/AI/video stays local, where possible, for reliability, speed, and offline capability
 
 ---
 
-## The 8 Module Cells
+## Art Display Cells
+
+**Center cell:** Incoming messages with routing animation
 
 | Cell | Module | Input | Output | Implementation |
 |------|--------|-------|--------|----------------|
-| 1 | **Terminal Critic** | text | green terminal AI critique | Local LLM + 70s styling |
-| 2 | **Boring Stock** | text | bland corporate image | Stable Diffusion + prompt engineering |
-| 3 | **VJ Stream** | text | live visual feed | TouchDesigner OSC + NDI |
-| 4 | **3D Scene** | text + body + audio | dark 3D scene with controlled lighting | Blender MCP + Three.js |
-| 5 | **Dancer Cam** | — | live performance feed | Camera + body tracking |
-| 6 | **Music Prompt** | text | key/mode/tempo display | LLM + music theory |
-| 7 | **Ian's Module** | text | generative AI visuals | External artist interface |
-| 8 | **Gravity Sketch** | text | 3D sketch creation | External artist interface |
-
-**Center cell:** Incoming messages with routing animation
+| TBC |  |  |  |  |
+| TBC |  |  |  |  |
+| TBC |  |  |  |  |
+| TBC |  |  |  |  |
+| TBC |  |  |  |  |
+| TBC |  |  |  |  |
+| TBC |  |  |  |  |
+| TBC |  |  |  |  |
 
 ---
 
@@ -117,6 +119,10 @@
 | **Archive + Recording** | ✅ DONE | Claude 3.5 Sonnet | Medium | JSON logging (submissions/approvals/routing) + 4K video recording |
 | **Module Control Panels** | ✅ DONE | Claude 3 Haiku | Low | Web-based unified monitoring page for all modules |
 | **Fallback Systems** | ✅ DONE | Claude 3.5 Sonnet | Medium | Offline placeholder cells, safe mode, module retry queue |
+| **Three-Phase Queue Display** | ✅ DONE | Claude 3.5 Sonnet | Medium | Airport departures board pagination: Overview→Queued→Ingested, 16:9 responsive, fullscreen, arrow-key grid presets |
+| **HTTPS Tunnel (ngrok)** | ✅ DONE | Claude 3.5 Sonnet | Medium | ngrok HTTPS tunnel with auto-auth, Vercel auto-config, mixed content fix |
+| **Hub-Bridge** | ✅ DONE | Claude 3.5 Sonnet | Medium | Node.js bridge for art modules: WebSocket↔OSC/HTTP/UDP, webhook input, local config UI |
+| **Bulk Test Generation** | ✅ DONE | Claude 3 Haiku | Low | Dev test endpoints for populating queues (+50 pending, +100 approved), UI at `/test` |
 
 *Infrastructure that keeps the show running smoothly.*
 
@@ -127,12 +133,15 @@
 | Task | Status | Claude Model | Complexity | Description |
 |------|--------|--------------|------------|-------------|
 | **Vercel Deployment** | ✅ DONE | Claude 3.5 Sonnet | Low | Cloud deployment for audience submission/moderation UIs |
-| **Startup Script** | ✅ DONE | Claude 3 Haiku | Low | Single command to spin up all modules (server → modules → archive) |
-| **Restart Script** | ✅ DONE | Claude 3 Haiku | Low | Graceful restart preserving queue state and audience prompts |
-| **Reset Script** | ✅ DONE | Claude 3 Haiku | Low | Full system reset (clears queue, restarts everything) |
+| **Boot Script (`boot.sh`)** | ✅ DONE | Claude 3.5 Sonnet | Medium | Auto IP detection, session management, Hub+Bridge start, ngrok tunnel, Vercel auto-config |
+| **Soft Reset (`reset-soft.sh`)** | ✅ DONE | Claude 3 Haiku | Low | Restart services while keeping session messages |
+| **Hard Reset (`reset-hard.sh`)** | ✅ DONE | Claude 3 Haiku | Low | Full reset with new session (archives old) |
+| **Status Check (`status.sh`)** | ✅ DONE | Claude 3 Haiku | Low | System health check: memory, API, tunnel status |
+| **Audience UI Redesign** | ✅ DONE | Claude 3.5 Sonnet | Medium | WCAG AAA compliant submission form, IBM Carbon design, black bg, dynamic status |
 | **Load Testing** | ⏳ PENDING | Claude 3 Haiku | Low | Simulate audience burst, module failure scenarios |
 | **Artist Integration** | ⏳ PENDING | Claude 3.5 Sonnet | Medium | Work with team to integrate their workflows |
 | **Rehearsal Support** | ⏳ PENDING | Claude 3.5 Sonnet | Low | Monitoring, quick fixes, restart procedures |
+| **Hub Control Center Redesign** | ⏳ PENDING | Claude 3.5 Sonnet | Medium | Paginated moderation, recent-first messages, consolidated live ops view |
 
 *Getting ready for showtime.*
 
@@ -274,15 +283,26 @@
 - Music Prompt LLM module for musical key/mode generation
 - External artist module templates (Ian generative art + Gravity Sketch VR)
 - Archive system with JSON logging + 4K video recording capability
-- Vercel public submission UI with WebSocket connection
-- Startup/restart/reset scripts for single-command system management
+- Vercel public submission UI with WebSocket connection (WCAG AAA, IBM Carbon design)
+- Boot scripts (`boot.sh`, `reset-soft.sh`, `reset-hard.sh`, `status.sh`) with auto IP, session management, ngrok tunnel
 - Fallback systems with circuit breakers, retry queues, safe mode
+- HTTPS tunnel (ngrok) with Vercel auto-config, mixed content fix resolved
+- Hub-Bridge for art modules (WebSocket↔OSC/HTTP/UDP, webhook input, local config UI)
+- Three-phase queue display with gallery-optimized sizing, arrow-key grid presets (2×1 to 7×5)
+- Bulk test message generation (API endpoints + test console UI)
+- Design principles documentation (IBM Carbon, WCAG AAA, Nielsen heuristics)
 
 **⏳ Testing & Integration Phase:**
 1. Load testing (simulate audience burst, module failures)
 2. Artist integration (VJ TouchDesigner, Ian's workflow, Gravity Sketch)
 3. Hardware setup and network configuration
 4. Rehearsal procedures and emergency protocols
+
+**⏳ Pending Features:**
+1. Hub Control Center Redesign (paginated moderation, consolidated ops view)
+2. Status Progression with Artificial Delays (user feedback on submission progress)
+3. Local/Online audience page parity (countdown timer, mirror Vercel behaviour)
+4. Video Snapshot Feature (send display screenshot to user after message appears)
 
 ## Hub v2 Specifications
 
@@ -329,109 +349,170 @@
 
 ---
 
+## Design Principles & Standards
+
+### Core Design Philosophy
+All interfaces must maintain **computationally efficient, well-documented, and modular architecture** while adhering to industry-leading accessibility and usability standards. This ensures the exhibition works reliably under pressure while being inclusive and intuitive for all users.
+
+### IBM Carbon Design System
+**Visual Consistency & Component Reuse:**
+- Use Carbon's typography scale (IBM Plex Sans) for all text
+- Apply 16px base grid system for consistent spacing
+- Implement Carbon color tokens for semantic color usage
+- Leverage Carbon icons for consistent visual language
+- Follow Carbon motion principles (productive motion, 300ms transitions)
+
+**Carbon Implementation Guidelines:**
+- All components must be keyboard navigable
+- Use Carbon's elevation system (shadows) for visual hierarchy
+- Apply consistent border-radius values (4px standard)
+- Implement Carbon's responsive grid breakpoints
+- Use semantic color tokens (primary, secondary, danger, success)
+
+### WCAG AAA Accessibility Compliance
+**Level AAA Requirements (Strictest Standard):**
+- **Color Contrast:** Minimum 7:1 ratio for normal text, 4.5:1 for large text
+- **Keyboard Navigation:** All functionality accessible via keyboard alone
+- **Screen Readers:** Proper ARIA labels, semantic HTML, descriptive alt text
+- **Focus Management:** Clear focus indicators, logical tab order
+- **Error Handling:** Clear error messages with recovery suggestions
+- **Language:** lang attributes for all content, simple language structure
+
+**Testing Requirements:**
+- Test with screen readers (NVDA, JAWS, VoiceOver)
+- Verify keyboard-only navigation
+- Validate HTML semantics
+- Use automated tools (axe-core, Lighthouse) + manual testing
+- Ensure zoom functionality up to 400% without horizontal scroll
+
+### Nielsen's 10 Usability Heuristics
+**1. System Status Visibility**
+- Real-time feedback for all user actions
+- Progress indicators for multi-step processes
+- Clear connection status for all components
+
+**2. Match System & Real World**
+- Familiar language and conventions
+- Logical information architecture
+- Natural task flow order
+
+**3. User Control & Freedom**
+- Undo/redo capabilities where applicable
+- Emergency exits (restart, reset functions)
+- Clear navigation paths
+
+**4. Consistency & Standards**
+- Consistent interaction patterns across all interfaces
+- Standard web conventions (blue links, form patterns)
+- Uniform terminology throughout system
+
+**5. Error Prevention**
+- Form validation with clear guidance
+- Confirmation dialogs for destructive actions
+- Default safe states
+
+**6. Recognition vs Recall**
+- Visible options and actions
+- Clear labels and instructions
+- Persistent navigation elements
+
+**7. Flexibility & Efficiency**
+- Shortcuts for advanced users (keyboard shortcuts)
+- Customizable interfaces where beneficial
+- Progressive disclosure of complexity
+
+**8. Aesthetic & Minimalist Design**
+- Remove unnecessary elements
+- Focus on primary tasks
+- Clear visual hierarchy
+
+**9. Help Users with Errors**
+- Plain language error messages
+- Specific problem identification
+- Clear recovery instructions
+
+**10. Help & Documentation**
+- Contextual help when needed
+- Clear operational instructions
+- Troubleshooting guides
+
+### Technical Implementation Standards
+**Performance Requirements:**
+- Initial page load < 2 seconds
+- Interactive response < 100ms
+- Minimize JavaScript bundle size
+- Optimize images and assets
+
+**Browser Compatibility:**
+- Support modern browsers (Chrome 90+, Firefox 88+, Safari 14+)
+- Progressive enhancement approach
+- Graceful degradation for older browsers
+
+**Code Quality:**
+- ESLint + Prettier for consistent formatting
+- Semantic HTML5 elements
+- CSS custom properties for theming
+- Modular component architecture
+
+**Documentation Requirements:**
+- Inline code comments for complex logic
+- README files for each major component
+- API documentation for all endpoints
+- Deployment and setup guides
+
+---
+
 ## Development Status Summary
 
 **Completed:**
 - ✅ Core Hub v2 architecture with WebSocket communication
 - ✅ Modular art module system with external integration support
-- ✅ WCAG AAA compliant audience submission UI
-- ✅ Automated venue management with session preservation
-- ✅ Boot scripts for seamless deployment transitions
-
-**In Progress:**
-- 🔄 Hub-bridge system for art module video streaming
-- 🔄 Enhanced submission progress tracking
-- 🔄 Documentation updates for new architecture
+- ✅ WCAG AAA compliant audience submission UI (IBM Carbon, black bg, dynamic status)
+- ✅ Automated venue management with session preservation (`boot.sh`, `reset-soft.sh`, `reset-hard.sh`, `status.sh`)
+- ✅ HTTPS tunnel (ngrok) with Vercel auto-config, mixed content fix
+- ✅ Hub-Bridge for art modules (WebSocket↔OSC/HTTP/UDP, TouchDesigner & Gravity Sketch compatible)
+- ✅ Three-phase queue display with gallery-optimized sizing and arrow-key grid presets
+- ✅ Bulk test message generation (API endpoints + test console UI)
+- ✅ Design principles documentation (IBM Carbon, WCAG AAA, Nielsen heuristics)
 
 **Pending:**
-- ⏳ Hub-bridge Node.js application implementation
+- ⏳ Hub Control Center Redesign (paginated moderation, recent-first, consolidated ops)
+- ⏳ Status Progression with Artificial Delays (user feedback on submission progress)
+- ⏳ Local/Online audience page parity (countdown timer, mirror Vercel)
 - ⏳ TouchDesigner/Gravity Sketch integration testing
-- ⏳ Video streaming and 3×3 composition system
-- ⏳ Screen snapshot capabilities for user feedback
+- ⏳ Video snapshot feature (send display screenshot to user)
+- ⏳ README link enhancement (clickable markdown links)
+- ⏳ Load testing (audience burst, module failure scenarios)
 
 ---
 
 ## Additional Development Tasks
 
-### 1. WCAG AAA Compliance for Audience UI ⏳ PENDING
+### 1. WCAG AAA Compliance for Audience UI ✅ DONE
 
-**Requirements:**
-- Strip audience submission page to essential text only
-- Achieve WCAG AAA accessibility compliance
-- Follow IBM Carbon design system principles
-- Implement Nielsen's 10 usability heuristics
-- Maintain computational efficiency and modular architecture
+**Completed:** Vercel UI redesigned with black background, dynamic status text, minimal form
+- WCAG AAA accessibility compliance
+- IBM Carbon design principles
+- Nielsen UX heuristics
+- Computationally efficient, modular architecture
 
-**Implementation:**
-- Simplify text prompts to core message only
-- Add proper ARIA labels and semantic HTML
-- Ensure color contrast ratios meet AAA standards
-- Implement keyboard navigation
-- Add screen reader support
-- Test with accessibility tools
+### 2. Automated Venue Management System ✅ DONE
 
-### 2. Automated Venue Management System ⏳ PENDING
+**Completed:** Full script suite with auto IP detection, session management, ngrok tunnel
+- `boot.sh` — Auto IP, session management, Hub+Bridge start, ngrok tunnel, Vercel auto-config
+- `reset-soft.sh` — Restart services while keeping session messages
+- `reset-hard.sh` — Full reset with new session (archives old)
+- `status.sh` — System health check: memory, API, tunnel status
+- Session IDs: timestamp-random format (e.g., `20260301-001234-abc123`)
 
-**Problem:** Manual IP configuration when moving between locations breaks audience access.
+### 3. Hub-Bridge System for Art Modules ✅ DONE
 
-**Solution:** Full automation of venue transitions with session management
-- **Boot Script:** Auto-detects IP, updates Vercel, maintains current session
-- **Session System:** Unique session IDs with date stamps (format: `YYYYMMDD-HHMMSS-random`)
-- **Venue Transitions:** Zero-downtime switches between home/gallery/rehearsal
-- **State Preservation:** Maintains audience input queue across reboots
-
-**Scripts to create:**
-- `boot-exhibition.sh` - Starts system with current session preservation
-- `new-session.sh` - Creates fresh session with new ID
-- `switch-venue.sh [venue]` - Updates Vercel IP for venue change
-- `session-status.sh` - Shows current session info and stats
-
-**Technical approach:**
-- Use Vercel API for automated environment variable updates
-- Store session data in `sessions/` directory with timestamped folders
-- IP detection via network interface queries
-- Venue presets stored in `config/venues.json`
-- Session state backup/restore for queue preservation
-
-**Benefits:**
-- One-command setup for any location
-- No manual Vercel dashboard interaction needed
-- Seamless transitions between development and show environments
-- Session continuity across system restarts
-
-### 3. Hub-Bridge System for Art Modules ⏳ PENDING
-
-**Problem:** Art modules (TouchDesigner, Gravity Sketch, custom software) need seamless integration with Hub for bidirectional communication.
-
-**Solution:** Lightweight Node.js helper application on each art module laptop
-- **Name:** `hub-bridge`
-- **Role:** Bridge between Hub server and local art software
-- **Configuration:** Web-based UI for easy setup
-
-**Architecture:**
-```
-Hub (WebSocket) ↔ Hub-Bridge ↔ Art Software ↔ Hub-Bridge ↔ Hub (Video Stream)
-                    (OSC/HTTP/UDP)              (WebRTC/RTMP/NDI)
-```
-
-**Hub-Bridge Responsibilities:**
-1. **Receive messages** from Hub via WebSocket
-2. **Send to art software** via OSC, HTTP, or UDP protocols
-3. **Capture video stream** from art software (WebRTC/RTMP/NDI)
-4. **Send video back** to Hub for 3×3 grid composition
-5. **Web configuration UI** at `http://localhost:8080/config`
-
-**Software Integration:**
-- **TouchDesigner:** OSC input, RTMP/NDI video output
-- **Gravity Sketch:** HTTP API input, video capture output
-- **Custom VJ Software:** Configurable protocol support
-
-**Benefits:**
-- Decouples Hub from specific art software
-- Standardized integration protocol
-- Easy configuration per module
-- Handles reconnection and error recovery
-- Supports any creative software with network I/O
+**Completed:** Node.js bridge for art modules
+- WebSocket connection to Hub
+- OSC/HTTP/UDP output to art software
+- Webhook input for responses
+- Local web UI for configuration
+- TouchDesigner & Gravity Sketch compatible
 
 ### 4. Enhanced Submission Progress Tracking ⏳ PENDING
 
@@ -439,40 +520,53 @@ Hub (WebSocket) ↔ Hub-Bridge ↔ Art Software ↔ Hub-Bridge ↔ Hub (Video St
 
 **Solution:** Real-time progress tracking with visual feedback and optional screen snapshots
 
-**Progress States:**
-1. **Sending** - Message leaving user device
-2. **Processing** - Hub receiving and validating
-3. **Waiting for Response** - Queued for moderation
-4. **Waiting for Approval** - Under moderator review
-5. **Approved/Rejected** - Moderation decision made
-6. **Routing to Display** - Approved message being routed
-7. **Displaying** - Message visible on main projection
-8. **Archived** - Message saved to permanent archive
+**User-facing status flow:**
+"Connecting..." (3s min) → "Sending..." → "Received" → "Routing" → "Processing" → "Displaying" → "Send a dream..."
 
-**Implementation:**
-- Minimum 3-second display time per stage for readability
-- Optional screen snapshot when message appears on projection
-- Real-time WebSocket updates to user's browser
-- Visual progress indicator with clear state labels
-- Error handling for failed states
-
-**Technical Approach:**
-- Extend WebSocket events for progress updates
-- Add screen capture capability to display system
-- Store progress state in user session
-- Implement timeout handling for stalled states
+- Minimum 3 seconds per status for readability
+- Integrate with existing 8-stage Hub progress tracking
+- Map backend stages to user-friendly messages
+- **TBD**: Message queuing for multiple simultaneous submissions
+- **TBD**: Individual vs consolidated status for queued messages
+- Implementation: Socket.IO progress events + client-side artificial delays
 
 ### 5. Documentation and UX Improvements ⏳ PENDING
 
 **Requirements:**
 - Convert README.md URLs to clickable markdown links
-- Ensure all documentation reflects new hub-bridge architecture
+- Ensure all documentation reflects hub-bridge architecture
 - Update hardware setup diagrams and specifications
-- Create comprehensive hub-bridge installation guide
 
-**Status:** 
+**Status:**
 - ✅ WCAG AAA UI compliance completed
-- ✅ Automated session management completed  
-- ⏳ Hub-bridge system pending
+- ✅ Automated session management completed
+- ✅ Hub-bridge system completed
 - ⏳ Progress tracking pending
 - ⏳ Documentation updates pending
+
+### 6. Hub Control Center Redesign ⏳ PENDING
+
+**Problem:** Current moderation interface shows all pending messages in one scrollable list, not optimised for live show operations.
+
+**Solution:** Redesigned moderation interface
+- Add pagination to pending message list
+- Display most recent message first, highlight ones needing decision
+- Keep core live operations visible, move less common controls to menu
+- Move art-module info (LAN address, queue depth) to main display under status
+- Remove redundant "Moderation" section underneath
+
+### 7. Local/Online Audience Page Parity ⏳ PENDING
+
+**Problem:** The rate-limit warning countdown timer works on the Vercel version but not the local version.
+
+**Solution:** Make the local audience submission page mirror the online Vercel version
+- Countdown timer when user tries to send within 30-second cooldown
+- Timer only appears after early send attempt (not by default)
+- Consistent behaviour across both local and cloud versions
+
+### 8. Video Snapshot Feature 💭 CONCEPT
+
+**Concept:** Send display screenshot to user after their submission appears on projection
+- Capture main screen video output
+- Send snapshot to user's browser once message is displayed
+- Integration with status progression system (#4)
