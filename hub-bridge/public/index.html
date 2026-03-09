@@ -4,48 +4,114 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hub Bridge</title>
+  <!-- Hub-bridge is served from its own Express server, so we inline the font import -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#0a0a0a;color:#e0e0e0;padding:24px}
-    h1{font-size:1.3rem;color:#10b981;margin-bottom:4px}
-    .sub{font-size:0.8rem;color:#555;margin-bottom:20px}
-    .card{background:#111;border:1px solid #333;border-radius:10px;padding:16px;margin-bottom:16px}
-    .card h2{font-size:0.9rem;margin-bottom:12px;color:#888}
-    .stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1a1a1a;font-size:0.85rem}
-    .stat .val{color:#f59e0b;font-weight:600}
-    .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
-    .dot.on{background:#10b981} .dot.off{background:#ef4444}
-    .msg{background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:12px;font-size:0.85rem;margin-top:8px;min-height:40px;color:#ccc}
-    .btn{padding:8px 16px;border-radius:6px;border:1px solid #555;background:#333;color:#fff;cursor:pointer;font-size:0.8rem;margin-right:8px}
-    .btn:hover{background:#444} .btn.primary{background:#3b82f6;border-color:#3b82f6}
-    input,textarea{width:100%;padding:8px;background:#1a1a1a;border:1px solid #444;border-radius:6px;color:#fff;font-size:0.85rem;margin-bottom:8px}
+    /* ── Inline Carbon tokens (hub-bridge has its own server root) ── */
+    :root {
+      --font: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --bg: #161616; --bg-elevated: #1e1e1e; --bg-hover: #272727; --bg-active: #333;
+      --border-subtle: #393939; --border-strong: #525252;
+      --text-primary: #f4f4f4; --text-secondary: #c6c6c6; --text-helper: #a8a8a8;
+      --text-placeholder: #6f6f6f; --text-on-color: #161616;
+      --interactive: #4589ff; --success: #42be65; --danger: #fa4d56; --warning: #f1c21b;
+      --radius: 4px;
+      --spacing-02: 4px; --spacing-03: 8px; --spacing-04: 12px; --spacing-05: 16px; --spacing-06: 24px;
+      --duration-fast: 110ms; --easing-standard: cubic-bezier(0.2,0,0.38,0.9);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font); font-size: 0.875rem; line-height: 1.5;
+      background: var(--bg); color: var(--text-primary); padding: var(--spacing-06);
+      -webkit-font-smoothing: antialiased;
+    }
+    :focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+    h1 { font-size: 1.25rem; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-02); }
+    .sub { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: var(--spacing-05); }
+
+    .card {
+      background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius); padding: var(--spacing-05); margin-bottom: var(--spacing-05);
+    }
+    .card h2 {
+      font-size: 0.8125rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.02em; margin-bottom: var(--spacing-04); color: var(--text-secondary);
+    }
+    .stat {
+      display: flex; justify-content: space-between;
+      padding: var(--spacing-02) 0; border-bottom: 1px solid var(--border-subtle); font-size: 0.8125rem;
+    }
+    .stat .val { color: var(--warning); font-weight: 600; }
+
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      display: inline-block; margin-right: var(--spacing-02);
+    }
+    .dot.on  { background: var(--success); }
+    .dot.off { background: var(--danger); }
+
+    .msg {
+      background: var(--bg); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius); padding: var(--spacing-04);
+      font-size: 0.8125rem; margin-top: var(--spacing-03); min-height: 40px;
+      color: var(--text-secondary);
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: var(--spacing-02);
+      padding: var(--spacing-03) var(--spacing-05); border-radius: var(--radius);
+      border: 1px solid var(--border-strong); background: var(--bg-active);
+      color: var(--text-primary); font-family: var(--font); font-size: 0.8125rem;
+      font-weight: 500; cursor: pointer;
+      transition: background var(--duration-fast) var(--easing-standard);
+      margin-right: var(--spacing-03);
+    }
+    .btn:hover { background: var(--bg-hover); }
+    .btn.primary { background: var(--interactive); border-color: var(--interactive); color: #fff; }
+
+    textarea {
+      width: 100%; padding: var(--spacing-03); background: var(--bg);
+      border: 1px solid var(--border-strong); border-radius: var(--radius);
+      color: var(--text-primary); font-family: var(--font); font-size: 0.875rem;
+      margin-bottom: var(--spacing-03); resize: vertical;
+    }
+    textarea:focus { outline: 2px solid var(--interactive); outline-offset: -2px; border-color: var(--interactive); }
+    textarea::placeholder { color: var(--text-placeholder); }
   </style>
 </head>
 <body>
-  <h1>Hub Bridge</h1>
-  <p class="sub" id="moduleName">Connecting...</p>
+  <header role="banner">
+    <h1>Hub Bridge</h1>
+    <p class="sub" id="moduleName" role="status" aria-live="polite">Connecting&hellip;</p>
+  </header>
 
-  <div class="card">
-    <h2>Connection</h2>
-    <div class="stat"><span><span class="dot" id="hubDot"></span>Hub</span><span class="val" id="hubStatus">...</span></div>
-    <div class="stat"><span>Module ID</span><span class="val" id="moduleId">...</span></div>
-    <div class="stat"><span>Capture Mode</span><span class="val" id="captureMode">...</span></div>
-    <div class="stat"><span>Messages</span><span class="val" id="msgCount">0</span></div>
-    <div class="stat"><span>Outputs Sent</span><span class="val" id="outCount">0</span></div>
-    <div class="stat"><span>Uptime</span><span class="val" id="uptime">0s</span></div>
-  </div>
+  <main role="main">
+    <section class="card" aria-labelledby="conn-title">
+      <h2 id="conn-title">Connection</h2>
+      <div class="stat"><span><span class="dot" id="hubDot" aria-hidden="true"></span>Hub</span><span class="val" id="hubStatus">&hellip;</span></div>
+      <div class="stat"><span>Module ID</span><span class="val" id="moduleId">&hellip;</span></div>
+      <div class="stat"><span>Capture Mode</span><span class="val" id="captureMode">&hellip;</span></div>
+      <div class="stat"><span>Messages</span><span class="val" id="msgCount">0</span></div>
+      <div class="stat"><span>Outputs Sent</span><span class="val" id="outCount">0</span></div>
+      <div class="stat"><span>Uptime</span><span class="val" id="uptime">0s</span></div>
+    </section>
 
-  <div class="card">
-    <h2>Current Message</h2>
-    <div class="msg" id="currentMsg">Waiting for message...</div>
-  </div>
+    <section class="card" aria-labelledby="msg-title">
+      <h2 id="msg-title">Current Message</h2>
+      <div class="msg" id="currentMsg" role="status" aria-live="polite">Waiting for message&hellip;</div>
+    </section>
 
-  <div class="card">
-    <h2>Manual Output</h2>
-    <textarea id="manualText" rows="3" placeholder="Type output text..."></textarea>
-    <button class="btn primary" onclick="sendManual()">Send Text Output</button>
-    <button class="btn" onclick="sendManual('html')">Send as HTML</button>
-  </div>
+    <section class="card" aria-labelledby="output-title">
+      <h2 id="output-title">Manual Output</h2>
+      <label for="manualText" class="sr-only">Output text</label>
+      <textarea id="manualText" rows="3" placeholder="Type output text…"></textarea>
+      <button class="btn primary" onclick="sendManual()" aria-label="Send text output">Send Text Output</button>
+      <button class="btn" onclick="sendManual('html')" aria-label="Send as HTML output">Send as HTML</button>
+    </section>
+  </main>
 
   <script>
     async function refresh(){

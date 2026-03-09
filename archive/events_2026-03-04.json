@@ -58,3 +58,7 @@
 {"id":"fc854d02-6ffc-406d-9f40-9184714e5b6e","timestamp":"2026-03-04T22:50:51.285Z","type":"connection_mode_changed","data":{"mode":"remote","localUrl":"http://192.168.1.252:3000","publicUrl":"https://dominatingly-sociogenetic-kym.ngrok-free.dev"}}
 {"id":"6abe8f77-4074-4ef5-9194-93ea96bf5339","timestamp":"2026-03-04T23:00:59.613Z","type":"test_bulk_pending","data":{"count":50}}
 {"id":"2399d40f-16cc-4211-81f3-2c295621e95c","timestamp":"2026-03-04T23:01:00.133Z","type":"test_bulk_approved","data":{"count":100}}
+{"id":"516b3fdc-208f-4706-a7c2-a487a6898bdc","timestamp":"2026-03-04T23:40:46.168Z","type":"module_disconnect","data":{"moduleId":"bridge-mmcmrf0t","moduleName":"Artist Bridge","queueDepth":0}}
+{"id":"a2e43f43-6cab-45f7-98c7-9e2d2367b799","timestamp":"2026-03-04T23:40:47.717Z","type":"module_connect","data":{"moduleId":"bridge-mmcmrf0t","moduleName":"Artist Bridge","port":4000}}
+{"id":"fae37fb1-67f3-4e51-a3c3-6599e048059c","timestamp":"2026-03-04T23:52:17.324Z","type":"module_disconnect","data":{"moduleId":"bridge-mmcmrf0t","moduleName":"Artist Bridge","queueDepth":0}}
+{"id":"7b45a048-df1b-4ed8-a1e8-8a55e54af923","timestamp":"2026-03-04T23:52:19.484Z","type":"module_connect","data":{"moduleId":"bridge-mmcmrf0t","moduleName":"Artist Bridge","port":4000}}

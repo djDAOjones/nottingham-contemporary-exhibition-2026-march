@@ -4,87 +4,106 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hub v2</title>
+  <link rel="stylesheet" href="/styles/carbon-tokens.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #0a0a0a;
-      color: #e0e0e0;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .container { max-width: 400px; width: 100%; padding: 40px 24px; }
-    h1 { font-size: 1.3rem; font-weight: 600; margin-bottom: 8px; }
-    .subtitle { font-size: 0.8rem; color: #666; margin-bottom: 32px; }
-    .links { display: flex; flex-direction: column; gap: 6px; }
-    .links a {
+    .container { max-width: 420px; width: 100%; padding: var(--spacing-08) var(--spacing-06); }
+    h1 { font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-02); }
+    .subtitle {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-07);
+    }
+    nav { display: flex; flex-direction: column; gap: var(--spacing-03); }
+    nav a {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 14px 18px;
-      background: #111;
-      border: 1px solid #222;
-      border-radius: 10px;
-      color: #d0d0d0;
+      padding: var(--spacing-04) var(--spacing-05);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      color: var(--text-primary);
       text-decoration: none;
-      font-size: 0.9rem;
-      transition: all 0.15s;
+      font-size: var(--text-base);
+      transition: background var(--duration-fast) var(--easing-standard),
+                  border-color var(--duration-fast) var(--easing-standard);
     }
-    .links a:hover { background: #1a1a1a; border-color: #333; color: #fff; }
-    .links a .arrow { color: #555; font-size: 0.8rem; }
-    .links a .desc { font-size: 0.7rem; color: #555; margin-top: 2px; }
-    .connection-info {
-      margin-top: 32px;
-      padding: 14px;
-      background: #111;
-      border: 1px solid #222;
-      border-radius: 10px;
+    nav a:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-strong);
+    }
+    nav a .arrow { color: var(--text-placeholder); font-size: 0.8rem; }
+    nav a .desc {
       font-size: 0.75rem;
-      color: #555;
+      color: var(--text-secondary);
+      margin-top: 2px;
     }
-    .connection-info .label { color: #888; margin-bottom: 4px; }
-    .connection-info .value { font-family: 'SF Mono', monospace; color: #f59e0b; word-break: break-all; }
+    .connection-info {
+      margin-top: var(--spacing-07);
+      padding: var(--spacing-04);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .connection-info .label {
+      color: var(--text-helper);
+      margin-bottom: var(--spacing-02);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 0.6875rem;
+    }
+    .connection-info .value {
+      font-family: var(--font-mono);
+      color: var(--warning);
+      word-break: break-all;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
+  <main class="container" role="main">
     <h1>Hub v2</h1>
     <p class="subtitle">Nottingham Contemporary Exhibition</p>
 
-    <div class="links">
+    <nav aria-label="Exhibition pages">
       <a href="/submit">
         <div>Submit<div class="desc">Audience message submission</div></div>
-        <span class="arrow">&rarr;</span>
+        <span class="arrow" aria-hidden="true">&rarr;</span>
       </a>
       <a href="/moderate">
         <div>Moderate<div class="desc">Moderation panel</div></div>
-        <span class="arrow">&rarr;</span>
+        <span class="arrow" aria-hidden="true">&rarr;</span>
       </a>
       <a href="/display">
         <div>Display<div class="desc">Art display with module grid</div></div>
-        <span class="arrow">&rarr;</span>
+        <span class="arrow" aria-hidden="true">&rarr;</span>
       </a>
       <a href="/queue">
         <div>Queue<div class="desc">Message queue display</div></div>
-        <span class="arrow">&rarr;</span>
+        <span class="arrow" aria-hidden="true">&rarr;</span>
       </a>
       <a href="/checker">
         <div>Checker<div class="desc">Read-only message status viewer</div></div>
-        <span class="arrow">&rarr;</span>
+        <span class="arrow" aria-hidden="true">&rarr;</span>
       </a>
       <a href="/test">
         <div>Test Console<div class="desc">End-to-end testing with virtual modules</div></div>
-        <span class="arrow">&rarr;</span>
+        <span class="arrow" aria-hidden="true">&rarr;</span>
       </a>
-    </div>
+    </nav>
 
-    <div class="connection-info" id="connectionInfo">
+    <div class="connection-info" id="connectionInfo" role="status" aria-live="polite">
       <div class="label">Hub Connection</div>
-      <div class="value" id="hubUrlDisplay">Detecting...</div>
+      <div class="value" id="hubUrlDisplay">Detecting&hellip;</div>
     </div>
-  </div>
+  </main>
 
   <script src="/hub-connect.js"></script>
   <script>

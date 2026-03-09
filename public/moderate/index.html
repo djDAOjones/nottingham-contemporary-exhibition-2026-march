@@ -6,104 +6,14 @@
   <title>Moderation Panel — AI Art Installation</title>
   <meta name="description" content="Moderation and control panel for AI art exhibition">
 
-  <!-- IBM Plex Sans — Carbon Design System typeface -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles/carbon-tokens.css">
 
   <style>
-    /* ── Carbon Design Tokens ─────────────────────────────────── */
-    :root {
-      /* Spacing (16px base grid) */
-      --spacing-01: 2px;
-      --spacing-02: 4px;
-      --spacing-03: 8px;
-      --spacing-04: 12px;
-      --spacing-05: 16px;
-      --spacing-06: 24px;
-      --spacing-07: 32px;
-      --spacing-08: 40px;
-      --spacing-09: 48px;
-
-      /* Typography */
-      --font: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-
-      /* Carbon Gray 100 theme (dark) */
-      --bg:            #161616;
-      --bg-elevated:   #1e1e1e;
-      --bg-hover:      #272727;
-      --bg-active:     #333333;
-
-      /* Borders */
-      --border-subtle:  #393939;
-      --border-strong:  #525252;
-
-      /* Text — all pass WCAG AAA 7:1 on --bg */
-      --text-primary:   #f4f4f4;  /* 13.5:1 on #161616 */
-      --text-secondary: #c6c6c6;  /* 9.1:1  on #161616 */
-      --text-helper:    #a8a8a8;  /* 6.8:1 on #1e1e1e — used only on elevated bg */
-
-      /* Interactive / semantic */
-      --interactive:    #4589ff;
-      --interactive-hover: #1062fe;
-      --focus:          #ffffff;
-      --focus-inset:    #161616;
-
-      --success:        #42be65;
-      --success-bg:     rgba(66,190,101,0.12);
-      --warning:        #f1c21b;
-      --warning-bg:     rgba(241,194,27,0.12);
-      --danger:         #fa4d56;
-      --danger-bg:      rgba(250,77,86,0.12);
-      --info:           #4589ff;
-      --info-bg:        rgba(69,137,255,0.12);
-      --purple:         #a56eff;
-      --purple-bg:      rgba(165,110,255,0.12);
-
-      /* Motion (Carbon productive) */
-      --duration-fast:  110ms;
-      --duration-moderate: 240ms;
-      --easing-standard: cubic-bezier(0.2, 0, 0.38, 0.9);
-
-      /* Shape */
-      --radius: 4px;
-    }
-
-    /* ── Reset ────────────────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+    /* ── Page-specific overrides ──────────────────────────────── */
     body {
-      font-family: var(--font);
-      font-size: 0.875rem;
-      line-height: 1.5;
-      background: var(--bg);
-      color: var(--text-primary);
       min-height: 100vh;
       padding: var(--spacing-05);
       overflow-x: auto;
-    }
-
-    /* ── Focus indicator (WCAG AAA) ──────────────────────────── */
-    :focus-visible {
-      outline: 2px solid var(--focus);
-      outline-offset: 2px;
-    }
-
-    /* ── Skip navigation ─────────────────────────────────────── */
-    .skip-nav {
-      position: absolute;
-      left: -10000px;
-      top: var(--spacing-03);
-      background: var(--interactive);
-      color: var(--text-primary);
-      padding: var(--spacing-03) var(--spacing-05);
-      border-radius: var(--radius);
-      font-weight: 600;
-      z-index: 2000;
-      text-decoration: none;
-    }
-    .skip-nav:focus {
-      left: var(--spacing-05);
     }
 
     /* ── Header ───────────────────────────────────────────────── */
@@ -142,23 +52,6 @@
       color: var(--text-secondary);
     }
 
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--danger);
-      animation: pulse 2s infinite;
-    }
-
-    .status-dot.connected {
-      background: var(--success);
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
     .controls {
       display: flex;
       gap: var(--spacing-03);
@@ -181,22 +74,12 @@
       gap: var(--spacing-05);
     }
 
-    /* ── Panel (card) ────────────────────────────────────────── */
+    /* ── Panel overrides ────────────────────────────────────── */
     .panel {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius);
-      padding: var(--spacing-05);
       margin-bottom: var(--spacing-05);
     }
 
     .panel-title {
-      font-size: 0.875rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-      margin-bottom: var(--spacing-05);
-      color: var(--text-secondary);
       display: flex;
       align-items: center;
       gap: var(--spacing-03);
@@ -366,27 +249,6 @@
 
     .rejection-form.active { display: block; }
 
-    /* ── Notification toast ──────────────────────────────────── */
-    .notification {
-      position: fixed;
-      top: var(--spacing-05);
-      right: var(--spacing-05);
-      background: var(--success);
-      color: var(--bg);
-      padding: var(--spacing-04) var(--spacing-05);
-      border-radius: var(--radius);
-      font-size: 0.875rem;
-      font-weight: 500;
-      transform: translateX(calc(100% + var(--spacing-05)));
-      transition: transform var(--duration-moderate) var(--easing-standard);
-      z-index: 1000;
-      max-width: 400px;
-    }
-
-    .notification.show { transform: translateX(0); }
-    .notification.error   { background: var(--danger); color: #fff; }
-    .notification.warning { background: var(--warning); color: var(--bg); }
-
     /* ── Stats bar ───────────────────────────────────────────── */
     .stats {
       display: grid;
@@ -460,77 +322,7 @@
       .stats { grid-template-columns: repeat(2, 1fr); }
     }
 
-    /* ── Buttons ─────────────────────────────────────────────── */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--spacing-02);
-      padding: var(--spacing-03) var(--spacing-05);
-      border-radius: var(--radius);
-      border: 1px solid var(--border-strong);
-      background: var(--bg-active);
-      color: var(--text-primary);
-      font-family: var(--font);
-      font-size: 0.8125rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background var(--duration-fast) var(--easing-standard);
-      white-space: nowrap;
-    }
-
-    .btn:hover {
-      background: var(--bg-hover);
-      border-color: var(--text-secondary);
-    }
-
-    .btn.primary {
-      background: var(--interactive);
-      border-color: var(--interactive);
-      color: #fff;
-    }
-    .btn.primary:hover { background: var(--interactive-hover); }
-
-    .btn.success {
-      background: var(--success);
-      border-color: var(--success);
-      color: var(--bg);
-    }
-    .btn.success:hover { background: #36a656; }
-
-    .btn.danger {
-      background: var(--danger);
-      border-color: var(--danger);
-      color: #fff;
-    }
-    .btn.danger:hover { background: #da1e28; }
-
-    .btn.warning {
-      background: var(--warning);
-      border-color: var(--warning);
-      color: var(--bg);
-    }
-    .btn.warning:hover { background: #d4a90e; }
-
-    /* ── Form inputs ─────────────────────────────────────────── */
-    .input {
-      width: 100%;
-      padding: var(--spacing-03) var(--spacing-04);
-      background: var(--bg);
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius);
-      color: var(--text-primary);
-      font-family: var(--font);
-      font-size: 0.875rem;
-      line-height: 1.5;
-      resize: vertical;
-    }
-
-    .input:focus {
-      outline: 2px solid var(--interactive);
-      outline-offset: -2px;
-      border-color: var(--interactive);
-    }
-
+    /* ── Form input overrides ─────────────────────────────── */
     .textarea { min-height: 80px; }
 
     /* ── Safe mode toggle (accessible) ───────────────────────── */
@@ -640,16 +432,7 @@
       border-top: 1px solid var(--border-subtle);
     }
 
-    .shortcuts-help kbd {
-      display: inline-block;
-      padding: 1px 6px;
-      font-family: var(--font);
-      font-size: 0.6875rem;
-      background: var(--bg-active);
-      border: 1px solid var(--border-strong);
-      border-radius: 3px;
-      margin: 0 2px;
-    }
+    /* kbd styling inherited from carbon-tokens.css */
   </style>
 </head>
 <body>

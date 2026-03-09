@@ -5,44 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exhibition Queue - AI Art Installation</title>
     <meta name="description" content="Live Message Queue Display for AI art exhibition submissions">
-    
-    <!-- Preload critical resources -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-    
+
+    <link rel="stylesheet" href="/styles/carbon-tokens.css">
+
     <style>
         /* All sizing uses --u (1% of container width) so layout scales identically at any size */
         :root {
             --u: 1vw;
+            /* Queue uses pure black for maximum projector contrast */
             --bg: #000000;
-            --text: #ffffff;
-            --text-dim: #c6c6c6;
-            --text-muted: #6f6f6f;
-            --border: #393939;
-            --success: #24a148;
-            --warning: #f1c21b;
-            --error: #da1e28;
-            --info: #0f62fe;
-            --font: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            /* Local aliases for queue-specific code */
+            --text: var(--text-primary);
+            --text-dim: var(--text-secondary);
+            --text-muted: var(--text-placeholder);
+            --border: var(--border-subtle);
+            --error: var(--danger);
         }
         /* When height-constrained, scale --u from height instead */
         @media (min-aspect-ratio: 16/9) {
             :root { --u: calc(16vh / 9); }
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: var(--font);
             background: var(--bg);
-            color: var(--text);
             height: 100vh;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        .skip-nav { position: absolute; left: -10000px; }
 
         /* 16:9 container */
         .queue-container {
