@@ -89,6 +89,18 @@
   /* ── Shape ───────────────────────────────────────────────── */
   --radius:    4px;
   --radius-lg: 8px;  /* used sparingly for hero cards */
+
+  /* ── Module slot colours (8 hues for offline placeholders) ── */
+  /* Each slot gets a unique tinted background + accent text    */
+  /* so reordering is visually meaningful even when offline.     */
+  --slot-bg-0: #2a1520;  --slot-accent-0: #c4697a;  /* Rose    */
+  --slot-bg-1: #2a1f14;  --slot-accent-1: #c48b5a;  /* Orange  */
+  --slot-bg-2: #2a2614;  --slot-accent-2: #b8a44e;  /* Amber   */
+  --slot-bg-3: #142a1c;  --slot-accent-3: #5ac47a;  /* Green   */
+  --slot-bg-4: #142a2a;  --slot-accent-4: #5abcc4;  /* Teal    */
+  --slot-bg-5: #141e2a;  --slot-accent-5: #5a8bc4;  /* Blue    */
+  --slot-bg-6: #1e142a;  --slot-accent-6: #8b5ac4;  /* Indigo  */
+  --slot-bg-7: #2a1428;  --slot-accent-7: #c45ab8;  /* Magenta */
 }
 
 /* ── Global Reset ────────────────────────────────────────────── */

@@ -114,6 +114,34 @@
 
     .cell-content .placeholder { color: var(--bg-active); font-size: 0.9rem; }
 
+    /* Offline placeholder — coloured background per slot */
+    .cell.offline {
+      transition: background var(--duration-moderate) var(--easing-standard);
+    }
+    .cell.offline .offline-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.7;
+    }
+    .cell[data-slot="0"].offline { background: var(--slot-bg-0); }
+    .cell[data-slot="1"].offline { background: var(--slot-bg-1); }
+    .cell[data-slot="2"].offline { background: var(--slot-bg-2); }
+    .cell[data-slot="3"].offline { background: var(--slot-bg-3); }
+    .cell[data-slot="4"].offline { background: var(--slot-bg-4); }
+    .cell[data-slot="5"].offline { background: var(--slot-bg-5); }
+    .cell[data-slot="6"].offline { background: var(--slot-bg-6); }
+    .cell[data-slot="7"].offline { background: var(--slot-bg-7); }
+    .cell[data-slot="0"].offline .offline-label { color: var(--slot-accent-0); }
+    .cell[data-slot="1"].offline .offline-label { color: var(--slot-accent-1); }
+    .cell[data-slot="2"].offline .offline-label { color: var(--slot-accent-2); }
+    .cell[data-slot="3"].offline .offline-label { color: var(--slot-accent-3); }
+    .cell[data-slot="4"].offline .offline-label { color: var(--slot-accent-4); }
+    .cell[data-slot="5"].offline .offline-label { color: var(--slot-accent-5); }
+    .cell[data-slot="6"].offline .offline-label { color: var(--slot-accent-6); }
+    .cell[data-slot="7"].offline .offline-label { color: var(--slot-accent-7); }
+
     .cell-content .output-text {
       font-size: 1.2rem;
       line-height: var(--line-height);
@@ -256,29 +284,29 @@
 <body>
   <div class="grid" id="grid">
     <!-- Row 1 -->
-    <div class="cell" data-position="0" data-module-id="">
+    <div class="cell offline" data-position="0" data-slot="0" data-module-id="">
       <span class="cell-label">Module 1</span>
       <span class="cell-status"></span>
-      <div class="cell-content"><span class="placeholder">&mdash;</span></div>
+      <div class="cell-content"><span class="offline-label">Offline</span></div>
       <span class="next-indicator">Next</span>
     </div>
-    <div class="cell" data-position="1" data-module-id="">
+    <div class="cell offline" data-position="1" data-slot="1" data-module-id="">
       <span class="cell-label">Module 2</span>
       <span class="cell-status"></span>
-      <div class="cell-content"><span class="placeholder">&mdash;</span></div>
+      <div class="cell-content"><span class="offline-label">Offline</span></div>
       <span class="next-indicator">Next</span>
     </div>
-    <div class="cell" data-position="2" data-module-id="">
+    <div class="cell offline" data-position="2" data-slot="2" data-module-id="">
       <span class="cell-label">Module 3</span>
       <span class="cell-status"></span>
-      <div class="cell-content"><span class="placeholder">&mdash;</span></div>
+      <div class="cell-content"><span class="offline-label">Offline</span></div>
       <span class="next-indicator">Next</span>
     </div>
     <!-- Row 2 -->
-    <div class="cell" data-position="3" data-module-id="">
+    <div class="cell offline" data-position="3" data-slot="3" data-module-id="">
       <span class="cell-label">Module 4</span>
       <span class="cell-status"></span>
-      <div class="cell-content"><span class="placeholder">&mdash;</span></div>
+      <div class="cell-content"><span class="offline-label">Offline</span></div>
       <span class="next-indicator">Next</span>
     </div>
     <div class="cell center" data-position="4">
@@ -291,29 +319,29 @@
         <div class="progress-stages" id="progressDots"></div>
       </div>
     </div>
-    <div class="cell" data-position="5" data-module-id="">
+    <div class="cell offline" data-position="5" data-slot="4" data-module-id="">
       <span class="cell-label">Module 5</span>
       <span class="cell-status"></span>
-      <div class="cell-content"><span class="placeholder">&mdash;</span></div>
+      <div class="cell-content"><span class="offline-label">Offline</span></div>
       <span class="next-indicator">Next</span>
     </div>
     <!-- Row 3 -->
-    <div class="cell" data-position="6" data-module-id="">
+    <div class="cell offline" data-position="6" data-slot="5" data-module-id="">
       <span class="cell-label">Module 6</span>
       <span class="cell-status"></span>
-      <div class="cell-content"><span class="placeholder">&mdash;</span></div>
+      <div class="cell-content"><span class="offline-label">Offline</span></div>
       <span class="next-indicator">Next</span>
     </div>
-    <div class="cell" data-position="7" data-module-id="">
+    <div class="cell offline" data-position="7" data-slot="6" data-module-id="">
       <span class="cell-label">Module 7</span>
       <span class="cell-status"></span>
-      <div class="cell-content"><span class="placeholder">&mdash;</span></div>
+      <div class="cell-content"><span class="offline-label">Offline</span></div>
       <span class="next-indicator">Next</span>
     </div>
-    <div class="cell" data-position="8" data-module-id="">
+    <div class="cell offline" data-position="8" data-slot="7" data-module-id="">
       <span class="cell-label">Module 8</span>
       <span class="cell-status"></span>
-      <div class="cell-content"><span class="placeholder">&mdash;</span></div>
+      <div class="cell-content"><span class="offline-label">Offline</span></div>
       <span class="next-indicator">Next</span>
     </div>
   </div>
@@ -389,9 +417,18 @@
         cell.querySelector('.cell-label').textContent = mod.name;
         const status = cell.querySelector('.cell-status');
         status.classList.toggle('online', mod.status === 'online');
-        if (mod.output) {
-          cell.querySelector('.cell-content').innerHTML =
-            '<p class="output-text" style="font-size:1rem;color:#888;">' + mod.output + '</p>';
+        
+        if (mod.status === 'online') {
+          cell.classList.remove('offline');
+          if (mod.output) {
+            cell.querySelector('.cell-content').innerHTML =
+              '<p class="output-text" style="font-size:1rem;color:var(--text-helper);">' + mod.output + '</p>';
+          } else {
+            cell.querySelector('.cell-content').innerHTML = '<span class="placeholder">&mdash;</span>';
+          }
+        } else {
+          cell.classList.add('offline');
+          cell.querySelector('.cell-content').innerHTML = '<span class="offline-label">Offline</span>';
         }
       });
       
@@ -599,7 +636,8 @@
       const video = content.querySelector('video');
       if (video) {
         video.srcObject = null;
-        content.innerHTML = '<span class="placeholder">&mdash;</span>';
+        content.innerHTML = '<span class="offline-label">Offline</span>';
+        cell.classList.add('offline');
       }
     }
     
@@ -616,6 +654,14 @@
     }
     
     function updateModuleDisplay() {
+      // First, mark all module cells as offline
+      modulePositions.forEach(pos => {
+        const cell = grid.querySelector(`[data-position="${pos}"]`);
+        if (cell && !cell.dataset.moduleId) {
+          cell.classList.add('offline');
+        }
+      });
+      
       modules.forEach((mod, i) => {
         if (i < modulePositions.length) {
           const pos = modulePositions[i];
@@ -624,7 +670,21 @@
             cell.dataset.moduleId = mod.id;
             cell.querySelector('.cell-label').textContent = mod.name;
             const status = cell.querySelector('.cell-status');
+            const isOnline = mod.status === 'online' || mod.status === 'processing';
             status.classList.toggle('online', mod.status === 'online');
+            status.classList.toggle('processing', mod.status === 'processing');
+            
+            // Remove offline state when module is connected
+            if (isOnline) {
+              cell.classList.remove('offline');
+              const offlineLabel = cell.querySelector('.offline-label');
+              if (offlineLabel) {
+                cell.querySelector('.cell-content').innerHTML = '<span class="placeholder">&mdash;</span>';
+              }
+            } else {
+              cell.classList.add('offline');
+              cell.querySelector('.cell-content').innerHTML = '<span class="offline-label">Offline</span>';
+            }
           }
         }
       });
@@ -718,6 +778,9 @@
       
       status.classList.remove('processing');
       status.classList.add('online');
+      
+      // Module produced output — remove offline state
+      cell.classList.remove('offline');
       
       if (!data) return;
       

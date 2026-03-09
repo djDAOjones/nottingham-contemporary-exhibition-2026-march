@@ -165,10 +165,12 @@ function renderModuleGrid() {
       `;
     } else {
       // Find module for this position
+      const slotIndex = i < 4 ? i : i - 1; // Skip center position
+      slot.dataset.slot = slotIndex;
+      
       let moduleId = null;
       if (moduleOrder.length > 0) {
-        const gridIndex = i < 4 ? i : i - 1; // Skip center position
-        moduleId = moduleOrder[gridIndex];
+        moduleId = moduleOrder[slotIndex];
       }
       
       const module = moduleId ? modules.get(moduleId) : null;
@@ -200,8 +202,9 @@ function renderModuleGrid() {
         slot.addEventListener('dragstart', handleDragStart);
         slot.addEventListener('dragend', handleDragEnd);
       } else {
+        slot.classList.add('offline');
         slot.innerHTML = `
-          <div class="empty-slot">Empty Slot</div>
+          <div class="empty-slot">Offline</div>
         `;
       }
       
@@ -639,11 +642,14 @@ function showDisconnectedGrid() {
   moduleGrid.innerHTML = '';
   for (let i = 0; i < 9; i++) {
     const slot = document.createElement('div');
-    slot.className = 'module-slot' + (i === 4 ? ' center' : '');
     if (i === 4) {
+      slot.className = 'module-slot center';
       slot.innerHTML = '<div class="empty-slot">Hub not connected</div>';
     } else {
-      slot.innerHTML = '<div class="empty-slot">—</div>';
+      const slotIndex = i < 4 ? i : i - 1;
+      slot.className = 'module-slot offline';
+      slot.dataset.slot = slotIndex;
+      slot.innerHTML = '<div class="empty-slot">Offline</div>';
     }
     moduleGrid.appendChild(slot);
   }

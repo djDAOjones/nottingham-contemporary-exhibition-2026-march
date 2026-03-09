@@ -109,6 +109,30 @@
       cursor: default;
     }
 
+    /* Offline slot colours — matches display page */
+    .module-slot.offline .empty-slot {
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.75rem;
+    }
+    .module-slot[data-slot="0"].offline { background: var(--slot-bg-0); border-color: var(--slot-accent-0); }
+    .module-slot[data-slot="1"].offline { background: var(--slot-bg-1); border-color: var(--slot-accent-1); }
+    .module-slot[data-slot="2"].offline { background: var(--slot-bg-2); border-color: var(--slot-accent-2); }
+    .module-slot[data-slot="3"].offline { background: var(--slot-bg-3); border-color: var(--slot-accent-3); }
+    .module-slot[data-slot="4"].offline { background: var(--slot-bg-4); border-color: var(--slot-accent-4); }
+    .module-slot[data-slot="5"].offline { background: var(--slot-bg-5); border-color: var(--slot-accent-5); }
+    .module-slot[data-slot="6"].offline { background: var(--slot-bg-6); border-color: var(--slot-accent-6); }
+    .module-slot[data-slot="7"].offline { background: var(--slot-bg-7); border-color: var(--slot-accent-7); }
+    .module-slot[data-slot="0"].offline .empty-slot { color: var(--slot-accent-0); }
+    .module-slot[data-slot="1"].offline .empty-slot { color: var(--slot-accent-1); }
+    .module-slot[data-slot="2"].offline .empty-slot { color: var(--slot-accent-2); }
+    .module-slot[data-slot="3"].offline .empty-slot { color: var(--slot-accent-3); }
+    .module-slot[data-slot="4"].offline .empty-slot { color: var(--slot-accent-4); }
+    .module-slot[data-slot="5"].offline .empty-slot { color: var(--slot-accent-5); }
+    .module-slot[data-slot="6"].offline .empty-slot { color: var(--slot-accent-6); }
+    .module-slot[data-slot="7"].offline .empty-slot { color: var(--slot-accent-7); }
+
     .module-slot.filled {
       border: 1px solid var(--border-subtle);
       background: var(--bg);

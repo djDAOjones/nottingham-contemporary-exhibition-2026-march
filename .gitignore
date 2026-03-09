@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+hub-bridge/node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Sessions & logs (local runtime data)
+sessions/*.log
+sessions/.pids
+sessions/current_session
+
+# Archive logs (generated at runtime)
+archive/events_*.json
+
+# Environment
+.env
+.env.local
+
+# ngrok binary
+ngrok-*
+
+# Vercel
+.vercel/
+
+# Editor
+.idea/
+*.swp
+*.swo
+*~
